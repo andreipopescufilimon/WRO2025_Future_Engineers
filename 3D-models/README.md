@@ -2,9 +2,7 @@
 
 This folder contains 3D design files for the robot's components. These files include parts used in the vehicle's steering and drivebase. Formats include STL and/or STEP files.
 
-## Contents
-
-### Main Models
+### Models
 - `chassisV2.stl`: Updated chassis design for the robot.
 - `gear-Daxle.stl`: Gear for the drive motor axle.
 - `motor-bracket.stl`: Mounting bracket for the motor.
