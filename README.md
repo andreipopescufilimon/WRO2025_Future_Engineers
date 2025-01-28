@@ -21,7 +21,7 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
 
 ---
 
-## 👥 The Team
+## 👥 The Team 
 *To be completed – List team members, roles, and contributions.*
 
 ---
@@ -104,7 +104,7 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 
 ---
 
-## 📜 License
+## 📜 License <a class="anchor" id="license"></a>
 ```
 MIT License
 
