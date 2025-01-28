@@ -43,7 +43,6 @@ This repository is organized as follows:
 ---
 
 ## 👥 The Team <a id="the-team"></a>
-## 👥 The Team
 
 ### Popescu Filimon Andrei Cosmin  
 [image]
@@ -62,8 +61,6 @@ Hi! I’m Andrei from Romania, and this is my fifth WRO season. This is my first
 
 **Description:**  
 Hi! I’m Horia...
-
----
 
 ---
 
