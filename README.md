@@ -21,27 +21,27 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
 
 ---
 
-## 👥 The Team 
+## 👥 The Team <a id="the-team"></a>
 *To be completed – List team members, roles, and contributions.*
 
 ---
 
-## 🎯 Challenge Overview
+## 🎯 Challenge Overview <a id="challenge-overview"></a>
 *To be completed – Very short explanation of WRO Future Engineers 2025 challenge and project objectives.*
 
 ---
 
-## 🤖 Robot Design
+## 🤖 Robot Design <a id="robot-design"></a>
 *To be completed – Details about chassis, mobility, sensors, and structural design.*
 
 ---
 
-## ⚙️ Engineering Approach
+## ⚙️ Engineering Approach <a id="engineering-approach"></a>
 *To be completed – Explanation of problem-solving methods, mechanical design, and CV implementation.*
 
 ---
 
-## 🛠️ Hardware Components
+## 🛠️ Hardware Components <a id="hardware-components"></a>
 ### **Main Components Used**
 Below is a list of core hardware components used in our robot:
 
@@ -59,17 +59,17 @@ Below is a list of core hardware components used in our robot:
 
 ---
 
-## 📝 Software & Code
+## 📝 Software & Code <a id="software--code"></a>
 *To be completed – Overview of algorithms, sensor fusion, motor control, and logic.*
 
 ---
 
-## 📽️ Performance Videos
+## 📽️ Performance Videos <a id="performance-videos"></a>
 *To be completed – Links to YouTube videos demonstrating different test scenarios.*
 
 ---
 
-## 💰 Cost Analysis
+## 💰 Cost Analysis <a id="cost-analysis"></a>
 We have optimized our robot for **performance vs. cost efficiency**. The total cost includes motors, sensors, electronics, and custom parts.
 ### 🏗️ **Component Costs**
 | Component              | Quantity | Unit Price ($) | Total ($) |
@@ -89,22 +89,17 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 
 ---
 
-## 🎲 Randomization & Strategy
-*To be completed – How the robot adapts to randomized track changes and real-time decision-making.*
-
----
-
-## 📖 Engineering Journal & Documentation
+## 📖 Engineering Journal & Documentation <a id="engineering-journal--documentation"></a>
 *To be completed – Link to GitHub engineering journal with detailed logs, design decisions, and improvements.*
 
 ---
 
-## 📂 Resources
+## 📂 Resources <a id="resources"></a>
 *To be completed*
 
 ---
 
-## 📜 License <a class="anchor" id="license"></a>
+## 📜 License <a id="license"></a>
 ```
 MIT License
 
