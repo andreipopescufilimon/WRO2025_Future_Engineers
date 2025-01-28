@@ -112,17 +112,20 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 ### 🏗️ **Component Costs**
 | Component              | Quantity | Unit Price ($) | Total ($) |
 |------------------------|----------|--------------|-----------|
-| **Drive Motor**        | 2        | XX           | XX        |
-| **Servo Motor**        | 1        | XX           | XX        |
-| **LiPo Battery**       | 1        | XX           | XX        |
-| **XMotion**            | 1        | XX           | XX        |
-| **OpenMV Cam H7**      | 1        | XX           | XX        |
-| **Sensors**            | 1        | XX           | XX        |
-| **Voltage Regulator**  | 1        | XX           | XX        |
-| **PCB & Circuit Parts**| 1        | XX           | XX        |
-| **3D Printed Parts**   | -        | XX           | XX        |
-| **Other Materials**    | -        | XX           | XX        |
-| **TOTAL COST**         | -        | -            | **XX**    |
+| **Main Controller**    | 1        | 49.00        | 49.00     |
+| **Drive Motor**        | 2        | 22.45        | 44.90     |
+| **Steering Servo**     | 1        | 4.05         | 4.05      |
+| **Camera**            | 1        | 80.00        | 80.00     |
+| **Gyroscope**         | 1        | 3.25         | 3.25      |
+| **Distance Sensors**  | 2        | 4.50         | 9.00      |
+| **LiPo Battery**      | 1        | 8.99         | 8.99      |
+| **Wheels**            | 4        | 1.64         | 6.56      |
+| **Gearbox**           | 1        | -            | -         |
+| **Other Materials**   | -        | -            | -         |
+| **TOTAL COST**        | -        | -            | **205.75** |
+
+* Prices are approximate, based on current market prices.
+
 *To be completed*
 
 ---
