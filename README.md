@@ -24,16 +24,16 @@ This repository is organized as follows:
 
 ```
 📦 WRO2025_Future_Engineers
-├── 📁 3D-models             # Contains all CAD files and 3D designs for the robot
-│   ├── 📁 old-3D-models      # Previous iterations of 3D models
-│   └── 📁 step-models        # 3D parts in STEP format
-├── 📁 electrical-schematics # Circuit diagrams and wiring documentation
-├── 📁 github-commits        # Logs of key commits and changes made to the repository
-├── 📁 media                 # Images, videos, and GIFs showcasing robot performance
-│   ├── 📁 robot-photos      # Photos of the robot's assembly process
-│   ├── 📁 team-photos       # Pictures of team members and work environment
-│   └── 📁 video             # Recorded testing and competition performance
-├── 📁 other                 # Miscellaneous files and reference materials
+├── 📁 3D-models             # Contains 3D design files for the robot's components
+│   ├── 📁 old-3D-models     # Previous versions of 3D models
+│   └── 📁 step-models       # 3D models in STEP format
+├── 📁 electrical-schematics # Circuit diagrams and wiring
+├── 📁 github-commits        # Commit logs and change tracking details for this repository
+├── 📁 media                 # Images and videos 
+│   ├── 📁 robot-photos      # Photos of the robot
+│   ├── 📁 team-photos       # Pictures of team members and teamwork
+│   └── 📁 video             # Recorded testing
+├── 📁 other                 # Contains files that do not fit into other categories
 ├── 📁 src                   # Main source code for the robot
 ├── 📁 technical-draws       # Technical drawings and mechanical blueprints
 ├── 📄 LICENSE               # MIT License for the project
