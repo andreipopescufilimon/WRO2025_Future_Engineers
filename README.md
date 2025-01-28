@@ -1,6 +1,6 @@
 # WRO2025 Future Engineers – Nerdvana Taurus Team
 
-Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO) 2025**, Future Engineers category.
+Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO) 2025**, Future Engineers category. 
 
 ---
 
@@ -14,15 +14,56 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
 - [📝 Software & Code](#software--code)
 - [📽️ Performance Videos](#performance-videos)
 - [💰 Cost Analysis](#cost-analysis)
-- [🎲 Randomization & Strategy](#randomization--strategy)
 - [📖 Engineering Journal & Documentation](#engineering-journal--documentation)
 - [📂 Resources](#resources)
 - [📜 License](#license)
 
+## 📂 Folder Structure
+
+This repository is organized as follows:
+
+```
+📦 WRO2025_Future_Engineers
+├── 📁 3D-models             # Contains all CAD files and 3D designs for the robot
+│   ├── 📁 old-3D-models      # Previous iterations of 3D models
+│   └── 📁 step-models        # 3D parts in STEP format
+├── 📁 electrical-schematics # Circuit diagrams and wiring documentation
+├── 📁 github-commits        # Logs of key commits and changes made to the repository
+├── 📁 media                 # Images, videos, and GIFs showcasing robot performance
+│   ├── 📁 robot-photos      # Photos of the robot's assembly process
+│   ├── 📁 team-photos       # Pictures of team members and work environment
+│   └── 📁 video             # Recorded testing and competition performance
+├── 📁 other                 # Miscellaneous files and reference materials
+├── 📁 src                   # Main source code for the robot
+├── 📁 technical-draws       # Technical drawings and mechanical blueprints
+├── 📄 LICENSE               # MIT License for the project
+└── 📄 README.md             # Main documentation for the project
+```
+
 ---
 
 ## 👥 The Team <a id="the-team"></a>
-*To be completed – List team members, roles, and contributions.*
+## 👥 The Team
+
+### Popescu Filimon Andrei Cosmin  
+[image]
+**Age:** 16
+**High School:** International Computer High School Bucharest (ICHB)  
+
+**Description:**  
+Hi! I’m Andrei from Romania, and this is my fifth WRO season. This is my first season in Future Engineers, as before I competed in Robomission category. I am passionate about robotics especially electronics and latest algorithms and tech. Over the years, I have worked on multiple robotics projects, including line followers, sumo bots, and air quality modules. Apart from robotics, I also enjoy videography, programming, and cycling.
+
+---
+
+### Horia Simion  
+[image]
+**Age:** 15
+**High School:** [High School Name]  
+
+**Description:**  
+Hi! I’m Horia...
+
+---
 
 ---
 
