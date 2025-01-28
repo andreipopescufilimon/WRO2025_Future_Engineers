@@ -45,8 +45,8 @@ This repository is organized as follows:
 ## 👥 The Team <a id="the-team"></a>
 
 ### Popescu Filimon Andrei Cosmin  
-[image]
-**Age:** 16
+![image](path/to/your-image.png) <br>
+**Age:** 16 <br>
 **High School:** International Computer High School Bucharest (ICHB)  
 
 **Description:**  
@@ -55,8 +55,8 @@ Hi! I’m Andrei from Romania, and this is my fifth WRO season. This is my first
 ---
 
 ### Horia Simion  
-[image]
-**Age:** 15
+![image](path/to/your-image.png) <br>
+**Age:** 15 <br>
 **High School:** [High School Name]  
 
 **Description:**  
