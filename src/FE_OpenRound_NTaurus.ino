@@ -18,8 +18,8 @@
 #define DipSwitch3 7 
 
 // PID Constants for Straight Movement
-float KP = 2.0
-float KI = 0.0
+float KP = 2.0;
+float KI = 0.001;
 float KD = 0.5;
 float integral = 0, previousError = 0;
 
