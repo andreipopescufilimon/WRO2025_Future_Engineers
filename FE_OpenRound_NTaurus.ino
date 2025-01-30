@@ -56,15 +56,26 @@ void setup() {
   pinMode(Start, INPUT);
   pinMode(SteeringServoPin, OUTPUT); 
 
-  xmotion.StopMotors(500);
+  for (int i = 0; i < 5; i++) {
+      xmotion.ToggleLeds(200);
+  }
+   
+  while (digitalRead(Start) == LOW) 
+    ;  // Wait for Star Button to be pressed
+
+  Serial.println("Start button pressed, starting 3 laps...");
+  digitalWrite(UL1, HIGH);
+  digitalWrite(UL2, HIGH);
 }
 
 void loop() {
   if (turnCount >= maxTurns) {
     Serial.println("Finished 3 laps!");
     xmotion.StopMotors(1000);
-    while (1)
-      ;  // Stop execution after completing 3 laps
+    
+    while (1) {
+      xmotion.ToggleLeds(100);  // Stop execution after completing 3 laps
+    }
   }
 
   int leftDistance = measureDistance(LeftTrigPin, LeftEchoPin);
