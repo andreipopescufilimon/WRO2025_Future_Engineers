@@ -18,9 +18,9 @@
 #define DipSwitch3 7 
 
 // PID Constants for Straight Movement
-float KP = 2.0;
+float KP = 0.7;
 float KI = 0.001;
-float KD = 0.5;
+float KD = 1.5;
 float integral = 0, previousError = 0;
 
 // MPU6050 sensor
@@ -101,7 +101,7 @@ void moveStraightPID() {
 
   integral += error;
   float derivative = error - previousError;
-  float correction = (Kp * error) + (Ki * integral) + (Kd * derivative);
+  float correction = (KP * error) + (KI * integral) + (KD * derivative);
   previousError = error;
 
   // Adjust servo position based on correction (steering)
