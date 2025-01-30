@@ -46,7 +46,7 @@ void setup() {
 
   // Get initial yaw offset
   yawOffset = getYaw();
-  targetYaw = yawOffset;  // Set initial heading
+  targetYaw = yawOffset; 
 
   // Set pin modes
   pinMode(LeftTrigPin, OUTPUT);
@@ -54,7 +54,7 @@ void setup() {
   pinMode(RightTrigPin, OUTPUT);
   pinMode(RightEchoPin, INPUT);
   pinMode(Start, INPUT);
-  pinMode(SteeringServoPin, OUTPUT);  // Servo steering
+  pinMode(SteeringServoPin, OUTPUT); 
 
   xmotion.StopMotors(500);
 }
@@ -70,11 +70,11 @@ void loop() {
   int leftDistance = measureDistance(LeftTrigPin, LeftEchoPin);
   int rightDistance = measureDistance(RightTrigPin, RightEchoPin);
 
-  if (leftDistance > 20) {  // No left wall detected → Turn Left
+  if (leftDistance > 50) {  // No left wall detected → Turn Left
     Serial.println("Turning Left 90°");
     turnRobot(90, 'L');
     turnCount++;
-  } else if (rightDistance > 20) {  // No right wall detected → Turn Right
+  } else if (rightDistance > 50) {  // No right wall detected → Turn Right
     Serial.println("Turning Right 90°");
     turnRobot(90, 'R');
     turnCount++;
@@ -94,7 +94,7 @@ void moveStraightPID() {
   previousError = error;
 
   // Adjust servo position based on correction (steering)
-  int steeringAngle = constrain(90 + correction, 60, 120);  // Keep within range
+  int steeringAngle = constrain(90 + correction, 60, 120); 
   analogWrite(SteeringServoPin, steeringAngle);
 
   // Move forward at constant speed
