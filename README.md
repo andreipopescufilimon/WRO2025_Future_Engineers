@@ -85,12 +85,11 @@ Below is a list of core hardware components used in our robot:
 
 | Component           | Part & Link                                      | Function                          |
 |---------------------|------------------------------------------------|----------------------------------|
-| **Main Controller** | [XMotion V3 (JSumo)](https://www.jsumo.com/xmotion-robot-controller) | Controls all components         |
+| **Main Controller** | [Arduino NANO ESP32]([https://www.jsumo.com/xmotion-robot-controller](https://store.arduino.cc/en-ro/products/nano-esp32?srsltid=AfmBOoqi1bKUrg9Tf_EzO6Rsk0S4Sve9OK52Us1N13vKBl_Mdtdb_NRZ)) | Controls all components         |
 | **Drive Motor**     | [30:1 Micro Metal Gearmotor HPCB 12V w/Encoder](https://www.pololu.com/product/3038) | Drives the robot |
 | **Steering Servo**  | [MG90S](https://towerpro.com.tw/product/mg90s-3/) | Controls steering               |
 | **Camera**         | [OpenMV H7 Camera](https://openmv.io/products/openmv-cam-h7) | Detects traffic signs           |
 | **Gyroscope**      | [MPU-6050](https://invensense.tdk.com/products/motion-tracking/6-axis/mpu-6050/) | Tracks orientation              |
-| **Distance Sensor**| [HCSR04 x2](https://www.sparkfun.com/products/15569) | Detects obstacles (2cm - 450cm) |
 | **Battery**        | [3S Li-Po Battery (11.1V, 450mAh)](https://gensace.de/products/gens-ace-g-tech-soaring-450mah-11-1v-30c-3s1p-lipo-battery-pack-with-jst-syp-plug) | Powers the robot |
 | **Wheels**         | Lego Spike Wheels           | Provides grip                   |
 | **Gearbox**        | 3D Printed and Lego gears   | Transfers power                 |
@@ -112,17 +111,16 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 ### 🏗️ **Component Costs**
 | Component              | Quantity | Unit Price ($) | Total ($) |
 |------------------------|----------|--------------|-----------|
-| **Main Controller**    | 1        | 49.00        | 49.00     |
-| **Drive Motor**        | 2        | 22.45        | 44.90     |
+| **Main Controller**    | 1        | 21.42        | 21.42     |
+| **Drive Motor**        | 2        | 22.45        | 22.45     |
 | **Steering Servo**     | 1        | 4.05         | 4.05      |
 | **Camera**            | 1        | 80.00        | 80.00     |
 | **Gyroscope**         | 1        | 3.25         | 3.25      |
-| **Distance Sensors**  | 2        | 4.50         | 9.00      |
 | **LiPo Battery**      | 1        | 8.99         | 8.99      |
 | **Wheels**            | 4        | 1.64         | 6.56      |
 | **Gearbox**           | 1        | -            | -         |
 | **Other Materials**   | -        | -            | -         |
-| **TOTAL COST**        | -        | -            | **205.75** |
+| **TOTAL COST**        | -        | -            | **146.72** |
 
 * Prices are approximate, based on current market prices.
 
