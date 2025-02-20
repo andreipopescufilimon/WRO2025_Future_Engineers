@@ -21,7 +21,7 @@ Servo steeringServo;
 #define TX_PIN 1
 SoftwareSerial cameraSerial(RX_PIN, TX_PIN);
 String receivedMessage = "";
-char command = '0';
+String command = "0";
 int turn_direction = 0;
 int turn_count = 0;        // Counter for turns
 const int max_turns = 12;  // Maximum turns before stopping
@@ -229,7 +229,7 @@ void loop() {
       ;
   }
 
-  command = '0';
+  command = "0";
   while (cameraSerial.available() > 0) {
     char receivedChar = cameraSerial.read();
 
@@ -239,21 +239,20 @@ void loop() {
         Serial.println(receivedMessage);
       }
 
-      receivedMessage.toUpperCase();
       if (receivedMessage.indexOf("BLACK") != -1) {
-        command = 'B';
+        command = "BLACK";
       } else if (receivedMessage.indexOf("BLUE") != -1) {
-        command = 'L';
+        command = "BLUE";
         if (turn_direction == 0) turn_direction = -1;
       } else if (receivedMessage.indexOf("ORANGE") != -1) {
-        command = 'O';
+        command = "ORANGE";
         if (turn_direction == 0) turn_direction = 1;
       } else if (receivedMessage.indexOf("RED") != -1) {
-        command = 'R';
+        command = "RED";
       } else if (receivedMessage.indexOf("GREEN") != -1) {
-        command = 'G';
+        command = "GREEN";
       } else if (receivedMessage.indexOf("PINK") != -1) {
-        command = 'P';
+        command = "PINK";
       }
       receivedMessage = "";
     } else {
@@ -263,18 +262,20 @@ void loop() {
 
   if (debug) {
     Serial.print("Current command: ");
-    Serial.println(receivedMessage);
+    Serial.println(command);
   }
 
-  if (command == 'B') {
-    if (debug) {
-      Serial.println("Received 'Black' command. Turning...");
+  if (command != "0") {
+    if (command == "BLACK") {
+      if (debug) {
+        Serial.println("Received 'Black' command. Turning...");
+      }
+      turn(turn_direction, 90);
+      turn_count++;
+      command = "X";
+    } else {
+      update_steering(targetYaw);
+      move(110);
     }
-    turn(turn_direction, 90);
-    turn_count++;
-    command = 'X';
-  } else {
-    update_steering(targetYaw);
-    move(110);
   }
 }
