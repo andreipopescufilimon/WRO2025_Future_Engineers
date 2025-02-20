@@ -51,7 +51,7 @@ min_line_size = 80  # Lowered to detect thinner lines
 min_area = 10       # Ignore objects with area < 10
 min_valid_cube_area = 800  # NEW: Ignore red/green blobs smaller than 800
 pink_wall_min_area = 5000  # Threshold for pink highlighting
-black_wall_min_area = 15000  # Threshold for black highlighting
+black_wall_min_area = 12000  # Threshold for black highlighting
 
 def get_largest_blob(blobs):
     """Returns the largest blob in a list or None if empty."""
@@ -109,39 +109,39 @@ while True:
     if pink_blob and pink_blob.area() >= pink_wall_min_area:
         img.draw_rectangle(pink_blob.rect(), color=(255, 20, 147))
         img.draw_string(pink_blob.x(), pink_blob.y() + pink_blob.h() - 10, str(pink_blob.area()), color=(255, 20, 147))
-        uart.write("Pink Wall Detected at X:{} Y:{} Area:{}\n".format(pink_blob.cx(), pink_blob.cy(), pink_blob.area()))
+        uart.write("PINK")
 
     # **Highlight Large Black Blob**
     if black_blob and black_blob.area() >= black_wall_min_area:
         img.draw_rectangle(black_blob.rect(), color=(10, 10, 10))
         img.draw_string(black_blob.x(), black_blob.y() + black_blob.h() - 10, str(black_blob.area()), color=(255, 255, 255))
-        uart.write("Black Wall Detected at X:{} Y:{} Area:{}\n".format(black_blob.cx(), black_blob.cy(), black_blob.area()))
+        uart.write("BLACK")
 
     # **Process Red Cube (Ignore if elongated or too small)**
     if red_cube and not is_elongated(red_cube):
         img.draw_rectangle(red_cube.rect(), color=(255, 0, 0))
         img.draw_cross(red_cube.cx(), red_cube.cy(), color=(255, 0, 0))
         img.draw_string(red_cube.x(), red_cube.y() + red_cube.h() - 10, str(red_cube.area()), color=(255, 0, 0))
-        uart.write("RED Cube Detected at X:{} Y:{} Area:{}\n".format(red_cube.cx(), red_cube.cy(), red_cube.area()))
+        uart.write("RED")
 
     # **Process Green Cube (Ignore if elongated or too small)**
     if green_cube and not is_elongated(green_cube):
         img.draw_rectangle(green_cube.rect(), color=(0, 255, 0))
         img.draw_cross(green_cube.cx(), green_cube.cy(), color=(0, 255, 0))
         img.draw_string(green_cube.x(), green_cube.y() + green_cube.h() - 10, str(green_cube.area()), color=(0, 255, 0))
-        uart.write("GREEN Cube Detected at X:{} Y:{} Area:{}\n".format(green_cube.cx(), green_cube.cy(), green_cube.area()))
+        uart.write("GREEN")
 
     # **Process Blue Line (Ignore if too small)**
     if blue_line:
         img.draw_rectangle(blue_line.rect(), color=(0, 0, 255))
         img.draw_string(blue_line.x(), blue_line.y() + blue_line.h() - 10, str(blue_line.area()), color=(0, 0, 255))
-        uart.write("BLUE Line Detected at X:{} Width:{} Area:{}\n".format(blue_line.cx(), blue_line.w(), blue_line.area()))
+        uart.write("BLUE")
 
     # **Process Orange Line (Ignore if invalid or too small)**
     if orange_line and not is_invalid_orange(orange_line, red_blobs):
         img.draw_rectangle(orange_line.rect(), color=(255, 165, 0))  # Orange color
         img.draw_string(orange_line.x(), orange_line.y() + orange_line.h() - 10, str(orange_line.area()), color=(255, 165, 0))
-        uart.write("ORANGE Line Detected at X:{} Width:{} Area:{}\n".format(orange_line.cx(), orange_line.w(), orange_line.area()))
+        uart.write("ORANGE")
 
     # **Determine Direction**
     if direction == 0:
