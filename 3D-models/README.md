@@ -3,15 +3,15 @@
 This folder contains 3D design files for the robot's components. These files include parts used in the vehicle's steering and drivebase. Formats include STL and/or STEP files.
 
 ### Models
-- `chassisV2.stl`: Updated chassis design for the robot.
-- `gear-Daxle.stl`: Gear for the drive motor axle.
+- `chassisV4.stl`: Updated chassis design for the robot.
+- `gear-DaxleV2.stl`: Gear for the drive motor axle.
 - `motor-bracket.stl`: Mounting bracket for the motor.
-- `openmv-camera-mount.stl`: Camera mount for the OpenMV camera.
+- `openmv-camera-mountV2.stl`: Camera mount for the OpenMV camera.
 - `steering-connect-bar.stl`: Connecting bar for the steering mechanism to the servo.
 - `steering-left-small-bar.stl`: Left side small mount steering bar.
 - `steering-right-small-bar.stl`: Right side small mount steering bar.
-- `wheel-mount-left.stl`: Left wheel mounting component.
-- `wheel-mount-right.stl`: Right wheel mounting component.
+- `wheel-mount-leftV2.stl`: Left wheel mounting component.
+- `wheel-mount-rightV2.stl`: Right wheel mounting component.
 
 ### Archive
 - `old-3D-models/`: Contains earlier versions of the robot's 3D models for reference.
