@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include <Servo.h>
+#include <ESP32Servo.h>
 
 // ----- MPU6050 Gyro -----
 #define MPU6050_ADDR 0x68
@@ -9,9 +9,9 @@
 #define GYRO_SCALE 131.0  // Sensitivity factor for ±250°/s
 
 // ----- PID Control (Improved for Fine Correction) -----
-float kp = 0.14;  // Increase for stronger small error response
-float ki = 0.015; // Increased to counter small steady-state errors
-float kd = 0.24;  // Slightly reduced to avoid over-damping
+float kp = 0.014;  // Increase for stronger small error response
+float ki = 0.0; // Increased to counter small steady-state errors
+float kd = 0.024;  // Slightly reduced to avoid over-damping
 
 float pid_error = 0, last_pid_error = 0, pid_integral = 0;
 unsigned long prev_time;
@@ -19,9 +19,10 @@ unsigned long prev_time;
 // ----- Gyro Variables -----
 float yaw = 0;
 float gyro_z_offset = 0;
+const float yaw_deadband = 0.5; // Small deadband to reduce noise impact
 
 // ----- Steering Servo -----
-#define SteeringServoPin 3
+#define SteeringServoPin 2
 Servo steeringServo;
 #define STEERING_CENTER 80  // Neutral position
 #define STEERING_LEFT 120   // Max left
@@ -32,13 +33,17 @@ Servo steeringServo;
 #define AIN1 7
 #define AIN2 8
 #define STBY 10
+#define PWM_CHANNEL 1
+#define PWM_FREQ 1000
+#define PWM_RESOLUTION 8
 
 void motor_driver_setup() {
-  pinMode(PWMA, OUTPUT);
   pinMode(AIN1, OUTPUT);
   pinMode(AIN2, OUTPUT);
   pinMode(STBY, OUTPUT);
   digitalWrite(STBY, HIGH);
+  ledcSetup(PWM_CHANNEL, PWM_FREQ, PWM_RESOLUTION);
+  ledcAttachPin(PWMA, PWM_CHANNEL);
 }
 
 // Function to write to MPU6050 register
@@ -54,23 +59,22 @@ float readGyroZ() {
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(GYRO_ZOUT_H);
   Wire.endTransmission(false);
-  Wire.requestFrom(MPU6050_ADDR, 2, true);
+  Wire.requestFrom((uint8_t)MPU6050_ADDR, (uint8_t)2, (bool)true); // Corrected function signature
 
   if (Wire.available() < 2) return 0; 
   int16_t rawZ = Wire.read() << 8 | Wire.read();
 
-  // Apply a simple low-pass filter for noise reduction
   static float filtered_gz = 0;
-  filtered_gz = (0.8 * filtered_gz) + (0.2 * (rawZ / GYRO_SCALE));
+  filtered_gz = (0.9 * filtered_gz) + (0.1 * (rawZ / GYRO_SCALE)); // Moving average filter
 
   return filtered_gz - gyro_z_offset;
 }
 
 // MPU6050 initialization
 void setupMPU6050() {
-  writeMPU6050(PWR_MGMT_1, 0x00); // Wake up MPU6050
+  writeMPU6050(PWR_MGMT_1, 0x00);
   delay(100);
-  writeMPU6050(GYRO_CONFIG, 0x00); // Set gyro sensitivity to ±250°/s
+  writeMPU6050(GYRO_CONFIG, 0x00);
 }
 
 // MPU6050 calibration to find offsets
@@ -88,7 +92,6 @@ void calibrateMPU6050() {
   Serial.println(" Done!");
 }
 
-// ----- Motor Functions -----
 void move_motor(int speed) {
   if (speed >= 0) {
     digitalWrite(AIN1, HIGH);
@@ -98,26 +101,24 @@ void move_motor(int speed) {
     digitalWrite(AIN2, HIGH);
     speed = abs(speed);
   }
-  analogWrite(PWMA, speed);
+  ledcWrite(PWM_CHANNEL, speed);
 }
 
 void stop_motor() {
   digitalWrite(AIN1, LOW);
   digitalWrite(AIN2, LOW);
-  analogWrite(PWMA, 0);
+  ledcWrite(PWM_CHANNEL, 0);
 }
 
-// ----- Yaw Error Calculation with Angle Wrapping -----
 float calculateYawError(float targetYaw, float currentYaw) {
   float error = targetYaw - currentYaw;
 
   if (error > 180) error -= 360;
   if (error < -180) error += 360;
 
-  return error;
+  return (abs(error) < yaw_deadband) ? 0 : error; // Apply deadband to avoid small jitters
 }
 
-// ----- PID Steering Correction -----
 void update_steering(float targetYaw) {
   float gz = readGyroZ();
 
@@ -139,7 +140,6 @@ void update_steering(float targetYaw) {
 
   float correction = (kp * pid_error) + (ki * pid_integral) + (kd * pid_derivative);
 
-  // **Scaled correction for finer adjustments**
   int steering_angle = STEERING_CENTER - (correction);
   steering_angle = constrain(steering_angle, STEERING_RIGHT, STEERING_LEFT);
 
@@ -157,7 +157,6 @@ void update_steering(float targetYaw) {
   Serial.println(steering_angle);
 }
 
-// ----- Main Setup -----
 void setup() {
   Wire.begin();
   Serial.begin(115200);
@@ -179,7 +178,6 @@ void setup() {
   steeringServo.write(STEERING_CENTER);
 }
 
-// ----- Main Loop -----
 void loop() {
   float targetYaw = 0.0;
 

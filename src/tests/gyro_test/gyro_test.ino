@@ -1,18 +1,15 @@
 #include <Wire.h>
 
+// ----- MPU6050 Gyro -----
 #define MPU6050_ADDR 0x68
 #define GYRO_CONFIG 0x1B
 #define PWR_MGMT_1 0x6B
 #define GYRO_ZOUT_H 0x47
-
 #define GYRO_SCALE 131.0  // Sensitivity factor for ±250°/s
 
-// Time tracking
-unsigned long prev_time;
-float yaw = 0;  // Yaw angle in degrees (0 to 360)
-
-// Gyro offsets (calibration)
+float yaw = 0;
 float gyro_z_offset = 0;
+unsigned long prev_time;
 
 // Function to write to MPU6050 register
 void writeMPU6050(byte reg, byte value) {
@@ -35,53 +32,47 @@ float readGyroZ() {
 
 // MPU6050 initialization
 void setupMPU6050() {
-  writeMPU6050(PWR_MGMT_1, 0x00); // Wake up MPU6050
-  writeMPU6050(GYRO_CONFIG, 0x00); // Set gyro sensitivity to ±250°/s
+  writeMPU6050(PWR_MGMT_1, 0x00);
+  writeMPU6050(GYRO_CONFIG, 0x00);
 }
 
-// MPU6050 calibration to find offsets
+// MPU6050 calibration
 void calibrateMPU6050() {
   int numSamples = 500;
   float sumZ = 0;
-  
+
   for (int i = 0; i < numSamples; i++) {
     sumZ += readGyroZ();
     delay(3);
   }
 
-  gyro_z_offset = sumZ / numSamples; // Calculate average offset
+  gyro_z_offset = sumZ / numSamples;
 }
 
-// Setup function
 void setup() {
   Wire.begin();
   Serial.begin(115200);
 
   setupMPU6050();
   calibrateMPU6050();
-
   prev_time = millis();
+
+  Serial.println("MPU6050 Initialized and Calibrated");
 }
 
-// Loop function to calculate yaw angle
 void loop() {
   float gz = readGyroZ();
-
   unsigned long current_time = millis();
-  float dt = (current_time - prev_time) / 1000.0; // Time in seconds
+  float dt = (current_time - prev_time) / 1000.0;
   prev_time = current_time;
 
-  // Adjust rotation to match the clockwise direction
-  yaw -= gz * dt; // Subtract instead of adding for clock-wise rotation
+  yaw -= gz * dt;
 
-  // Keep yaw between 0 - 360 degrees
   if (yaw >= 360) yaw -= 360;
   if (yaw < 0) yaw += 360;
 
-  // Print yaw angle
-  Serial.print("Yaw (Clockwise): ");
-  Serial.print(yaw);
-  Serial.println("°");
-
-  delay(10);
+  Serial.print("Yaw: ");
+  Serial.println(yaw);
+  
+  delay(50);  // Small delay for better readability
 }
