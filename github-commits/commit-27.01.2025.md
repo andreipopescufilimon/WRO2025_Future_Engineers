@@ -1,4 +1,4 @@
-Commit - 27/01/2025#1
+Commit - 27/01/2025
 
 - Created the initial folder structure for the repository:
   - Added `3D-models/`, `electrical-schematics/`, `github-logs/`, `media/`, `other/`, and `src/` folders.
