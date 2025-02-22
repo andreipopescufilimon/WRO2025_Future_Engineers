@@ -1,4 +1,4 @@
-Commit - 28/01/2025#1
+Commit - 28/01/2025
 
 - Updated README.md multiple times. 
 - Added documentation section and folder structure for easier navigation.
