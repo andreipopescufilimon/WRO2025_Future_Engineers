@@ -8,13 +8,12 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
 
 - [👥 The Team](#the-team)
 - [🎯 Challenge Overview](#challenge-overview)
-- [🤖 Robot Design](#robot-design)
-- [⚙️ Engineering Approach](#engineering-approach)
-- [🛠️ Hardware Components](#hardware-components)
-- [📝 Software & Code](#software--code)
+- [🤖 The Robot](#the-robot)
+- [⚙️ Mobility Management](#mobility-management)
+- [🛠️ Power and Sense Management](#power-and-sense-management)
+- [📝 Obstacle Management](#obstacle-management)
 - [📽️ Performance Videos](#performance-videos)
 - [💰 Cost Analysis](#cost-analysis)
-- [📖 Engineering Journal & Documentation](#engineering-journal--documentation)
 - [📂 Resources](#resources)
 - [📜 License](#license)
 
@@ -65,21 +64,49 @@ Hi! I’m Horia...
 ---
 
 ## 🎯 Challenge Overview <a id="challenge-overview"></a>
-*To be completed – Very short explanation of WRO Future Engineers 2025 challenge and project objectives.*
+
+The **WRO 2025 Future Engineers** challenge pushes teams to develop a **fully autonomous vehicle** capable of navigating a **dynamic and randomized racetrack** using **sensors, computer vision, and advanced control algorithms**. The goal is to complete **multiple laps** while adapting to randomized obstacles, following **strict driving rules**, and successfully executing a **parallel parking maneuver** at the end of the course.
+
+### 📌 Competition Format
+
+- **🏁 Open Challenge**: The vehicle must complete **three (3) laps** on a track with **randomly placed inside walls**.
+
+- **🚦 Obstacle Challenge**: The vehicle must complete **three (3) laps** while detecting and responding to **randomly placed red and green traffic signs**:
+  - 🟥 **Red markers** → The vehicle must stay on the **right side of the lane**.
+  - 🟩 **Green markers** → The vehicle must stay on the **left side of the lane**.
+  
+  After completing the three laps, the vehicle must **locate the designated parking zone** and perform a **precise parallel parking maneuver** within a limited space, adding an extra layer of difficulty.
+  
+- **📑 Documentation**: Each team must maintain a **public GitHub repository** showcasing their **engineering process, vehicle design, and source code**.
+
+### 🏆 Scoring & Evaluation
+Scoring is based on **accuracy, technical documentation and speed**, rewarding teams that balance **efficiency, adaptability, and innovation**. This challenge not only tests **robotics and programming skills** but also promotes **problem-solving, teamwork, and engineering creativity**.
+
+🔗 **Find out more about the challenge [here](https://wro-association.org/wp-content/uploads/WRO-2025-Future-Engineers-Self-Driving-Cars-General-Rules.pdf).** 🚀
 
 ---
 
-## 🤖 Robot Design <a id="robot-design"></a>
-*To be completed – Details about chassis, mobility, sensors, and structural design.*
+## 🤖 The Robot <a id="the-robot"></a>
+| ![Top View](#)      | ![Bottom View](#)   |
+|---------------------|---------------------|
+| <p align="center"><b>Top</b></p> | <p align="center"><b>Bottom</b></p> |
+
+| ![Left View](#)    | ![Right View](#)    |
+|---------------------|---------------------|
+| <p align="center"><b>Left</b></p> | <p align="center"><b>Right</b></p> |
+
+| ![Front View](#)   | ![Back View](#)     |
+|---------------------|---------------------|
+| <p align="center"><b>Front</b></p> | <p align="center"><b>Back</b></p> |
 
 ---
 
-## ⚙️ Engineering Approach <a id="engineering-approach"></a>
+## ⚙️ Mobility Management <a id="mobility-management"></a>
 *To be completed – Explanation of problem-solving methods, mechanical design, and CV implementation.*
 
 ---
 
-## 🛠️ Hardware Components <a id="hardware-components"></a>
+## 🛠️ Power and Sense Management <a id="power-and-sense-management"></a>
 ### **Main Components Used**
 Below is a list of core hardware components used in our robot:
 
@@ -96,7 +123,7 @@ Below is a list of core hardware components used in our robot:
 
 ---
 
-## 📝 Software & Code <a id="software--code"></a>
+## 📝 Obstacle Management <a id="obstacle-management"></a>
 *To be completed – Overview of algorithms, sensor fusion, motor control, and logic.*
 
 ---
@@ -125,11 +152,6 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 * Prices are approximate, based on current market prices.
 
 *To be completed*
-
----
-
-## 📖 Engineering Journal & Documentation <a id="engineering-journal--documentation"></a>
-*To be completed – Link to GitHub engineering journal with detailed logs, design decisions, and improvements.*
 
 ---
 
