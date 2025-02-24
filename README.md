@@ -15,7 +15,7 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
     - [⚙️ Motor](#motor)
     - [🔌 Motor Driver TB6612FNG](#motor-driver)
   - [🔄 Steering](#steering)
-  - [🏎️ Chassis](#chassis)
+  - [🏎️ Chassis & Component Mounting](#chassis)
 - [🛠️ Power and Sense Management](#power-and-sense-management)
   - [🔋 Li-Po Battery](#li-po-battery)
   - [🖥️ Arduino Nano ESP32](#arduino-nano-esp32)
@@ -169,7 +169,8 @@ To control the motor's speed and direction, we integrated a **Sparkfun Dual TB66
 
 ## 🔄 **Steering** <a id="steering"></a>
 
-## 🏎️ **Chassis** <a id="chassis"></a>
+## 🏎️ **Chassis & Component Mounting** <a id="chassis"></a>
+
 
 ---
 
