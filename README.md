@@ -14,6 +14,8 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
     - [🔧 Drivetrain](#drivetrain)
     - [⚙️ Motor](#motor)
     - [🔌 Motor Driver TB6612FNG](#motor-driver)
+  - [🔄 Steering](#steering)
+  - [🏎️ Chassis](#chassis)
 - [🛠️ Power and Sense Management](#power-and-sense-management)
   - [🔋 Li-Po Battery](#li-po-battery)
   - [🖥️ Arduino Nano ESP32](#arduino-nano-esp32)
@@ -128,7 +130,7 @@ Scoring is based on **accuracy, technical documentation and speed**, rewarding t
 The robot's mobility is controlled through **a fully 3D-printed chassis, a servo-based steering system, and a drivetrain featuring a Lego differential and axles**. These components work together to ensure smooth, **precise movement with optimized traction, stability, and efficient power management**.
 
 
-## 🚗 **Drivebase** <a id="drivebase"></a>
+## ⚙️ **Drivebase** <a id="drivebase"></a>
 
 ### 🔧 **Drivetrain** <a id="drivetrain"></a>
 
@@ -164,6 +166,10 @@ To control the motor's speed and direction, we integrated a **Sparkfun Dual TB66
 | **Model:** TB6612FNG | **Operating Voltage:** 2.5V – 13.5V |
 | **PWM Frequency:** Up to 100 kHz | **Max Continuous Current:** 1.2A |
 | 🔗 **[Buy Here](https://www.sparkfun.com/sparkfun-motor-driver-dual-tb6612fng-1a.html)** | **Function:** Controls the drive motor |
+
+## 🔄 **Steering** <a id="steering"></a>
+
+## 🏎️ **Chassis** <a id="chassis"></a>
 
 ---
 
