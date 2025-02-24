@@ -320,7 +320,7 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 | **Other Materials**           | **9.00**       |
 | **TOTAL PROJECT COST**        | **176.72**     |
 
-* Prices are approximate, based on current market prices.
+**Prices are approximate, based on current market prices.*
 
 ---
 
