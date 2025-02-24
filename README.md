@@ -57,9 +57,13 @@ This repository is organized as follows:
 
 ## 👥 The Team <a id="the-team"></a>
 
-### Popescu Filimon Andrei Cosmin  
-![image](media/team-photos/Andrei.png) <br>
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/media/team-photos/team.png" width="350">
+
+*This image was taken at the **WRO 2023 International Final** in Panama, where we placed **14th in the Robomission Junior Category**.
+
+### **Popescu Filimon Andrei Cosmin** (Left Side)
 **Age:** 16 <br>
+
 **High School:** International Computer High School Bucharest (ICHB)  
 
 **Description:**  
@@ -67,10 +71,9 @@ Hi! I’m Andrei from Romania, and this is my fifth WRO season. This is my first
 
 ---
 
-### Horia Simion  
-![image](media/team-photos/Horia.png) <br>
+### **Horia Simion** (Right Side)
 **Age:** 15 <br>
-**High School:** [High School Name]  
+**High School:** National College Mihai Viteazul
 
 **Description:**  
 Hi! I’m Horia...
