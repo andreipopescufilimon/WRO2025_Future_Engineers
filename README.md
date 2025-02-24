@@ -43,7 +43,9 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
 
 ## 📂 Folder Structure
 
+
 This repository is organized as follows:
+
 
 ```
 📦 WRO2025_Future_Engineers
