@@ -16,6 +16,7 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
   - [🧭 IMU Sensor MPU-6050](#imu-sensor-mpu-6050)
   - [📷 OpenMV H7 Camera](#openmv-h7-camera)
   - [⚙️ Drive Motor](#drive-motor)
+  - [⚙️ Dual Motor Driver – TB6612FNG](#motor-driver)
   - [🔄 Steering Servo](#steering-servo)
   - [🔌 Voltage Regulator](#voltage-regulator)
   - [🛠️ PCB Design](#pcb-design)
@@ -200,6 +201,20 @@ The **drive motor is responsible for propelling the robot forward**. The **30:1 
 
 ---
 
+### **⚙️ Dual Motor Driver – TB6612FNG** <a id="motor-driver"></a>
+
+The **TB6612FNG** motor driver is used to **control the robot’s two drive motors** efficiently. It supports **precise speed and direction control** using **PWM signals**, making it ideal for **differential drive robots**. The **TB6612FNG is directly integrated into our PCB**, enabling smooth communication with the **Arduino Nano ESP32**.
+
+| <img src="https://www.sparkfun.com/media/catalog/product/cache/a793f13fd3d678cea13d28206895ba0c/1/4/14451-01.jpg" width="300"> | **Specifications** |
+|------------------------------|------------------------------|
+| **Model:** TB6612FNG | **Operating Voltage:** 2.5V – 13.5V |
+| **Logic Voltage:** 2.7V – 5.5V | **PWM Frequency:** Up to 100 kHz |
+| **Max Continuous Current:** 1.2A per channel | **Max Peak Current:** 3.2A per channel |
+| **Number of Channels:** 2 (Dual Motor Control) | **Built-in Protections:** Thermal & Overcurrent |
+| 🔗 **[Buy Here](https://www.sparkfun.com/sparkfun-motor-driver-dual-tb6612fng-1a.html)** | **Function:** Controls drive motors |
+
+---
+
 ### **🔄 Steering Servo – MG90S** <a id="steering-servo">
 
 The **MG90S servo is used for precise steering control**, enabling the robot to **navigate turns with accuracy**. It provides **high torque output in a compact size**.
@@ -247,12 +262,13 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 | **Component**                 | **Voltage** | **Avg Current Draw** | **Peak Current** |
 |-------------------------------|------------|-----------------------|------------------|
 | **Arduino Nano ESP32**        | 5V         | 200mA                 | 500mA            |
-| **Drive Motor**               | 12V        | 120mA                 | 1.6A             |
+| **Drive Motor (x2)**          | 12V        | 240mA (120mA each)    | 3.2A (1.6A each) |
 | **Steering Servo MG90S**      | 5V         | 120mA                 | 500mA            |
 | **OpenMV H7 Camera**          | 3.3V/5V    | 300mA                 | 400mA            |
 | **IMU Sensor MPU-6050**       | 3.3V/5V    | 3.5mA                 | 5mA              |
+| **TB6612FNG Motor Driver**    | 5V         | 50mA                  | 100mA            |
 | **Voltage Regulator L7805CV** | 7.4V -> 5V | Power Management      | -                |
-| **Total Robot Power Usage**   | Mixed      | ~1A (Avg)             | ~3A (Peak)       |
+| **Total Robot Power Usage**   | Mixed      | ~1.3A (Avg)           | ~3.8A (Peak)     |
 
 ---
 
