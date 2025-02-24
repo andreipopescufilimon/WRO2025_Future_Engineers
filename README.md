@@ -59,7 +59,7 @@ This repository is organized as follows:
 
 <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/media/team-photos/team.png" width="350">
 
-*This image was taken at the **WRO 2023 International Final** in Panama, where we placed **14th in the Robomission Junior Category**.
+**This image was taken at the **WRO 2023 International Final** in Panama, where we placed **14th in the Robomission Junior Category**.*
 
 ### **Popescu Filimon Andrei Cosmin** (Left Side)
 **Age:** 16 <br>
