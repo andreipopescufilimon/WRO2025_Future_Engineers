@@ -73,7 +73,7 @@ Hi! I’m Andrei from Romania, and this is my fifth WRO season. This is my first
 
 ### **Horia Simion** (Right Side)
 **Age:** 15 <br>
-**High School:** National College Mihai Viteazul
+**High School:** National College "Mihai Viteazul" (CNMV)
 
 **Description:**  
 Hi! I’m Horia...
