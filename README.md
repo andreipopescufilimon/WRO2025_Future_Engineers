@@ -83,7 +83,7 @@ Hi! I’m Andrei from Romania, and this is my fifth WRO season. This is my first
 **High School:** National College "Mihai Viteazul" (CNMV)
 
 **Description:**  
-Hi! I’m Horia...
+Hi! I’m Horia from Romania, and this is my second WRO season competing alongside Andrei. I have participated in RoboMission multiple times, gaining valuable experience in solving various problems that may arise while building a robot. I have a strong interest in technology and robotics and am always eager to learn and experiment with new ideas.
 
 ---
 
