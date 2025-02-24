@@ -11,9 +11,23 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
 - [🤖 The Robot](#the-robot)
 - [⚙️ Mobility Management](#mobility-management)
 - [🛠️ Power and Sense Management](#power-and-sense-management)
+  - [🔋 Li-Po Battery](#li-po-battery)
+  - [🖥️ Arduino Nano ESP32](#arduino-nano-esp32)
+  - [🧭 IMU Sensor (MPU-6050)](#imu-sensor-mpu-6050)
+  - [📷 OpenMV H7 Camera](#openmv-h7-camera)
+  - [⚙️ Drive Motor](#drive-motor)
+  - [🔄 Steering Servo](#steering-servo)
+  - [🔌 Voltage Regulator](#voltage-regulator)
+  - [🛠️ PCB Design](#pcb-design)
+  - [⚡ Power Consumption](#power-consumption)
 - [📝 Obstacle Management](#obstacle-management)
 - [📽️ Performance Videos](#performance-videos)
 - [💰 Cost Analysis](#cost-analysis)
+  - [📦 **Component Costs**](#components-costs)
+  - [🔌 **PCB Manufacturing Cost**](#pcb-cost)
+  - [🖨️ **3D Printing Cost**](#3d-printing-cost)
+  - [🔩 **Other Materials (Screws, Nuts, Miscellaneous)**](#other-materials-cost)
+  - [💵 **Total Cost**](#total-cost)
 - [📂 Resources](#resources)
 - [📜 License](#license)
 
@@ -114,7 +128,7 @@ Each component has been carefully selected to provide **optimal performance**, m
 
 ---
 
-### **🔋 Li-Po Battery – 3S 450mAh**  
+### **🔋 Li-Po Battery – 3S 450mAh** <a id="li-po-battery"></a>
 
 The **Li-Po battery** provides a **compact, lightweight, and high-discharge** power source, making it ideal for our robot. The **11.1V output** is suitable for running our **motors and voltage regulator**, ensuring stable power delivery.
 
@@ -128,7 +142,7 @@ The **Li-Po battery** provides a **compact, lightweight, and high-discharge** po
 
 ---
 
-### **🖥️ Arduino Nano ESP32 – Main Controller**  
+### **🖥️ Arduino Nano ESP32 – Main Controller** <a id="arduino-nano-esp32">
 
 The **Arduino Nano ESP32** provides **high-speed processing, built-in Wi-Fi and Bluetooth, and extensive GPIO capabilities** in a **compact form factor**. This allows it to handle **sensor data, motor control, and vision processing efficiently**.
 
@@ -142,7 +156,7 @@ The **Arduino Nano ESP32** provides **high-speed processing, built-in Wi-Fi and 
 
 ---
 
-### **🧭 IMU Sensor – MPU-6050**  
+### **🧭 IMU Sensor – MPU-6050** <a id="imu-sensor-mpu-6050">
 
 The **MPU-6050 IMU** is used to **measure the robot's angular velocity and acceleration**, helping it maintain **stability and precise movement control**. It is essential for **calculating turns and avoiding drift**.
 
@@ -155,7 +169,7 @@ The **MPU-6050 IMU** is used to **measure the robot's angular velocity and accel
 
 ---
 
-### **📷 OpenMV H7 Camera – Vision Processing**  
+### **📷 OpenMV H7 Camera – Vision Processing** <a id="openmv-h7-camera">
 
 The **OpenMV H7 Camera** processes **traffic signs, lane detection, and other visual cues** in real-time. Unlike traditional cameras, it has a **built-in microcontroller**, reducing the processing load on the Arduino and allowing it to **focus on movement control**.
 
@@ -169,7 +183,7 @@ The **OpenMV H7 Camera** processes **traffic signs, lane detection, and other vi
 
 ---
 
-### **⚙️ Drive Motor – 30:1 Micro Metal Gearmotor HPCB 12V w/ Encoder**  
+### **⚙️ Drive Motor – 30:1 Micro Metal Gearmotor HPCB 12V w/ Encoder** <a id="drive-motor">
 
 The **drive motor is responsible for propelling the robot forward**. The **30:1 gearbox** provides an excellent **balance of speed and torque**, while the **built-in encoder** allows for **precise speed control**.
 
@@ -183,7 +197,7 @@ The **drive motor is responsible for propelling the robot forward**. The **30:1 
 
 ---
 
-### **🔄 Steering Servo – MG90S**  
+### **🔄 Steering Servo – MG90S** <a id="steering-servo">
 
 The **MG90S servo is used for precise steering control**, enabling the robot to **navigate turns with accuracy**. It provides **high torque output in a compact size**.
 
@@ -192,12 +206,12 @@ The **MG90S servo is used for precise steering control**, enabling the robot to 
 | **Model:** MG90S | **Voltage:** 5V |
 | **Torque:** 2.2kg/cm | **Signal Type:** PWM |
 | **Current Draw (Avg):** 120mA | **Peak Current:** 500mA |
-| **Weight:** ~13.4g | **Gears:** Metal |
+| **Weight:** ~13.4g | **Gears:** Plastic |
 | 🔗 **[Buy Here](https://www.optimusdigital.ro/ro/motoare-servomotoare/271-servomotor-mg90s.html?srsltid=AfmBOooTrDsx2UoJ3Px8J26kkCbcuYhlpKYmuIYkivK_5ZSzPJx0ZNo8)** | **Function:** Controls steering |
 
 ---
 
-### **🔌 L7805CV Voltage Regulator – Power Management**  
+### **🔌 L7805CV Voltage Regulator – Power Management** <a id="voltage-regulator"> 
 
 The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**, ensuring **safe power delivery** to the **Arduino, sensors, and camera**. It prevents **overvoltage damage** and includes **thermal & short-circuit protection** for reliability.
 
@@ -211,7 +225,21 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 
 ---
 
-### **⚡ Power Consumption Summary**  
+### **🛠️ PCB Design** <a id="pcb-design"></a>
+| **Electrical Schematics** | **PCB Design** |
+|---------------------------|---------------------------|
+| <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/electrical-schematics/Schematic_MainBoard.png" width="400"> | <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/electrical-schematics/MainBoardPCB_img4.png" width="400"> |
+
+**🔎 Advantages of a Custom PCB**  
+
+✔ **Organized layout** → Prevents loose connections & messy wiring  
+✔ **Power stability** → Ensures consistent voltage supply to all components  
+✔ **Compact design** → Reduces weight & optimizes space  
+✔ **Reliability** → Minimizes risk of failure due to poor wiring  
+
+---
+
+### **⚡ Power Consumption Summary** <a id="power-consumption">
 
 | **Component**                 | **Voltage** | **Avg Current Draw** | **Peak Current** |
 |-------------------------------|------------|-----------------------|------------------|
@@ -225,53 +253,76 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 
 ---
 
-| **PCB** |
-|------------------------------|
-| <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/electrical-schematics/MainBoardPCB_img4.png" width="400"> |
-
-**🔎 Advantages of a Custom PCB**  
-
-✔ **Organized layout** → Prevents loose connections & messy wiring  
-✔ **Power stability** → Ensures consistent voltage supply to all components  
-✔ **Compact design** → Reduces weight & optimizes space  
-✔ **Reliability** → Minimizes risk of failure due to poor wiring  
-
----
-
 ## 📝 Obstacle Management <a id="obstacle-management"></a>
 *To be completed – Overview of algorithms, sensor fusion, motor control, and logic.*
 
 ---
 
 ## 📽️ Performance Videos <a id="performance-videos"></a>
-*To be completed – Links to YouTube videos demonstrating different test scenarios.*
+🔗 **[Click here to watch the video on YouTube]()**  
 
 ---
 
 ## 💰 Cost Analysis <a id="cost-analysis"></a>
-We have optimized our robot for **performance vs. cost efficiency**. The total cost includes motors, sensors, electronics, and custom parts.
-### 🏗️ **Component Costs**
-| Component              | Quantity | Unit Price ($) | Total ($) |
-|------------------------|----------|--------------|-----------|
-| **Main Controller**    | 1        | 21.42        | 21.42     |
-| **Drive Motor**        | 2        | 22.45        | 22.45     |
-| **Steering Servo**     | 1        | 4.05         | 4.05      |
-| **Camera**            | 1        | 80.00        | 80.00     |
-| **Gyroscope**         | 1        | 3.25         | 3.25      |
-| **LiPo Battery**      | 1        | 8.99         | 8.99      |
-| **Wheels**            | 4        | 1.64         | 6.56      |
-| **Gearbox**           | 1        | -            | -         |
-| **Other Materials**   | -        | -            | -         |
-| **TOTAL COST**        | -        | -            | **146.72** |
+We have optimized our robot for **performance vs. cost efficiency**. The total cost includes motors, sensors, electronics, PCB, 3D printing and custom parts.
+
+### 📦 **Components Costs** <a id="components-costs"></a>
+| Component                     | Quantity | Unit Price ($) | Total ($)  |
+|-------------------------------|----------|---------------|-------------|
+| **Arduino Nano ESP32**        | 1        | **21.42**     | **21.42**   |
+| **Drive Motor (30:1 HPCB)**   | 1        | **22.45**     | **22.45**   |
+| **Steering Servo (MG90S)**    | 1        | **4.05**      | **4.05**    |
+| **OpenMV H7 Camera**          | 1        | **80.00**     | **80.00**   |
+| **Gyroscope (MPU-6050)**      | 1        | **3.25**      | **3.25**    |
+| **LiPo Battery (3S 450mAh)**  | 1        | **8.99**      | **8.99**    |
+| **L7805CV Voltage Regulator** | 1        | **1.50**      | **1.50**    |
+| **Lego Spike Wheels**         | 4        | **1.64**      | **6.56**    |
+| **Lego Differential**         | 1        | **4.00**      | **4.00**    |
+| **TOTAL COMPONENT COST**      | -        | **-**         | **152.22**  |
+
+---
+
+### **🔌 PCB Cost (Manufactured via JLCPCB)** <a id="pcb-cost"></a>
+| PCB Component                  | Quantity | Unit Price ($) | Total ($)  |
+|--------------------------------|----------|--------------|--------------|
+| **PCB Manufacturing (JLCPCB)** | 5        | **0.40**     | **2.00**     |
+| **Connectors & Soldering**     | -        | **3.50**     | **3.50**     |
+| **TOTAL PCB COST**             | -        | **-**        | **5.50**     |
+
+---
+
+### **🖨️ 3D Printing Cost Breakdown** <a id="3d-printing-cost"></a>
+| 3D Printed Parts                          | Quantity | Unit Price ($) | Total ($)   |
+|-------------------------------------------|----------|--------------|---------------|
+| **1000g filament (PLA from Aliexpress)**  | 1        | **10.00**    | **10.00**     |
+| **TOTAL 3D PRINTING COST**                | -        | **-**        | **10.00**     |
+
+---
+
+### **🔩 Other Materials (Screws, Nuts, and Miscellaneous)** <a id="other-materials-cost"></a>
+| Material                       | Quantity | Unit Price ($) | Total ($)   |
+|--------------------------------|----------|--------------|---------------|
+| **M3 Screws & Nuts Set**       | -        | **4.00**     | **4.00**      |
+| **Wiring & Connectors**        | -        | **5.00**     | **5.00**      |
+| **TOTAL OTHER MATERIALS COST** | -        | **-**        | **9.00**      |
+
+---
+
+### **💵 TOTAL** <a id="total-cost"></a>
+| Category                      | Total Cost ($) |
+|-------------------------------|----------------|
+| **Components**                | **152.22**     |
+| **PCB (JLCPCB + Components)** | **5.50**       |
+| **3D Printing**               | **10.00**      |
+| **Other Materials**           | **9.00**       |
+| **TOTAL PROJECT COST**        | **176.72**     |
 
 * Prices are approximate, based on current market prices.
-
-*To be completed*
 
 ---
 
 ## 📂 Resources <a id="resources"></a>
-*To be completed*
+~ nothing for now ~
 
 ---
 
