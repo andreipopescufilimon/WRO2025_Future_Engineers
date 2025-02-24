@@ -101,16 +101,16 @@ Scoring is based on **accuracy, technical documentation and speed**, rewarding t
 ---
 
 ## 🤖 The Robot <a id="the-robot"></a>
-| ![Top View](#)      | ![Bottom View](#)   |
-|---------------------|---------------------|
+| <img src="" width="300">         | <img src="" width="300">            |
+|----------------------------------|-------------------------------------|
 | <p align="center"><b>Top</b></p> | <p align="center"><b>Bottom</b></p> |
 
-| ![Left View](#)    | ![Right View](#)    |
-|---------------------|---------------------|
+| <img src="" width="300">          | <img src="" width="300">           |
+|-----------------------------------|------------------------------------|
 | <p align="center"><b>Left</b></p> | <p align="center"><b>Right</b></p> |
 
-| ![Front View](#)   | ![Back View](#)     |
-|---------------------|---------------------|
+| <img src="" width="300">           | <img src="" width="300">          |
+|------------------------------------|-----------------------------------|
 | <p align="center"><b>Front</b></p> | <p align="center"><b>Back</b></p> |
 
 ---
