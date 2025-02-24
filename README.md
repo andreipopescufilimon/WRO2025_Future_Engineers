@@ -16,6 +16,8 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
     - [🔌 Motor Driver TB6612FNG](#motor-driver)
   - [🔄 Steering](#steering)
   - [🏎️ Chassis & Component Mounting](#chassis)
+    - [✨ Key Features & Advantages](#key-features)
+    - [🛠️ Assembly Process](#assembly-process)
 - [🛠️ Power and Sense Management](#power-and-sense-management)
   - [🔋 Li-Po Battery](#li-po-battery)
   - [🖥️ Arduino Nano ESP32](#arduino-nano-esp32)
@@ -169,7 +171,36 @@ To control the motor's speed and direction, we integrated a **Sparkfun Dual TB66
 
 ## 🔄 **Steering** <a id="steering"></a>
 
+
 ## 🏎️ **Chassis & Component Mounting** <a id="chassis"></a>
+
+The chassis is the **main structure** of the robot, providing a **stable and lightweight base** for all components. Since this is our **first year competing**, we decided to **skip Lego-based designs** and go straight for a **fully 3D-printed chassis**. This allowed us to create a **more compact, lightweight, and optimized structure**.
+
+The robot is driven by **a single high-performance motor**, which is connected to a **Lego 5 gears differential**. This setup allows reducing complexity while maintaining precise control over movement.
+
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/chassis-technical-drawing.jpg" width="700">
+
+**✨ Key Features & Advantages** <a id="key-features"></a>
+
+✔ **Lightweight & Durable:** The **3D-printed chassis** keeps the robot strong while reducing unnecessary weight.  
+✔ **Hexagonal cutouts:** reduce weight while maintaining strength + it looks good. 
+✔ **Balanced Design:** The **battery is centrally placed**, keeping the robot weight center balanced.  
+✔ **Easy Component Mounting:** Dedicated slots for **motor, PCB, steering servo and camera** simplify assembly.  
+✔ **Secure PCB Mounting:** The **PCB is attached using 4 screws**, ensuring it stays in place.  
+✔ **Improved Wiring & Cable Management:**  
+   - Most cables are **integrated by cooper tracks into the PCB design**.  
+   - **Hot glue is used to secure servo and camera wires**, preventing movement during runs.  
+
+---
+
+**🛠️ Assembly Process** <a id="assembly-process"></a>
+
+1️⃣ **Attach the drive motor** using its dedicated mounting bracket.  
+2️⃣ **Secure the steering servo** in its designated slot and secure it using to screws.  
+3️⃣ **Install the Lego differential** and connect it to the drivetrain.  
+4️⃣ **Place the battery in the center compartment** to keep weight evenly distributed.  
+5️⃣ **Mount the PCB using 4 screws**, ensuring a solid connection to minimize vibrations that can interfere with the IMU.  
+6️⃣ **Use hot glue for cable management**, keeping servo and camera wires in place.  
 
 
 ---
