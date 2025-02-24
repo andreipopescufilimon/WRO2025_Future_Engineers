@@ -193,7 +193,7 @@ The **MG90S servo is used for precise steering control**, enabling the robot to 
 | **Torque:** 2.2kg/cm | **Signal Type:** PWM |
 | **Current Draw (Avg):** 120mA | **Peak Current:** 500mA |
 | **Weight:** ~13.4g | **Gears:** Metal |
-| 🔗 **[Buy Here](https://towerpro.com.tw/product/mg90s-3/)** | **Function:** Controls steering |
+| 🔗 **[Buy Here](https://www.optimusdigital.ro/ro/motoare-servomotoare/271-servomotor-mg90s.html?srsltid=AfmBOooTrDsx2UoJ3Px8J26kkCbcuYhlpKYmuIYkivK_5ZSzPJx0ZNo8)** | **Function:** Controls steering |
 
 ---
 
