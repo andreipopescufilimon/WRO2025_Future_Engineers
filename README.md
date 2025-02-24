@@ -15,6 +15,7 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
     - [⚙️ Motor](#motor)
     - [🔌 Motor Driver TB6612FNG](#motor-driver)
   - [🔄 Steering](#steering)
+    - [🔄 Steering Servo Motor](#servo-motor)
   - [🏎️ Chassis & Component Mounting](#chassis)
     - [✨ Key Features & Advantages](#key-features)
     - [🔧 Assembly Process](#assembly-process)
@@ -171,6 +172,34 @@ To control the motor's speed and direction, we integrated a **Sparkfun Dual TB66
 
 ## 🔄 **Steering** <a id="steering"></a>
 
+The **steering system** is a critical part of the robot, ensuring precise maneuverability and smooth turns. Our design is based on a **parallelogram steering mechanism**, where both front wheels turn at the same angle through a single servo-controlled linkage. This setup provides predictable and stable steering, making it easy to use for an autonomous vehicle. Instead of using an **Ackermann steering system**, which requires more complex calculations and linkages, we opted for a **simpler and more lightweight solution** that offers consistent control. Our steering system allows for a maximum turning angle of 50 degrees in both the left and right directions. This range provides precise maneuverability, enabling the robot to navigate sharp turns efficiently while maintaining stability.
+
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/steering-3D-model.png" width="700">
+
+Our **steering arm is directly connected to the servo**, which moves the two front wheels simultaneously. This ensures that the turning response is immediate and proportional to the servo's motion. The **wheels are mounted on special mounts**, allowing for smooth and precise movement without excessive friction. To ensure **structural integrity and long-term reliability**, the steering system is **assembled using M3 screws and lock nuts**. These prevent the nuts from loosening due to vibrations, ensuring a **secure and stable connection**.
+
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/right-front-wheel-mount-technical-drawing.jpg" width="700">
+
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/steering-connector-bar-technical-drawing.jpg" width="700">
+
+**⚙️ Design Considerations & Improvements** <br>
+While the parallelogram steering system is effective, some potential enhancements could improve its performance. Additionally, optimizing the **steering linkages** could reduce mechanical play, making the system more precise. In future iterations, we may experiment with **Ackermann geometry** to better distribute wheel angles during turns, further improving efficiency and reducing tire slippage.
+
+---
+
+### **🔄 Steering Servo – MG90S** <a id="servo-motor"></a>
+
+To control the steering system, we use an **MG90S micro servo**, known for its high torque and fast response. This servo enables quick and precise adjustments while maintaining a compact and lightweight design. Featuring **metal gears**, it ensures durability and reliability over extended use. The servo is securely mounted onto the chassis with two screws, and the steering arm is directly attached to its output shaft, providing smooth and efficient motion transfer for accurate steering.
+
+| <img src="https://static.optimusdigital.ro/20565-large_default/mg90s-servomotor.jpg" width="300"> | **Specifications** |
+|------------------------------|------------------------------|
+| **Model:** MG90S | **Voltage:** 5V |
+| **Torque:** 2.2kg/cm | **Signal Type:** PWM |
+| **Current Draw (Avg):** 120mA | **Peak Current:** 500mA |
+| **Weight:** ~13.4g | **Gears:** Plastic |
+| 🔗 **[Buy Here](https://www.optimusdigital.ro/ro/motoare-servomotoare/271-servomotor-mg90s.html?srsltid=AfmBOooTrDsx2UoJ3Px8J26kkCbcuYhlpKYmuIYkivK_5ZSzPJx0ZNo8)** | **Function:** Controls steering |
+
+---
 
 ## 🏎️ **Chassis & Component Mounting** <a id="chassis"></a>
 
