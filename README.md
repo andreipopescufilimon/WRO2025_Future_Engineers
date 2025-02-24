@@ -10,6 +10,10 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
 - [🎯 Challenge Overview](#challenge-overview)
 - [🤖 The Robot](#the-robot)
 - [⚙️ Mobility Management](#mobility-management)
+  - [🚗 Drivebase](#drivebase)
+    - [🔧 Drivetrain](#drivetrain)
+    - [⚙️ Motor](#motor)
+    - [🔌 Motor Driver TB6612FNG](#motor-driver)
 - [🛠️ Power and Sense Management](#power-and-sense-management)
   - [🔋 Li-Po Battery](#li-po-battery)
   - [🖥️ Arduino Nano ESP32](#arduino-nano-esp32)
@@ -119,8 +123,47 @@ Scoring is based on **accuracy, technical documentation and speed**, rewarding t
 
 ---
 
-## ⚙️ Mobility Management <a id="mobility-management"></a>
-*To be completed – Explanation of problem-solving methods, mechanical design, and CV implementation.*
+## 🚗 Mobility Management <a id="mobility-management"></a>
+
+The robot's mobility is controlled through **a fully 3D-printed chassis, a servo-based steering system, and a drivetrain featuring a Lego differential and axles**. These components work together to ensure smooth, **precise movement with optimized traction, stability, and efficient power management**.
+
+
+## 🚗 **Drivebase** <a id="drivebase"></a>
+
+### 🔧 **Drivetrain** <a id="drivetrain"></a>
+
+To optimize performance and minimize **energy loss due to friction**, the drivetrain uses a **Lego 5-gear differential combined with Lego axles to connect the wheels**. The **motor is attached to the drivetrain using a custom 3D-printed bracket**, ensuring **a secure and efficient power transfer**.
+
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/motor-bracket-technical-drawing.jpg" width="700">
+
+A **custom 3D-printed gear with a D-shaped axle mount** is directly connected to the motor shaft. This **gear provides a 1:1 gear ratio between the motor and the differential**, ensuring that the **motor’s full speed and torque are transferred efficiently to the drivetrain** without unnecessary losses. This setup allows for **smooth acceleration, precise speed control, and optimal wheel synchronization**, improving overall handling and maneuverability.
+
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/gear-D-axle-technical-drawing.jpg" width="700">
+
+By using **Lego components**, we gained the advantages of **precision-engineered mechanical parts** while maintaining a **lightweight and modular system** that allows easy modifications. The **rear 5 gears differential enables smoother turns** by balancing wheel speeds dynamically.
+
+### ⚙️ **Motor – 30:1 Micro Metal Pololu Gearmotor HPCB** <a id="motor"></a>
+Following past testing, we selected **a high-power 30:1 Micro Metal Gearmotor (12V)** for the drive system. This motor provides an **optimal balance of speed and torque**, allowing the robot to maintain stability while navigating turns.
+
+| <img src="https://a.pololu-files.com/picture/0J6410.600x480.jpg?7b215efad0f55f0963d9f951be03d3d1" width="300"> | **Specifications** |
+|------------------------------|------------------------------|
+| **Model:** 30:1 HPCB | **Voltage:** 12V |
+| **No-load Speed:** 1000 RPM | **No-load Current:** 120mA |
+| **Stall Torque:** ~0.4 kg·cm | **Stall Current:** 1.6A |
+| 🔗 **[Buy Here](https://www.pololu.com/product/3038)** | **Function:** Drives the robot |
+
+➜ **Why We Chose This Motor?**  
+✔ **Gear ratio provides sufficient torque** without sacrificing efficiency.  
+✔ **Compact design**, allowing integration into a lightweight robot.  
+
+### 🔌 **Motor Driver – Sparkfun TB6612FNG** <a id="motor-driver"></a>
+To control the motor's speed and direction, we integrated a **Sparkfun Dual TB6612FNG motor driver** into the PCB. This dual motor driver enables **precise adjustments for acceleration, braking, and turning** through **PWM control**.
+
+| <img src="https://www.sparkfun.com/media/catalog/product/cache/a793f13fd3d678cea13d28206895ba0c/1/4/14451-01.jpg" width="300"> | **Specifications** |
+|------------------------------|------------------------------|
+| **Model:** TB6612FNG | **Operating Voltage:** 2.5V – 13.5V |
+| **PWM Frequency:** Up to 100 kHz | **Max Continuous Current:** 1.2A |
+| 🔗 **[Buy Here](https://www.sparkfun.com/sparkfun-motor-driver-dual-tb6612fng-1a.html)** | **Function:** Controls the drive motor |
 
 ---
 
