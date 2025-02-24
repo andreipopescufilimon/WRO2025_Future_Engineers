@@ -107,19 +107,134 @@ Scoring is based on **accuracy, technical documentation and speed**, rewarding t
 ---
 
 ## 🛠️ Power and Sense Management <a id="power-and-sense-management"></a>
-### **Main Components Used**
-Below is a list of core hardware components used in our robot:
 
-| Component           | Part & Link                                      | Function                          |
-|---------------------|------------------------------------------------|----------------------------------|
-| **Main Controller** | [Arduino NANO ESP32]([https://www.jsumo.com/xmotion-robot-controller](https://store.arduino.cc/en-ro/products/nano-esp32?srsltid=AfmBOoqi1bKUrg9Tf_EzO6Rsk0S4Sve9OK52Us1N13vKBl_Mdtdb_NRZ)) | Controls all components         |
-| **Drive Motor**     | [30:1 Micro Metal Gearmotor HPCB 12V w/Encoder](https://www.pololu.com/product/3038) | Drives the robot |
-| **Steering Servo**  | [MG90S](https://towerpro.com.tw/product/mg90s-3/) | Controls steering               |
-| **Camera**         | [OpenMV H7 Camera](https://openmv.io/products/openmv-cam-h7) | Detects traffic signs           |
-| **Gyroscope**      | [MPU-6050](https://invensense.tdk.com/products/motion-tracking/6-axis/mpu-6050/) | Tracks orientation              |
-| **Battery**        | [3S Li-Po Battery (11.1V, 450mAh)](https://gensace.de/products/gens-ace-g-tech-soaring-450mah-11-1v-30c-3s1p-lipo-battery-pack-with-jst-syp-plug) | Powers the robot |
-| **Wheels**         | Lego Spike Wheels           | Provides grip                   |
-| **Gearbox**        | 3D Printed and Lego gears   | Transfers power                 |
+The robot's **power and sensing system** is designed for **efficiency, precision, and adaptability**. It consists of an **Arduino Nano ESP32, a Li-Po battery, MPU-6050 IMU, OpenMV H7 Camera, motors, and a voltage regulator**, all working together to ensure **stable operation and accurate navigation**.  
+
+Each component has been carefully selected to provide **optimal performance**, minimize power consumption, and ensure **reliability in competition environments**.
+
+---
+
+### **🔋 Li-Po Battery – 3S 450mAh**  
+
+The **Li-Po battery** provides a **compact, lightweight, and high-discharge** power source, making it ideal for our robot. The **11.1V output** is suitable for running our **motors and voltage regulator**, ensuring stable power delivery.
+
+| <img src="https://gensace.de/cdn/shop/files/1_113_10.jpg?v=1722466075&width=900" width="300"> | **Specifications** |
+|------------------------------|------------------------------|
+| **Model:** 3S Li-Po | **Capacity:** 450mAh |
+| **Voltage:** 11.1V | **Discharge Rate:** 30C |
+| **Weight:** 38g | **Size:** 56.5 × 31 × 9mm |
+| **Output Current:** Varies by load | **Connector Type:** JST |
+| 🔗 **[Buy Here](https://gensace.de/products/gens-ace-g-tech-soaring-450mah-11-1v-30c-3s1p-lipo-battery-pack-with-jst-syp-plug)** | **Function:** Powers the entire robot |
+
+---
+
+### **🖥️ Arduino Nano ESP32 – Main Controller**  
+
+The **Arduino Nano ESP32** provides **high-speed processing, built-in Wi-Fi and Bluetooth, and extensive GPIO capabilities** in a **compact form factor**. This allows it to handle **sensor data, motor control, and vision processing efficiently**.
+
+| <img src="https://store.arduino.cc/cdn/shop/files/ABX00092_01.iso_804x603.jpg?v=1727101612" width="300"> | **Specifications** |
+|------------------------------|------------------------------|
+| **Microcontroller:** ESP32 | **Flash Memory:** 4MB |
+| **SRAM:** 520KB | **Frequency:** 240MHz |
+| **Pins:** 22 | **Input Voltage:** 5V |
+| **Current Draw (Avg):** 200mA | **Peak Current:** 500mA |
+| 🔗 **[Buy Here](https://store.arduino.cc/en-ro/products/nano-esp32)** | **Function:** Controls all robot components |
+
+---
+
+### **🧭 IMU Sensor – MPU-6050**  
+
+The **MPU-6050 IMU** is used to **measure the robot's angular velocity and acceleration**, helping it maintain **stability and precise movement control**. It is essential for **calculating turns and avoiding drift**.
+
+| <img src="https://static.optimusdigital.ro/7330-large_default/mpu6050-accelerometer-and-gyroscope-module.jpg" width="300"> | **Specifications** |
+|------------------------------|------------------------------|
+| **Gyroscope Range:** ±2000°/s | **Accelerometer Range:** ±16g |
+| **Interface:** I2C | **Supply Voltage:** 3.3V – 5V |
+| **Current Draw:** 3.5mA | **Weight:** 5g |
+| 🔗 **[Buy Here](https://www.optimusdigital.ro/en/inertial-sensors/96-mpu6050-accelerometer-and-gyroscope-module.html?srsltid=AfmBOoqUolw8nE5zvAGPay7WXfhQYGzOXsF0TSSw_YOopMMU_cKW5CZV)** | **Function:** Tracks orientation & motion |
+
+---
+
+### **📷 OpenMV H7 Camera – Vision Processing**  
+
+The **OpenMV H7 Camera** processes **traffic signs, lane detection, and other visual cues** in real-time. Unlike traditional cameras, it has a **built-in microcontroller**, reducing the processing load on the Arduino and allowing it to **focus on movement control**.
+
+| <img src="https://openmv.io/cdn/shop/products/new-cam-v4-angle-hero-web_1000x.jpg?v=1715735352" width="300"> | **Specifications** |
+|------------------------------|------------------------------|
+| **Microcontroller:** STM32H7 | **Flash Memory:** 32MB |
+| **RAM:** 512KB | **Frequency:** 480MHz |
+| **Resolution:** 640x480 | **Frame Rate:** 60fps |
+| **Current Draw (Avg):** 300mA | **Peak Current:** 400mA |
+| 🔗 **[Buy Here](https://openmv.io/products/openmv-cam-h7)** | **Function:** Detects traffic signs & lanes |
+
+---
+
+### **⚙️ Drive Motor – 30:1 Micro Metal Gearmotor HPCB 12V w/ Encoder**  
+
+The **drive motor is responsible for propelling the robot forward**. The **30:1 gearbox** provides an excellent **balance of speed and torque**, while the **built-in encoder** allows for **precise speed control**.
+
+| <img src="https://a.pololu-files.com/picture/0J6410.600x480.jpg?7b215efad0f55f0963d9f951be03d3d1" width="300"> | **Specifications** |
+|------------------------------|------------------------------|
+| **Type:** Micro Metal Gearmotor | **Gear Ratio:** 30:1 |
+| **Voltage:** 12V | **Encoder:** Yes |
+| **Current Draw (Avg):** 120mA | **Peak Current:** 1.6A |
+| **Weight:** ~10g | **Shaft Diameter:** 3mm |
+| 🔗 **[Buy Here](https://www.pololu.com/product/3038)** | **Function:** Drives the robot |
+
+---
+
+### **🔄 Steering Servo – MG90S**  
+
+The **MG90S servo is used for precise steering control**, enabling the robot to **navigate turns with accuracy**. It provides **high torque output in a compact size**.
+
+| <img src="https://static.optimusdigital.ro/20565-large_default/mg90s-servomotor.jpg" width="300"> | **Specifications** |
+|------------------------------|------------------------------|
+| **Model:** MG90S | **Voltage:** 5V |
+| **Torque:** 2.2kg/cm | **Signal Type:** PWM |
+| **Current Draw (Avg):** 120mA | **Peak Current:** 500mA |
+| **Weight:** ~13.4g | **Gears:** Metal |
+| 🔗 **[Buy Here](https://towerpro.com.tw/product/mg90s-3/)** | **Function:** Controls steering |
+
+---
+
+### **🔌 L7805CV Voltage Regulator – Power Management**  
+
+The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**, ensuring **safe power delivery** to the **Arduino, sensors, and camera**. It prevents **overvoltage damage** and includes **thermal & short-circuit protection** for reliability.
+
+| <img src="https://ce8dc832c.cloudimg.io/v7/_cdn_/5D/D0/90/00/0/593365_1.jpg?width=640&height=480&wat=1&wat_url=_tme-wrk_%2Ftme_new.png&wat_scale=100p&ci_sign=32c0b49b36a510891beaad3401e2b2b50bdee888" width="300">  | **Specifications** |
+|------------------------------|------------------------------|
+| **Model:** L7805CV | **Input Voltage:** 7V – 35V |
+| **Output Voltage:** 5V | **Output Current:** 1.5A |
+| **Efficiency:** Linear Regulator | **Dropout Voltage:** ~2V |
+| **Protection:** Short-circuit & thermal shutdown | **Mounting Type:** TO-220 Package |
+| 🔗 **[Buy Here](https://www.tme.eu/ro/details/l7805cv/regulatoare-de-tensiune-neregulata/stmicroelectronics/)** | **Function:** Converts battery voltage to 5V |
+
+---
+
+### **⚡ Power Consumption Summary**  
+
+| **Component**                 | **Voltage** | **Avg Current Draw** | **Peak Current** |
+|-------------------------------|------------|-----------------------|------------------|
+| **Arduino Nano ESP32**        | 5V         | 200mA                 | 500mA            |
+| **Drive Motor**               | 12V        | 120mA                 | 1.6A             |
+| **Steering Servo MG90S**      | 5V         | 120mA                 | 500mA            |
+| **OpenMV H7 Camera**          | 3.3V/5V    | 300mA                 | 400mA            |
+| **IMU Sensor MPU-6050**       | 3.3V/5V    | 3.5mA                 | 5mA              |
+| **Voltage Regulator L7805CV** | 7.4V -> 5V | Power Management      | -                |
+| **Total Robot Power Usage**   | Mixed      | ~1A (Avg)             | ~3A (Peak)       |
+
+---
+
+| **PCB** |
+|------------------------------|
+| <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/electrical-schematics/MainBoardPCB_img4.png" width="400"> |
+
+**🔎 Advantages of a Custom PCB**  
+
+✔ **Organized layout** → Prevents loose connections & messy wiring  
+✔ **Power stability** → Ensures consistent voltage supply to all components  
+✔ **Compact design** → Reduces weight & optimizes space  
+✔ **Reliability** → Minimizes risk of failure due to poor wiring  
 
 ---
 
