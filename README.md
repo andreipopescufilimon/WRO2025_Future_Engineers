@@ -17,7 +17,7 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
   - [🔄 Steering](#steering)
   - [🏎️ Chassis & Component Mounting](#chassis)
     - [✨ Key Features & Advantages](#key-features)
-    - [🛠️ Assembly Process](#assembly-process)
+    - [🔧 Assembly Process](#assembly-process)
 - [🛠️ Power and Sense Management](#power-and-sense-management)
   - [🔋 Li-Po Battery](#li-po-battery)
   - [🖥️ Arduino Nano ESP32](#arduino-nano-esp32)
@@ -180,20 +180,20 @@ The robot is driven by **a single high-performance motor**, which is connected t
 
 <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/chassis-technical-drawing.jpg" width="700">
 
-**✨ Key Features & Advantages** <a id="key-features"></a>
+## ✨ **Key Features & Advantages** <a id="key-features"></a>
 
-✔ **Lightweight & Durable:** The **3D-printed chassis** keeps the robot strong while reducing unnecessary weight.  
-✔ **Hexagonal cutouts:** reduce weight while maintaining strength + it looks good. 
-✔ **Balanced Design:** The **battery is centrally placed**, keeping the robot weight center balanced.  
-✔ **Easy Component Mounting:** Dedicated slots for **motor, PCB, steering servo and camera** simplify assembly.  
-✔ **Secure PCB Mounting:** The **PCB is attached using 4 screws**, ensuring it stays in place.  
-✔ **Improved Wiring & Cable Management:**  
-   - Most cables are **integrated by cooper tracks into the PCB design**.  
-   - **Hot glue is used to secure servo and camera wires**, preventing movement during runs.  
+✔️ **Lightweight & Durable** – The **3D-printed chassis** ensures a strong yet lightweight structure, optimizing performance.  
+✔️ **Hexagonal Cutouts** – Reduce weight while maintaining strength **+ they enhance the robot's aesthetics**.  
+✔️ **Balanced Design** – The **battery is centrally placed**, ensuring even weight distribution and stability.  
+✔️ **Easy Component Mounting** – Pre-designed slots for **motor, PCB, steering servo, and camera** make assembly quick and efficient.  
+✔️ **Secure PCB Mounting** – The **PCB is attached using 4 screws**, keeping it firmly in place during operation.  
+✔️ **Organized Wiring & Cable Management**  
+&nbsp; &nbsp; 🔹 **Integrated PCB routing** eliminates unnecessary wiring, ensuring a cleaner and more reliable setup.  
+&nbsp; &nbsp; 🔹 **Hot glue secures servo and camera wires**, preventing loose cables from interfering with movement.  
 
 ---
 
-**🛠️ Assembly Process** <a id="assembly-process"></a>
+**🔧 Assembly Process** <a id="assembly-process"></a>
 
 1️⃣ **Attach the drive motor** using its dedicated mounting bracket.  
 2️⃣ **Secure the steering servo** in its designated slot and secure it using to screws.  
