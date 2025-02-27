@@ -249,6 +249,7 @@ void update_steering_move(float targetYaw) {
 
   pid_error = calculateYawError(targetYaw, yaw);
   pid_integral += pid_error * dt;
+  
   // Anti-windup: limit the integral term
   pid_integral = constrain(pid_integral, -50, 50);
   float pid_derivative = (pid_error - last_pid_error) / dt;
