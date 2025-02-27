@@ -55,7 +55,7 @@ float kd = 0.24;
 float pid_error = 0, last_pid_error = 0, pid_integral = 0;
 
 // ----- Debug Mode -----
-bool debug = true;  // Set to true for serial debugging
+bool debug = false;  // Set to true for serial debugging
 
 // ----- Global variable for gyro reading from task -----
 volatile float gyroZValue = 0;
@@ -342,7 +342,6 @@ void setup() {
 }
 
 void loop() {
-  /* 
   if (cameraSerial.available() > 0) {
     char receivedChar = cameraSerial.read();
     if (receivedChar == '\n') {
@@ -368,9 +367,7 @@ void loop() {
       receivedMessage += receivedChar;
     }
   }
-  */
   
-  // Continuously update steering and drive the robot
   update_steering_move(targetYaw);
   move(robot_speed);
 }
