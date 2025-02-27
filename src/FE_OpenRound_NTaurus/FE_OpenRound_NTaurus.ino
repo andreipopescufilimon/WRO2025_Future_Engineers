@@ -1,4 +1,4 @@
-  #include <Wire.h>
+#include <Wire.h>
 #include <ESP32Servo.h>
 #include <SoftwareSerial.h>
 
@@ -24,12 +24,12 @@ String receivedMessage = "";
 char command = '0';
 
 // ----- Turns count and direction -----
-char turn_direction = '0'; // Turns direction based on first viewed orange or blue line
-int turn_count = 0;        // Counter for turns
-const int max_turns = 12;  // Maximum turns before stopping
+char turn_direction = '0';  // Turns direction based on first viewed orange or blue line
+int turn_count = 0;         // Counter for turns
+const int max_turns = 12;   // Maximum turns before stopping
 
 // ----- Motor Drive -----
-#define PWMA 11  // PWM pin for motor speed control
+#define PWMA 9  // PWM pin for motor speed control
 #define AIN1 7   // Motor direction pin 1
 #define AIN2 8   // Motor direction pin 2
 #define STBY 10  // Standby pin
@@ -52,37 +52,38 @@ unsigned long prev_time;
 float kp = 0.14;
 float ki = 0.015;
 float kd = 0.24;
-
 float pid_error = 0, last_pid_error = 0, pid_integral = 0;
 
 // ----- Debug Mode -----
-bool debug = false;  // Set to true for serial debugging
+bool debug = true;  // Set to true for serial debugging
+
+// ----- Global variable for gyro reading from task -----
+volatile float gyroZValue = 0;
+
 
 
 //////////////////////////////////////////////////////////
 //                Gyro Functions                        //
 //////////////////////////////////////////////////////////
 
-// MPU6050 initialization
+// Initialize MPU6050
 void setupMPU6050() {
   writeMPU6050(PWR_MGMT_1, 0x00);
   writeMPU6050(GYRO_CONFIG, 0x00);
 }
 
-// MPU6050 calibration
+// Calibrate gyro (Z axis)
 void calibrateMPU6050() {
-  int numSamples = 500;
+  int numSamples = 1000;
   float sumZ = 0;
-
   for (int i = 0; i < numSamples; i++) {
     sumZ += readGyroZ();
     delay(3);
   }
-
   gyro_z_offset = sumZ / numSamples;
 }
 
-// Function to write to MPU6050 register
+// Write value to MPU6050 register
 void writeMPU6050(byte reg, byte value) {
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(reg);
@@ -90,48 +91,55 @@ void writeMPU6050(byte reg, byte value) {
   Wire.endTransmission();
 }
 
-// Function to read raw gyro Z-axis data
+// Read raw gyro Z-axis data and subtract offset
 float readGyroZ() {
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(GYRO_ZOUT_H);
   Wire.endTransmission();
   Wire.requestFrom(MPU6050_ADDR, 2);
-
   int16_t rawZ = Wire.read() << 8 | Wire.read();
   return (rawZ / GYRO_SCALE) - gyro_z_offset;
 }
 
-// ----- Yaw Error Calculation with Angle Wrapping -----
+// Calculate yaw error with angle wrapping
 float calculateYawError(float targetYaw, float currentYaw) {
   float error = targetYaw - currentYaw;
-
   if (error > 180) error -= 360;
   if (error < -180) error += 360;
-
   return error;
 }
+
+
+
+//////////////////////////////////////////////////////////
+//          FreeRTOS Task for High-Frequency Gyro       //
+//////////////////////////////////////////////////////////
+
+// This task reads the gyro at ~200 Hz and updates the shared variable
+void gyroTask(void * parameter) {
+  while (true) {
+    gyroZValue = readGyroZ();
+    vTaskDelay(5 / portTICK_PERIOD_MS); // Delay ~5ms (~200 Hz sampling rate)
+  }
+}
+
 
 
 //////////////////////////////////////////////////////////
 //                Motor Functions                       //
 //////////////////////////////////////////////////////////
 
-// Motor driver setup
+// Setup motor driver pins and PWM
 void motor_driver_setup() {
-  // Initialize motor control pins
   pinMode(AIN1, OUTPUT);
   pinMode(AIN2, OUTPUT);
   pinMode(STBY, OUTPUT);
-
-  // Enable the motor driver by setting STBY (standby) pin HIGH
   digitalWrite(STBY, HIGH);
-
-  // Configure LEDC PWM for motor speed control
   ledcSetup(PWM_CHANNEL, PWM_FREQ, PWM_RESOLUTION);
   ledcAttachPin(PWMA, PWM_CHANNEL);
 }
 
-// Move motor at specified speed
+// Set motor speed and direction
 void move(int speed) {
   if (speed >= 0) {
     digitalWrite(AIN1, HIGH);
@@ -139,25 +147,22 @@ void move(int speed) {
   } else {
     digitalWrite(AIN1, LOW);
     digitalWrite(AIN2, HIGH);
-    speed = -speed;  // Convert negative speed to positive
+    speed = -speed;
   }
-
-  ledcWrite(PWM_CHANNEL, speed);  // Set motor speed using LEDC PWM
+  ledcWrite(PWM_CHANNEL, speed);
 }
 
-// Stop motor
+// Stop the motor
 void stop_motor() {
   move(-10);
   custom_delay(20);
-
   digitalWrite(AIN1, LOW);
   digitalWrite(AIN2, LOW);
-  ledcWrite(PWMA, 0);
+  ledcWrite(PWM_CHANNEL, 0);
 }
 
-// Function to turn X degrees (direction: 'l' / 'L' for left, 'r' / 'R' for right)
+// Turn the robot by a specified degrees ('L' for left, 'R' for right)
 void turn(char direction, int degrees) {
-  // Determine target yaw based on direction.
   if (direction == 'L' || direction == 'l') {
     targetYaw = yaw - degrees;
   } else if (direction == 'R' || direction == 'r') {
@@ -166,12 +171,9 @@ void turn(char direction, int degrees) {
     Serial.println("Invalid direction. Use 'L' or 'R'.");
     return;
   }
-
-  // Normalize targetYaw to be within 0-359 degrees.
   if (targetYaw >= 360) targetYaw -= 360;
   if (targetYaw < 0) targetYaw += 360;
 
-  // Debug print.
   if (debug) {
     Serial.print("Turning ");
     Serial.print((direction == 'L' || direction == 'l') ? "LEFT" : "RIGHT");
@@ -179,53 +181,44 @@ void turn(char direction, int degrees) {
     Serial.print(degrees);
     Serial.println(" degrees...");
   }
-
-  // Set the steering angle based on the direction.
+  
+  // Set initial steering for turn
   if (direction == 'L' || direction == 'l') {
     steeringServo.write(STEERING_LEFT);
-  } else {  // direction is 'R' or 'r'
+  } else {
     steeringServo.write(STEERING_RIGHT);
   }
-
-  // Begin the turn by moving the robot.
+  
   move(turn_speed);
-
-  // Keep turning until within 10 degrees of the target yaw.
+  
+  // Continue turning until within 10° of target yaw
   while (abs(targetYaw - yaw) > 10) {
-    float gz = readGyroZ();
     unsigned long current_time = millis();
     float dt = (current_time - prev_time) / 1000.0;
     prev_time = current_time;
-
-    // Update yaw based on gyro data.
-    yaw -= gz * dt;
-
-    // Normalize yaw to be within 0-359 degrees.
+    if (dt > 0.1) dt = 0.1;
+    yaw -= gyroZValue * dt;
     if (yaw >= 360) yaw -= 360;
     if (yaw < 0) yaw += 360;
-
-    // Continue moving at the set robot speed.
     move(turn_speed);
   }
-
-  // Center the steering after completing the turn.
+  
+  // Center steering after turn
   steeringServo.write(STEERING_CENTER);
-
   if (debug) {
     Serial.println("Turn complete. Centering steering.");
   }
 }
 
+
+
 //////////////////////////////////////////////////////////
 //              Steering Functions                      //
 //////////////////////////////////////////////////////////
 
-// Steering servo setup
+// Initialize and test the steering servo
 void steering_servo_setup() {
-  // Initialize servo control pins
-  steeringServo.attach(SteeringServoPin);
-
-  // Test servo positions
+  steeringServo.attach(SteeringServoPin, 1000, 2000);
   steeringServo.write(STEERING_LEFT);
   custom_delay(500);
   steeringServo.write(STEERING_CENTER);
@@ -236,46 +229,49 @@ void steering_servo_setup() {
   custom_delay(500);
 }
 
-// ----- Move steerign to angle -----
+// Set servo to a given angle
 void steer(int steering_angle) {
   steeringServo.write(steering_angle);
 }
 
-// ----- PID Steering Correction -----
+// Update steering using PID based on target yaw
 void update_steering_move(float targetYaw) {
-  float gz = readGyroZ();
-
   unsigned long current_time = millis();
   float dt = (current_time - prev_time) / 1000.0;
   prev_time = current_time;
-
   if (dt > 0.1) dt = 0.1;
 
-  yaw -= gz * dt;
-
+  // Use cached gyro value from the task
+  float currentGyro = gyroZValue;
+  yaw -= currentGyro * dt;
   if (yaw >= 360) yaw -= 360;
   if (yaw < 0) yaw += 360;
 
   pid_error = calculateYawError(targetYaw, yaw);
   pid_integral += pid_error * dt;
+  // Anti-windup: limit the integral term
+  pid_integral = constrain(pid_integral, -50, 50);
   float pid_derivative = (pid_error - last_pid_error) / dt;
   last_pid_error = pid_error;
-
+  
   float correction = (kp * pid_error) + (ki * pid_integral) + (kd * pid_derivative);
-
-  // **Scaled correction for finer adjustments**
-  int steering_angle = STEERING_CENTER - (correction);
+  int steering_angle = STEERING_CENTER - correction;
   steering_angle = constrain(steering_angle, STEERING_RIGHT, STEERING_LEFT);
-
   steeringServo.write(steering_angle);
 
   if (debug) {
-    Serial.print("Yaw: ");
+    Serial.print("Gyro: ");
+    Serial.print(currentGyro);
+    Serial.print(" | Yaw: ");
     Serial.print(yaw);
     Serial.print(" | Target: ");
     Serial.print(targetYaw);
     Serial.print(" | Error: ");
     Serial.print(pid_error);
+    Serial.print(" | Integral: ");
+    Serial.print(pid_integral);
+    Serial.print(" | Derivative: ");
+    Serial.print(pid_derivative);
     Serial.print(" | Correction: ");
     Serial.print(correction);
     Serial.print(" | Steering: ");
@@ -284,13 +280,16 @@ void update_steering_move(float targetYaw) {
 }
 
 
+
 //////////////////////////////////////////////////////////
 //                Custom Functions                      //
 //////////////////////////////////////////////////////////
 
+// A simple busy-wait delay function
 void custom_delay(long long delay_time) {
   long long start_time = millis();
   while (millis() - start_time < delay_time) {
+    // Busy wait
   }
 }
 
@@ -309,46 +308,44 @@ void execute_command(char command) {
 }
 
 
+
 //////////////////////////////////////////////////////////
 //                      Main Code                       //
 //////////////////////////////////////////////////////////
 
-// ----- Main Setup -----
 void setup() {
   Wire.begin();
   Serial.begin(115200);
   cameraSerial.begin(19200);
-
+  
+  delay(2000);
   steering_servo_setup();
   motor_driver_setup();
-
   setupMPU6050();
   calibrateMPU6050();
+
+  // Initialize yaw and set target yaw to current heading
+  yaw = 0.0;
+  targetYaw = yaw;
   prev_time = millis();
+  
+  // Start the gyro task on core 1
+  xTaskCreatePinnedToCore(
+    gyroTask,      // Task function
+    "Gyro Task",   // Task name
+    2048,          // Stack size in words
+    NULL,          // Parameter
+    1,             // Priority
+    NULL,          // Task handle
+    1              // Run on core 1
+  );
 }
 
-// ----- Main Loop -----
 void loop() {
-
-  if (turn_count >= max_turns) {
-    stop_motor();
-    if (debug) {
-      Serial.println("Maximum turns reached. Stopping...");
-    }
-    while (true)
-      ;
-  }
-
-  command = '0';
-  while (cameraSerial.available() > 0) {
+  /* 
+  if (cameraSerial.available() > 0) {
     char receivedChar = cameraSerial.read();
-
     if (receivedChar == '\n') {
-      if (debug) {
-        Serial.print("Received from OpenMV: ");
-        Serial.println(receivedMessage);
-      }
-
       receivedMessage.toUpperCase();
       if (receivedMessage.indexOf("BLACK") != -1) {
         command = 'B';
@@ -365,20 +362,15 @@ void loop() {
       } else if (receivedMessage.indexOf("PINK") != -1) {
         command = 'P';
       }
-
       execute_command(command);
-
-      if (debug) {
-        Serial.print("Current command: ");
-        Serial.println(command);
-      }
-
       receivedMessage = "";
     } else {
       receivedMessage += receivedChar;
     }
   }
-
+  */
+  
+  // Continuously update steering and drive the robot
   update_steering_move(targetYaw);
   move(robot_speed);
 }
