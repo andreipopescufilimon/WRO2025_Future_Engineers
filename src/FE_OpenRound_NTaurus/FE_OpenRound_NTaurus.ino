@@ -27,6 +27,8 @@ char command = '0';
 char turn_direction = '0';  // Turns direction based on first viewed orange or blue line
 int turn_count = 0;         // Counter for turns
 const int max_turns = 12;   // Maximum turns before stopping
+unsigned long lastTurnTime = 0;
+const unsigned long turnCooldown = 1000;
 
 // ----- Motor Drive -----
 #define PWMA 9   // PWM pin for motor speed control
@@ -39,7 +41,7 @@ const int max_turns = 12;   // Maximum turns before stopping
 #define PWM_RESOLUTION 8  // PWM resolution (8-bit: 0-255)
 
 // ----- Speed Control -----
-int robot_speed = 120;
+int robot_speed = 110;
 int turn_speed = 110;
 
 // ----- Gyro Variables -----
@@ -50,11 +52,12 @@ unsigned long prev_time, last_pid_time = 0;
 const int PID_INTERVAL = 10;
 
 // ----- PID Control for straight movement -----
-float kp = 0.14;
-float ki = 0.015;
-float kd = 0.24;
+float kp = 0.9;
+float ki = 0.0;
+float kd = 5.3;
 
 float pid_error = 0, last_pid_error = 0, pid_integral = 0;
+float error1, error2, error3, error4, error5, error6;
 
 // ----- Debug Mode -----
 bool debug = false;  // Set to true for serial debugging
@@ -76,7 +79,7 @@ void setupMPU6050() {
 }
 
 void calibrateMPU6050() {
-  int numSamples = 500;
+  int numSamples = 1000;
   float sumZ = 0;
   for (int i = 0; i < numSamples; i++) {
     sumZ += readGyroZ();
@@ -99,7 +102,7 @@ float readGyroZ() {
   Wire.write(GYRO_ZOUT_H);
   Wire.endTransmission(false);
   Wire.requestFrom(MPU6050_ADDR, 2, true);
-  if (Wire.available() < 2) return 0.0;
+  //if (Wire.available() < 2) return 0.0;
   int16_t rawZ = Wire.read() << 8 | Wire.read();
   return (rawZ / GYRO_SCALE) - gyro_z_offset;
 }
@@ -193,7 +196,7 @@ void turn(char direction, int degrees) {
   move(turn_speed);
 
   // Keep turning until within 10 degrees of the target yaw.
-  while (abs(targetYaw - yaw) > 10) {
+  while (abs(targetYaw - yaw) > 15) {
     float gz = readGyroZ();
     unsigned long current_time = millis();
     float dt = (current_time - prev_time) / 1000.0;
@@ -228,12 +231,12 @@ void steering_servo_setup() {
   steeringServo.attach(SteeringServoPin);
 
   // Test servo positions
-  steeringServo.write(STEERING_LEFT);
+  /*steeringServo.write(STEERING_LEFT);
   custom_delay(500);
   steeringServo.write(STEERING_CENTER);
   custom_delay(500);
   steeringServo.write(STEERING_RIGHT);
-  custom_delay(500);
+  custom_delay(500);*/
   steeringServo.write(STEERING_CENTER);
   custom_delay(500);
 }
@@ -245,43 +248,48 @@ void steer(int steering_angle) {
 
 // ----- PID Steering Correction -----
 void update_steering_move(float targetYaw) {
-    unsigned long current_time = millis();
-    if (current_time - last_pid_time < PID_INTERVAL) return;
-    last_pid_time = current_time;
-    
-    float dt = (current_time - prev_time) / 1000.0;
-    prev_time = current_time;
-    if (dt > 0.1) dt = 0.1;
-    
-    float gz = readGyroZ();
-    yaw -= gz * dt;
-    
-    if (yaw >= 360) yaw -= 360;
-    if (yaw < 0) yaw += 360;
-    
-    pid_error = calculateYawError(targetYaw, yaw);
-    pid_integral += pid_error * dt;
-    float pid_derivative = (pid_error - last_pid_error) / dt;
-    last_pid_error = pid_error;
-    
-    float correction = (kp * pid_error) + (ki * pid_integral) + (kd * pid_derivative);
-    int steering_angle = STEERING_CENTER - correction;
-    steering_angle = constrain(steering_angle, STEERING_RIGHT, STEERING_LEFT);
-    steeringServo.write(steering_angle);
-    
-    if (debug) {
-        Serial.print("Yaw: ");
-        Serial.print(yaw);
-        Serial.print(" | Target: ");
-        Serial.print(targetYaw);
-        Serial.print(" | Error: ");
-        Serial.print(pid_error);
-        Serial.print(" | Correction: ");
-        Serial.print(correction);
-        Serial.print(" | Steering: ");
-        Serial.println(steering_angle);
-    }
+  unsigned long current_time = millis();
+  if (current_time - last_pid_time < PID_INTERVAL) return;
+  last_pid_time = current_time;
+
+  float dt = (current_time - prev_time) / 1000.0;
+  prev_time = current_time;
+  if (dt > 0.1) dt = 0.1;
+
+  // Read gyro and update yaw
+  float gz = readGyroZ();
+  yaw -= gz * dt;
+
+  // Normalize yaw to be within 0-359 degrees
+  if (yaw >= 360) yaw -= 360;
+  if (yaw < 0) yaw += 360;
+
+  // Calculate PID error continuously (even if the gyro is not moving)
+  pid_error = calculateYawError(targetYaw, yaw);
+  pid_integral += (pid_error * dt);
+  float pid_derivative = (pid_error - last_pid_error);
+  last_pid_error = pid_error;
+
+  // Apply PID control to steering correction
+  float correction = (kp * pid_error) + (ki * pid_integral) + (kd * pid_derivative);
+  int steering_angle = STEERING_CENTER - correction;
+  steering_angle = constrain(steering_angle, STEERING_RIGHT, STEERING_LEFT);
+  steeringServo.write(steering_angle);
+
+  if (debug) {
+    Serial.print("Yaw: ");
+    Serial.print(yaw);
+    Serial.print(" | Target: ");
+    Serial.print(targetYaw);
+    Serial.print(" | Error: ");
+    Serial.print(pid_error);
+    Serial.print(" | Correction: ");
+    Serial.print(correction);
+    Serial.print(" | Steering: ");
+    Serial.println(steering_angle);
+  }
 }
+
 
 
 
@@ -297,12 +305,17 @@ void custom_delay(long long delay_time) {
 
 void execute_command(char command) {
   if (command == 'B') {
-    if (debug) {
-      Serial.println("Received 'Black' command. Turning...");
+    if (millis() - lastTurnTime < turnCooldown) {
+      if (debug) Serial.println("Ignoring repeated 'B' command due to cooldown.");
+      return;  // Ignore command
     }
+
+    if (debug) Serial.println("Received 'Black' command. Turning...");
     turn(turn_direction, 90);
     turn_count++;
-    command = 'X';
+    lastTurnTime = millis();
+    command = '0';
+    pid_integral = 0;
   } else {
     update_steering_move(targetYaw);
     move(robot_speed);
@@ -332,6 +345,11 @@ void setup() {
 void loop() {
 
   if (turn_count >= max_turns) {
+    prev_time = millis();
+    while (prev_time + 1000 < millis()) {
+      update_steering_move(targetYaw);
+      move(robot_speed);
+    }
     stop_motor();
     if (debug) {
       Serial.println("Maximum turns reached. Stopping...");
@@ -379,7 +397,7 @@ void loop() {
       receivedMessage += receivedChar;
     }
   }
-  
+
   update_steering_move(targetYaw);
   move(robot_speed);
 }
