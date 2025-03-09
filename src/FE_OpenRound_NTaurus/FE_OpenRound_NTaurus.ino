@@ -16,11 +16,14 @@ Servo steeringServo;
 #define STEERING_CENTER 79  // Neutral position
 #define STEERING_RIGHT 40   // Max right
 
-// ----- Right Turn Extra Offset -----
-// Maximum extra offset for right turns; dynamic offset will decrease with each turn,
-// but will never drop below MIN_RIGHT_OFFSET.
-#define RIGHT_TURN_OFFSET 5  // Maximum extra degrees for right turns
+// ----- Turn Offset Adjustments -----
+// Right-turn extra offset (added when turning right)
+#define RIGHT_TURN_OFFSET 5  // Base extra degrees for right turns
 #define MIN_RIGHT_OFFSET 2   // Minimum extra degrees for right turns
+
+// Left-turn extra offset (added when turning left to compensate understeer)
+#define LEFT_TURN_OFFSET 5   // Base extra degrees for left turns
+#define EXTRA_LEFT_OFFSET 1
 
 // ----- UART Communication -----
 #define RX_PIN 0
@@ -32,19 +35,19 @@ char command = '0';
 // ----- Turns count and direction -----
 char turn_direction = '0';  // Turns direction based on first viewed orange or blue line
 int turn_count = 0;         // Counter for turns
-const int max_turns = 12;   // Maximum turns before stopping
+const int max_turns = 12;   // Maximum turns before stopping (3 laps for a square track)
 unsigned long lastTurnTime = 0;
 const unsigned long turnCooldown = 1000;
 
 // ----- Motor Drive -----
-#define PWMA 9   // PWM pin for motor speed control
-#define AIN1 7   // Motor direction pin 1
-#define AIN2 8   // Motor direction pin 2
-#define STBY 10  // Standby pin
+#define PWMA 9    // PWM pin for motor speed control
+#define AIN1 7    // Motor direction pin 1
+#define AIN2 8    // Motor direction pin 2
+#define STBY 10   // Standby pin
 
-#define PWM_CHANNEL 5     // ESP32 PWM channel (0-15)
-#define PWM_FREQ 1000     // PWM frequency in Hz
-#define PWM_RESOLUTION 8  // PWM resolution (8-bit: 0-255)
+#define PWM_CHANNEL 5      // ESP32 PWM channel (0-15)
+#define PWM_FREQ 1000      // PWM frequency in Hz
+#define PWM_RESOLUTION 8   // PWM resolution (8-bit: 0-255)
 
 // ----- Speed Control -----
 int robot_speed = 100;
@@ -55,12 +58,12 @@ float yaw = 0;
 float targetYaw = 0;
 float gyro_z_offset = 0;
 unsigned long prev_time, last_pid_time = 0;
-const int PID_INTERVAL = 2;
+const int PID_INTERVAL = 1;
 
 // ----- PID Control for straight movement -----
-float kp = 4.7;
+float kp = 4.5;
 float ki = 0.0;
-float kd = 11.3;
+float kd = 8.3;
 float pid_error = 0, last_pid_error = 0, pid_integral = 0;
 
 // ----- Debug Mode -----
@@ -82,7 +85,7 @@ void setupMPU6050() {
 }
 
 void calibrateMPU6050() {
-  int numSamples = 500;
+  int numSamples = 1000;
   float sumZ = 0;
   for (int i = 0; i < numSamples; i++) {
     sumZ += readGyroZ();
@@ -91,7 +94,6 @@ void calibrateMPU6050() {
   gyro_z_offset = sumZ / numSamples;
 }
 
-// Write to MPU6050 register
 void writeMPU6050(byte reg, byte value) {
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(reg);
@@ -99,23 +101,20 @@ void writeMPU6050(byte reg, byte value) {
   Wire.endTransmission();
 }
 
-// Read raw gyro Z-axis data (without offset correction)
 float readRawGyroZ() {
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(GYRO_ZOUT_H);
   Wire.endTransmission(false);
-  // Cast parameters to appropriate types for ESP32 Wire library
+  // Cast parameters as needed for ESP32 Wire library
   Wire.requestFrom((uint8_t)MPU6050_ADDR, (size_t)2, (bool)true);
   int16_t rawZ = Wire.read() << 8 | Wire.read();
   return rawZ / GYRO_SCALE;
 }
 
-// Read gyro Z-axis data with offset correction
 float readGyroZ() {
   return readRawGyroZ() - gyro_z_offset;
 }
 
-// Calculate yaw error with angle wrapping
 float calculateYawError(float targetYaw, float currentYaw) {
   float error = targetYaw - currentYaw;
   if (error > 180) error -= 360;
@@ -149,8 +148,6 @@ void move(int speed) {
 }
 
 void stop_motor() {
-  move(-10);
-  custom_delay(20);
   digitalWrite(AIN1, LOW);
   digitalWrite(AIN2, LOW);
   ledcWrite(PWMA, 0);
@@ -165,11 +162,18 @@ void turn(char direction, int degrees) {
   float initialYaw = yaw;
   float dynamic_offset = 0;  // Declare dynamic_offset here
   if (direction == 'L' || direction == 'l') {
-    targetYaw = initialYaw - degrees;
+    // For left turns, add extra offset to compensate understeer.
+    // Here we always add a fixed extra offset to turn further left.
+    dynamic_offset = LEFT_TURN_OFFSET + EXTRA_LEFT_OFFSET;
+    targetYaw = initialYaw - (degrees + dynamic_offset);
   } else if (direction == 'R' || direction == 'r') {
-    // Compute dynamic offset: decrease with each turn but not below MIN_RIGHT_OFFSET.
-    dynamic_offset = RIGHT_TURN_OFFSET - (turn_count * 0.5);
-    if (dynamic_offset < MIN_RIGHT_OFFSET) dynamic_offset = MIN_RIGHT_OFFSET;
+    // For right turns, use the previous dynamic offset calculation.
+    if(turn_count >= (max_turns - 4)) {
+      dynamic_offset = RIGHT_TURN_OFFSET + 1;  // Extra steering on the last lap
+    } else {
+      dynamic_offset = RIGHT_TURN_OFFSET - (turn_count * 0.5);
+      if (dynamic_offset < MIN_RIGHT_OFFSET) dynamic_offset = MIN_RIGHT_OFFSET;
+    }
     targetYaw = initialYaw + degrees + dynamic_offset;
   } else {
     Serial.println("Invalid direction. Use 'L' or 'R'.");
@@ -185,10 +189,14 @@ void turn(char direction, int degrees) {
     Serial.print((direction == 'L' || direction == 'l') ? "LEFT" : "RIGHT");
     Serial.print(" by ");
     Serial.print(degrees);
-    if (direction == 'R' || direction == 'r') {
+    if (direction == 'L' || direction == 'l') {
       Serial.print(" + dynamic offset(");
       Serial.print(dynamic_offset);
-      Serial.print(")");
+      Serial.print(") [Left]");
+    } else {
+      Serial.print(" + dynamic offset(");
+      Serial.print(dynamic_offset);
+      Serial.print(") [Right]");
     }
     Serial.println(" degrees...");
   }
@@ -325,9 +333,10 @@ void setup() {
 }
 
 void loop() {
+  // After finishing the third lap (max_turns reached), move for 2 more seconds
   if (turn_count >= max_turns) {
-    prev_time = millis();
-    while (prev_time + 3000 < millis()) {
+    unsigned long t = millis();
+    while (millis() - t < 500) {
       update_steering_move(targetYaw);
       move(robot_speed);
     }
