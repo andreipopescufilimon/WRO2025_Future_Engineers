@@ -38,12 +38,14 @@ green_threshold = [(20, 85, -60, -16, -2, 54)]
 blue_threshold = [(10, 80, -5, 25, -50, -14)]
 orange_threshold = [(20, 80, 10, 45, 100, -20)]
 pink_threshold =  [(25, 70, 14, 45, -15, 10)]
-black_threshold = [(0, 20, 35, -50, 58, -62)]
+black_threshold = [(0, 55, -10, 10, -10, 10)]
 
 # **Define Regions of Interest (ROI)**
 image_height = sensor.height()
-cubes_roi = (10, int(image_height * 0.6), sensor.width() - 20, int(image_height * 0.5))  # Bottom 50%
-lines_roi = (5, int(image_height * 0.6), sensor.width() - 10, int(image_height * 0.5))  # Bottom 50%
+image_width = sensor.width()
+cubes_roi = (10, int(image_height * 0.6), image_width - 20, int(image_height * 0.6))  # Bottom 50%
+lines_roi = (5, int(image_height * 0.6), image_width - 10, int(image_height * 0.6))  # Bottom 50%
+black_roi = (0, int(image_height * 0.6), image_width, int(image_height * 0.4))       # **Bottom 60% of the image**
 
 # **Blob Filtering Parameters**
 min_cube_size = 30  # Lowered to capture full objects
@@ -51,7 +53,8 @@ min_line_size = 80  # Lowered to detect thinner lines
 min_area = 10       # Ignore objects with area < 10
 min_valid_cube_area = 800  # NEW: Ignore red/green blobs smaller than 800
 pink_wall_min_area = 5000  # Threshold for pink highlighting
-black_wall_min_area = 12000  # Threshold for black highlighting
+black_wall_min_area = 7000  # Threshold for black highlighting
+min_black_height = 15 # Define minimum height for a valid black blob (in pixels)
 
 def get_largest_blob(blobs):
     """Returns the largest blob in a list or None if empty."""
@@ -112,10 +115,24 @@ while True:
         uart.write("PINK")
 
     # **Highlight Large Black Blob**
-    if black_blob and black_blob.area() >= black_wall_min_area:
-        img.draw_rectangle(black_blob.rect(), color=(10, 10, 10))
-        img.draw_string(black_blob.x(), black_blob.y() + black_blob.h() - 10, str(black_blob.area()), color=(255, 255, 255))
-        uart.write("BLACK")
+    if black_blob and black_blob.h() >= min_black_height:
+        # Compute the bottom of the blob and its horizontal center.
+        black_bottom = black_blob.y() + black_blob.h()
+        black_center_x = black_blob.cx()
+
+        # Define thresholds:
+        # Lower threshold: if the blob reaches below 60% of the image height.
+        lower_threshold = image_height * 0.6
+        # Middle region: if the blob's center is between 33% and 66% of the image width.
+        left_bound = image_width * 0.33
+        right_bound = image_width * 0.66
+
+        if black_bottom >= lower_threshold and left_bound < black_center_x < right_bound:
+            img.draw_rectangle(black_blob.rect(), color=(10, 10, 10))
+            img.draw_string(black_blob.x(), black_blob.y() + black_blob.h() - 10, "TURN", color=(255, 255, 255))
+            uart.write("BLACK\n")
+
+
 
     # **Process Red Cube (Ignore if elongated or too small)**
     if red_cube and not is_elongated(red_cube):
