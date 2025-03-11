@@ -419,6 +419,9 @@ if direction == 0:
 uart.write(str(direction) + '\n')
 ```
 
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/line-detection.png" width="900">
+
+
 ### ⚡ Final Round <a id="final-round"></a>
 *To be completed – Overview of how the robot handles the final round challenges, including obstacle adaptation and speed adjustments.*
 
