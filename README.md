@@ -389,7 +389,7 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 
 ## 📝 Obstacle Management <a id="obstacle-management"></a>
 
-### 🏁 Open Round <a id="open-rount"></a>
+### 🏁 Open Round <a id="open-round"></a>
 During the **Open Round**, our robot follows a **straight trajectory using a PID controller based on gyro yaw**, ensuring stable movement. To determine turns, the **camera detects Orange and Blue lines** on the track:
 - **Orange Line → Right Turn**
 - **Blue Line → Left Turn**
