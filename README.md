@@ -31,6 +31,9 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
   - [🛠️ PCB Design](#pcb-design)
   - [⚡ Power Consumption](#power-consumption)
 - [📝 Obstacle Management](#obstacle-management)
+  - [🏁 Open Round](#open-round) 
+  - [⚡ Final Round](#final-round)
+  - [🅿️ Parking](#parking)
 - [📽️ Performance Videos](#performance-videos)
 - [💰 Cost Analysis](#cost-analysis)
   - [📦 Component Costs](#components-costs)
@@ -84,7 +87,7 @@ Hi! I’m Andrei from Romania, and this is my fifth WRO season. This is my first
 ---
 
 ### **Horia Simion** (Right Side)
-**Age:** 15 <br>
+**Age:** 16 <br>
 **High School:** National College "Mihai Viteazul" (CNMV)
 
 **Description:**  
@@ -385,7 +388,42 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 ---
 
 ## 📝 Obstacle Management <a id="obstacle-management"></a>
-*To be completed – Overview of algorithms, sensor fusion, motor control, and logic.*
+
+### 🏁 Open Round <a id="open-rount"></a>
+During the **Open Round**, our robot follows a **straight trajectory using a PID controller based on gyro yaw**, ensuring stable movement. To determine turns, the **camera detects Orange and Blue lines** on the track:
+- **Orange Line → Right Turn**
+- **Blue Line → Left Turn**
+- The turn is executed when the robot reaches an approximativ **distance from the front black wall**.
+
+#### **Camera Processing for Line Detection**
+The camera captures frames in **RGB565** format and processes color blobs using **LAB thresholds** to detect relevant track elements. Below is a **snippet of the camera’s core logic** that identifies **track lines and determines turning direction**:
+
+```python
+# Detect Blobs
+red_blobs = img.find_blobs(red_threshold, roi=cubes_roi, pixels_threshold=min_cube_size, area_threshold=min_cube_size, merge=True)
+green_blobs = img.find_blobs(green_threshold, roi=cubes_roi, pixels_threshold=min_cube_size, area_threshold=min_cube_size, merge=True)
+blue_blobs = img.find_blobs(blue_threshold, roi=lines_roi, pixels_threshold=min_line_size, area_threshold=min_line_size, merge=True)
+orange_blobs = img.find_blobs(orange_threshold, roi=lines_roi, pixels_threshold=min_line_size, area_threshold=min_line_size, merge=True)
+black_blobs = img.find_blobs(black_threshold, roi=cubes_roi, pixels_threshold=min_cube_size, area_threshold=min_cube_size, merge=True)
+
+...
+
+# Determine Direction
+if direction == 0:
+    if orange_line and not is_invalid_orange(orange_line, red_blobs):
+        direction = 2  # Orange line first → turn right
+    elif blue_line:
+        direction = 1  # Blue line first → turn left
+
+# Send Direction Command
+uart.write(str(direction) + '\n')
+```
+
+### ⚡ Final Round <a id="final-round"></a>
+*To be completed – Overview of how the robot handles the final round challenges, including obstacle adaptation and speed adjustments.*
+
+### 🅿️ Parking <a id="parking"></a>
+*To be completed – Explanation of how the robot identifies and executes the parallel parking maneuver at the end of the course.*
 
 ---
 
