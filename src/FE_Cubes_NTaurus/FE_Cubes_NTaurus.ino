@@ -12,7 +12,7 @@
 // ----- Steering Servo -----
 #define SteeringServoPin 2
 Servo steeringServo;
-#define STEERING_LEFT 115   // Max left
+#define STEERING_LEFT 120   // Max left
 #define STEERING_CENTER 79  // Neutral position
 #define STEERING_RIGHT 35   // Max right
 
@@ -53,8 +53,8 @@ const unsigned long turnCooldown = 1000;
 #define PWM_RESOLUTION 8  // PWM resolution (8-bit: 0-255)
 
 // ----- Speed Control -----
-int robot_speed = 80;
-int turn_speed = 80;
+int robot_speed = 82;
+int turn_speed = 82;
 
 // ----- Gyro Variables -----
 float yaw = 0;
@@ -71,15 +71,15 @@ float pid_error = 0, last_pid_error = 0, pid_integral = 0;
 
 // ----- Debug Mode -----
 bool debug = false;  // Set to true for serial debugging
-bool debugcam = true;
+bool debugcam = false;
 
 // ----- Avoid Cubes Variables -----
 #define AVOIDANCE_ANGLE 35       // Base avoidance angle in degrees.
 #define AVOIDANCE_DRIVE_TIME 15  // Time in milliseconds to drive forward during avoidance.
 float follow_cube_angle = 0;     // Received PID steering correction for cube following.
 
-#define EXIT_MOVE_TIME 350    // Duration (in ms) for the aggressive exit move
-#define RETURN_MOVE_TIME 500  // Duration (in ms) for the aggressive return move
+#define EXIT_MOVE_TIME 380    // Duration (in ms) for the aggressive exit move
+#define RETURN_MOVE_TIME 520  // Duration (in ms) for the aggressive return move
 
 enum RobotState {
   DEFAULT_CASE,
@@ -389,6 +389,17 @@ void execute_command(String command) {
         if (turn_direction == '0')
           turn_direction = 'R';
       }
+
+      if (cmd == 'B') {  // Black command: perform 90° turn using turn_direction
+        if (millis() - lastTurnTime < turnCooldown) {
+          if (debug) Serial.println("Ignoring repeated 'B' command due to cooldown.");
+          return;
+        }
+        if (debug) Serial.println("Received 'BLACK' command. Turning 90°...");
+        turn(turn_direction, 90);
+        turn_count++;
+        lastTurnTime = millis();
+      }
       update_steering_move(targetYaw);
       move(robot_speed);
       break;
@@ -408,17 +419,7 @@ void execute_command(String command) {
       } else if (cmd == 'G') {  // Green cube detected → avoidance
         cube_avoid_direction = 'L';
         currentState = AVOID_CUBE;
-      } else if (cmd == 'B') {  // Black command: perform 90° turn using turn_direction
-        if (millis() - lastTurnTime < turnCooldown) {
-          if (debug) Serial.println("Ignoring repeated 'B' command due to cooldown.");
-          return;
-        }
-        if (debug) Serial.println("Received 'BLACK' command. Turning 90°...");
-        turn(turn_direction, 90);
-        turn_count++;
-        lastTurnTime = millis();
-      }
-
+      } 
       break;
 
     case AFTER_CUBE:
