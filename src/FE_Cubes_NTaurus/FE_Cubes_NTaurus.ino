@@ -12,9 +12,12 @@
 // ----- Steering Servo -----
 #define SteeringServoPin 2
 Servo steeringServo;
-#define STEERING_LEFT 110   // Max left
+#define STEERING_LEFT 115   // Max left
 #define STEERING_CENTER 79  // Neutral position
-#define STEERING_RIGHT 40   // Max right
+#define STEERING_RIGHT 35   // Max right
+
+#define STEERING_AVOID_LEFT 120  // Max left
+#define STEERING_AVOID_RIGHT 40  // Max right
 
 // ----- Turn Offset Adjustments -----
 // Right-turn extra offset (added when turning right)
@@ -50,8 +53,8 @@ const unsigned long turnCooldown = 1000;
 #define PWM_RESOLUTION 8  // PWM resolution (8-bit: 0-255)
 
 // ----- Speed Control -----
-int robot_speed = 100;
-int turn_speed = 90;
+int robot_speed = 80;
+int turn_speed = 80;
 
 // ----- Gyro Variables -----
 float yaw = 0;
@@ -68,11 +71,15 @@ float pid_error = 0, last_pid_error = 0, pid_integral = 0;
 
 // ----- Debug Mode -----
 bool debug = false;  // Set to true for serial debugging
+bool debugcam = true;
 
 // ----- Avoid Cubes Variables -----
-#define AVOIDANCE_ANGLE 30        // Base avoidance angle in degrees.
-#define AVOIDANCE_DRIVE_TIME 100  // Time in milliseconds to drive forward during avoidance.
-float follow_cube_angle = 0;      // Received PID steering correction for cube following.
+#define AVOIDANCE_ANGLE 35       // Base avoidance angle in degrees.
+#define AVOIDANCE_DRIVE_TIME 15  // Time in milliseconds to drive forward during avoidance.
+float follow_cube_angle = 0;     // Received PID steering correction for cube following.
+
+#define EXIT_MOVE_TIME 350    // Duration (in ms) for the aggressive exit move
+#define RETURN_MOVE_TIME 500  // Duration (in ms) for the aggressive return move
 
 enum RobotState {
   DEFAULT_CASE,
@@ -327,38 +334,41 @@ void follow_cube(float steeringCorrection) {
 }
 
 void pass_cube(int cube_direction) {
-  // Step 1: Turn away from the cube.
   if (cube_direction == 'R') {
     if (debug) {
-      Serial.println("Pass cube: Red detected, turning left to avoid cube.");
+      Serial.println("Pass cube: Red detected, aggressive exit move (steering hard left).");
     }
-    turn('L', AVOIDANCE_ANGLE);
-  } else if (cube_direction == 'L') {
-    if (debug) {
-      Serial.println("Pass cube: Green detected, turning right to avoid cube.");
-    }
-    turn('R', AVOIDANCE_ANGLE);
-  }
 
-  // Step 2: Drive forward for a short period to clear the cube.
-  unsigned long startTime = millis();
-  while (millis() - startTime < AVOIDANCE_DRIVE_TIME) {
-    update_steering_move(targetYaw);
+    steeringServo.write(STEERING_AVOID_RIGHT);
+    move(robot_speed);  // Increase speed for a more aggressive move.
+    delay(EXIT_MOVE_TIME - 20);
+
+    if (debug) {
+      Serial.println("Pass cube: Red detected, aggressive return move (steering hard right, reverse).");
+    }
+
+    steeringServo.write(STEERING_AVOID_LEFT + 20);
     move(robot_speed);
-  }
-
-  // Step 3: Realign to the original heading.
-  if (cube_direction == 'R') {
-    if (debug) {
-      Serial.println("Realigning after red cube avoidance: turning right.");
-    }
-    turn('R', AVOIDANCE_ANGLE);
+    delay(RETURN_MOVE_TIME);
   } else if (cube_direction == 'L') {
     if (debug) {
-      Serial.println("Realigning after green cube avoidance: turning left.");
+      Serial.println("Pass cube: Green detected, aggressive exit move (steering hard right).");
     }
-    turn('L', AVOIDANCE_ANGLE);
+
+    steeringServo.write(STEERING_AVOID_LEFT);
+    move(robot_speed);
+    delay(EXIT_MOVE_TIME);
+
+    if (debug) {
+      Serial.println("Pass cube: Green detected, aggressive return move (steering hard left, reverse).");
+    }
+
+    steeringServo.write(STEERING_AVOID_RIGHT);
+    move(robot_speed);
+    delay(RETURN_MOVE_TIME);
   }
+
+  steeringServo.write(STEERING_CENTER);
 }
 
 void execute_command(String command) {
@@ -372,6 +382,26 @@ void execute_command(String command) {
   char cmd = command.charAt(0);
   switch (currentState) {
     case DEFAULT_CASE:
+      if (cmd == 'L') {  // BLUE detected
+        if (turn_direction == '0')
+          turn_direction = 'L';
+      } else if (cmd == 'O') {  // ORANGE detected
+        if (turn_direction == '0')
+          turn_direction = 'R';
+      }
+      update_steering_move(targetYaw);
+      move(robot_speed);
+      break;
+
+    case AVOID_CUBE:
+      pass_cube(cube_avoid_direction);
+      currentState = AFTER_CUBE;
+      break;
+
+    case FOLLOW_CUBE:
+      steeringServo.write(desiredSteering);
+      move(robot_speed);
+
       if (cmd == 'R') {  // Red cube detected → avoidance
         cube_avoid_direction = 'R';
         currentState = AVOID_CUBE;
@@ -387,27 +417,8 @@ void execute_command(String command) {
         turn(turn_direction, 90);
         turn_count++;
         lastTurnTime = millis();
-      } else {
-        if (cmd == 'L') {  // BLUE detected
-          if (turn_direction == '0')
-            turn_direction = 'L';
-        } else if (cmd == 'O') {  // ORANGE detected
-          if (turn_direction == '0')
-            turn_direction = 'R';
-        }
-        update_steering_move(targetYaw);
-        move(robot_speed);
       }
-      break;
 
-    case AVOID_CUBE:
-      pass_cube(cube_avoid_direction);
-      currentState = AFTER_CUBE;
-      break;
-
-    case FOLLOW_CUBE:
-      steeringServo.write(desiredSteering);
-      move(robot_speed);
       break;
 
     case AFTER_CUBE:
@@ -455,30 +466,50 @@ void loop() {
 
   String command = "";
   while (cameraSerial.available() > 0) {
-    if (receivedMessage.startsWith("S")) {
-      command = receivedMessage;
-    } else {
-      String receivedMessage = receivedMessage;
-      receivedMessage.toUpperCase();
-      if (receivedMessage.indexOf("BLACK") != -1) {
-        command = "B";
-      } else if (receivedMessage.indexOf("BLUE") != -1) {
-        command = "L";
-        if (turn_direction == '0') turn_direction = 'L';
-      } else if (receivedMessage.indexOf("ORANGE") != -1) {
-        command = "O";
-        if (turn_direction == '0') turn_direction = 'R';
-      } else if (receivedMessage.indexOf("RED") != -1) {
-        command = "R";
-      } else if (receivedMessage.indexOf("GREEN") != -1) {
-        command = "G";
-      } else if (receivedMessage.indexOf("PINK") != -1) {
-        command = "P";
-      } else {
+    char receivedChar = cameraSerial.read();
+    if (receivedChar == '\n') {
+      if (receivedMessage.startsWith("S")) {
         command = receivedMessage;
+        if (debugcam) {
+          Serial.print("Received from OpenMV: ");
+          Serial.println(command);
+        }
+      } else {
+        if (debugcam) {
+          Serial.print("Received from OpenMV: ");
+          Serial.println(receivedMessage);
+        }
+        receivedMessage.toUpperCase();
+        if (receivedMessage.indexOf("BLACK") != -1) {
+          command = "B";
+        } else if (receivedMessage.indexOf("BLUE") != -1) {
+          command = "L";
+          if (turn_direction == '0') turn_direction = 'L';
+        } else if (receivedMessage.indexOf("ORANGE") != -1) {
+          command = "O";
+          if (turn_direction == '0') turn_direction = 'R';
+        } else if (receivedMessage.indexOf("RED") != -1) {
+          command = "R";
+        } else if (receivedMessage.indexOf("GREEN") != -1) {
+          command = "G";
+        } else if (receivedMessage.indexOf("PINK") != -1) {
+          command = "P";
+        } else {
+          command = receivedMessage;
+        }
       }
+      if (debugcam) {
+        Serial.print("Command received from OpenMV: ");
+        Serial.println(command);
+      }
+      execute_command(command);
+
+      // Flush the serial buffer and clear the accumulated message.
+      receivedMessage = "";
+      cameraSerial.flush();
+    } else {
+      receivedMessage += receivedChar;
     }
-    execute_command(command);
   }
 
   if (currentState == DEFAULT_CASE) {
