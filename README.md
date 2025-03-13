@@ -8,7 +8,7 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
 
 - [👥 The Team](#the-team)
 - [🎯 Challenge Overview](#challenge-overview)
-- [🤖 The Robot](#the-robot)
+- [🤖 Our Robot](#our-robot)
 - [⚙️ Mobility Management](#mobility-management)
   - [🚗 Drivebase](#drivebase)
     - [🔧 Drivetrain](#drivetrain)
@@ -118,7 +118,7 @@ Scoring is based on **accuracy, technical documentation and speed**, rewarding t
 
 ---
 
-## 🤖 The Robot <a id="the-robot"></a>
+## 🤖 Our Robot <a id="our-robot"></a>
 | <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/tree/main/media/robot-photos/top.png" width="300">         | <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/tree/main/media/robot-photos/bottom.png" width="300">            |
 |----------------------------------|-------------------------------------|
 | <p align="center"><b>Top</b></p> | <p align="center"><b>Bottom</b></p> |
