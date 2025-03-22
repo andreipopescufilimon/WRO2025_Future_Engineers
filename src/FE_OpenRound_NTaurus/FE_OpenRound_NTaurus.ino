@@ -9,21 +9,24 @@
 #define GYRO_ZOUT_H 0x47
 #define GYRO_SCALE 131.0  // Sensitivity factor for ±250°/s
 
+// ----- Interrupt Pin for MPU6050 -----
+// Define the ESP32 pin connected to the MPU6050 INT pin.
+#define MPU_INT_PIN 4
+
+// Flag set by the interrupt routine when new data is available.
+volatile bool mpuDataReady = false;
+
+// Interrupt Service Routine (ISR) for MPU6050 data ready.
+void IRAM_ATTR mpuISR() {
+  mpuDataReady = true;
+}
+
 // ----- Steering Servo -----
 #define SteeringServoPin 2
 Servo steeringServo;
-#define STEERING_LEFT 110   // Max left
+#define STEERING_LEFT 115   // Max left
 #define STEERING_CENTER 79  // Neutral position
 #define STEERING_RIGHT 40   // Max right
-
-// ----- Turn Offset Adjustments -----
-// Right-turn extra offset (added when turning right)
-#define RIGHT_TURN_OFFSET 5  // Base extra degrees for right turns
-#define MIN_RIGHT_OFFSET 2   // Minimum extra degrees for right turns
-
-// Left-turn extra offset (added when turning left to compensate understeer)
-#define LEFT_TURN_OFFSET 5   // Base extra degrees for left turns
-#define EXTRA_LEFT_OFFSET 1
 
 // ----- UART Communication -----
 #define RX_PIN 0
@@ -40,18 +43,18 @@ unsigned long lastTurnTime = 0;
 const unsigned long turnCooldown = 1000;
 
 // ----- Motor Drive -----
-#define PWMA 9    // PWM pin for motor speed control
-#define AIN1 7    // Motor direction pin 1
-#define AIN2 8    // Motor direction pin 2
-#define STBY 10   // Standby pin
+#define PWMA 11    // PWM pin for motor speed control
+#define AIN1 7     // Motor direction pin 1
+#define AIN2 8     // Motor direction pin 2
+#define STBY 10    // Standby pin
 
 #define PWM_CHANNEL 5      // ESP32 PWM channel (0-15)
 #define PWM_FREQ 1000      // PWM frequency in Hz
 #define PWM_RESOLUTION 8   // PWM resolution (8-bit: 0-255)
 
 // ----- Speed Control -----
-int robot_speed = 100;
-int turn_speed = 90;
+int robot_speed = 90;
+int turn_speed = 80;
 
 // ----- Gyro Variables -----
 float yaw = 0;
@@ -74,22 +77,30 @@ bool debug = false;  // Set to true for serial debugging
 //////////////////////////////////////////////////////////
 
 void setupMPU6050() {
+  // Wake up the MPU6050 and configure the gyro.
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(PWR_MGMT_1);
   Wire.write(0x00);
   Wire.endTransmission();
+  
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(GYRO_CONFIG);
   Wire.write(0x00);
   Wire.endTransmission();
+  
+  // Enable the Data Ready interrupt (INT_ENABLE register 0x38).
+  Wire.beginTransmission(MPU6050_ADDR);
+  Wire.write(0x38); // INT_ENABLE register
+  Wire.write(0x01); // Enable Data Ready interrupt
+  Wire.endTransmission();
 }
 
 void calibrateMPU6050() {
-  int numSamples = 1000;
+  int numSamples = 500;
   float sumZ = 0;
   for (int i = 0; i < numSamples; i++) {
     sumZ += readGyroZ();
-    delay(3);
+    delay(1);
   }
   gyro_z_offset = sumZ / numSamples;
 }
@@ -105,7 +116,6 @@ float readRawGyroZ() {
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(GYRO_ZOUT_H);
   Wire.endTransmission(false);
-  // Cast parameters as needed for ESP32 Wire library
   Wire.requestFrom((uint8_t)MPU6050_ADDR, (size_t)2, (bool)true);
   int16_t rawZ = Wire.read() << 8 | Wire.read();
   return rawZ / GYRO_SCALE;
@@ -150,7 +160,7 @@ void move(int speed) {
 void stop_motor() {
   digitalWrite(AIN1, LOW);
   digitalWrite(AIN2, LOW);
-  ledcWrite(PWMA, 0);
+  ledcWrite(PWM_CHANNEL, 0);
 }
 
 //////////////////////////////////////////////////////////
@@ -160,21 +170,26 @@ void stop_motor() {
 // Turn X degrees; direction: 'L' for left, 'R' for right
 void turn(char direction, int degrees) {
   float initialYaw = yaw;
-  float dynamic_offset = 0;  // Declare dynamic_offset here
+  
+  // Base offset: if it's the first turn of a lap (turn_count % 4 == 0) use 6.5°, otherwise 4°.
+  float baseOffset = (turn_count % 4 == 0) ? 6.5 : 4;
+  
+  // By default, no extra offset is added.
+  float extraTurnOffset = baseOffset;
+  
+  // Apply an extra offset only at the end of lap 2 (turn_count==7)
+  // and at the start of lap 3 (turn_count==8), but reduce the extra offset
+  // for the 8th steer by 1.5°.
+  if (turn_count == 7) {
+    extraTurnOffset = baseOffset + 2;
+  } else if (turn_count == 8) {
+    extraTurnOffset = baseOffset + 2 - 1.5;  // i.e. baseOffset + 0.5
+  }
+  
   if (direction == 'L' || direction == 'l') {
-    // For left turns, add extra offset to compensate understeer.
-    // Here we always add a fixed extra offset to turn further left.
-    dynamic_offset = LEFT_TURN_OFFSET + EXTRA_LEFT_OFFSET;
-    targetYaw = initialYaw - (degrees + dynamic_offset);
+    targetYaw = initialYaw - (degrees + extraTurnOffset);
   } else if (direction == 'R' || direction == 'r') {
-    // For right turns, use the previous dynamic offset calculation.
-    if(turn_count >= (max_turns - 4)) {
-      dynamic_offset = RIGHT_TURN_OFFSET + 1;  // Extra steering on the last lap
-    } else {
-      dynamic_offset = RIGHT_TURN_OFFSET - (turn_count * 0.5);
-      if (dynamic_offset < MIN_RIGHT_OFFSET) dynamic_offset = MIN_RIGHT_OFFSET;
-    }
-    targetYaw = initialYaw + degrees + dynamic_offset;
+    targetYaw = initialYaw + (degrees + extraTurnOffset);
   } else {
     Serial.println("Invalid direction. Use 'L' or 'R'.");
     return;
@@ -189,15 +204,9 @@ void turn(char direction, int degrees) {
     Serial.print((direction == 'L' || direction == 'l') ? "LEFT" : "RIGHT");
     Serial.print(" by ");
     Serial.print(degrees);
-    if (direction == 'L' || direction == 'l') {
-      Serial.print(" + dynamic offset(");
-      Serial.print(dynamic_offset);
-      Serial.print(") [Left]");
-    } else {
-      Serial.print(" + dynamic offset(");
-      Serial.print(dynamic_offset);
-      Serial.print(") [Right]");
-    }
+    Serial.print(" degrees plus an extra offset of ");
+    // Print the additional offset compared to baseOffset.
+    Serial.print(extraTurnOffset - baseOffset);
     Serial.println(" degrees...");
   }
 
@@ -211,13 +220,16 @@ void turn(char direction, int degrees) {
   move(turn_speed);
   const float turnThreshold = 5.0;  // Acceptable error in degrees.
   while (abs(calculateYawError(targetYaw, yaw)) > turnThreshold) {
-    float gz = readGyroZ();
-    unsigned long current_time = millis();
-    float dt = (current_time - prev_time) / 1000.0;
-    prev_time = current_time;
-    yaw -= gz * dt;
-    if (yaw >= 360) yaw -= 360;
-    if (yaw < 0) yaw += 360;
+    if (mpuDataReady) {  // Only update when new sensor data is available.
+      mpuDataReady = false;
+      float gz = readGyroZ();
+      unsigned long current_time = millis();
+      float dt = (current_time - prev_time) / 1000.0;
+      prev_time = current_time;
+      yaw -= gz * dt;
+      if (yaw >= 360) yaw -= 360;
+      if (yaw < 0) yaw += 360;
+    }
     move(turn_speed);
   }
   // Reset yaw and PID terms after turn.
@@ -245,6 +257,10 @@ void steer(int steering_angle) {
 }
 
 void update_steering_move(float targetYaw) {
+  // Only update when new sensor data is available.
+  if (!mpuDataReady) return;
+  mpuDataReady = false;
+  
   unsigned long current_time = millis();
   if (current_time - last_pid_time < PID_INTERVAL) return;
   float dt = (current_time - prev_time) / 1000.0;
@@ -325,18 +341,25 @@ void setup() {
   Wire.begin();
   Serial.begin(115200);
   cameraSerial.begin(19200);
+  
+  // Setup steering, motor, and MPU6050.
   steering_servo_setup();
   motor_driver_setup();
   setupMPU6050();
   calibrateMPU6050();
+  
+  // Set up the interrupt pin for MPU6050 data ready.
+  pinMode(MPU_INT_PIN, INPUT);
+  attachInterrupt(digitalPinToInterrupt(MPU_INT_PIN), mpuISR, RISING);
+  
   prev_time = millis();
 }
 
 void loop() {
-  // After finishing the third lap (max_turns reached), move for 2 more seconds
+  // After finishing the third lap (max_turns reached), move for 500 milliseconds.
   if (turn_count >= max_turns) {
     unsigned long t = millis();
-    while (millis() - t < 500) {
+    while (millis() - t < 600) {
       update_steering_move(targetYaw);
       move(robot_speed);
     }
@@ -365,7 +388,7 @@ void loop() {
       } else if (receivedMessage.indexOf("RED") != -1) {
         command = 'R';
       } else if (receivedMessage.indexOf("GREEN") != -1) {
-        command = 'G';
+        command = 'G';  
       } else if (receivedMessage.indexOf("PINK") != -1) {
         command = 'P';
       }
