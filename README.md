@@ -163,9 +163,9 @@ Following past testing, we selected **a high-power 30:1 Micro Metal Gearmotor (1
 | **Stall Torque:** ~0.4 kg·cm | **Stall Current:** 1.6A |
 | 🔗 **[Buy Here](https://www.pololu.com/product/3038)** | **Function:** Drives the robot |
 
-➜ **Why We Chose This Motor?**  
-✔ **Gear ratio provides sufficient torque** without sacrificing efficiency.  
-✔ **Compact design**, allowing integration into a lightweight robot.  
+**Why We Chose This Motor?**  
+**- Gear ratio provides sufficient torque** without sacrificing efficiency.  
+**- Compact and lightweight design**, allowing integration into a lightweight robot.  
 
 ### 🔌 **Motor Driver – Sparkfun TB6612FNG** <a id="motor-driver"></a>
 To control the motor's speed and direction, we integrated a **Sparkfun Dual TB6612FNG motor driver** into the PCB. This dual motor driver enables **precise adjustments for acceleration, braking, and turning** through **PWM control**.
@@ -182,14 +182,14 @@ The **steering system** is a critical part of the robot, ensuring precise maneuv
 
 <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/steering-3D-model.png" width="700">
 
-Our **steering arm is directly connected to the servo**, which moves the two front wheels simultaneously. This ensures that the turning response is immediate and proportional to the servo's motion. The **wheels are mounted on special mounts**, allowing for smooth and precise movement without excessive friction. To ensure **structural integrity and long-term reliability**, the steering system is **assembled using M3 screws and lock nuts**. These prevent the nuts from loosening due to vibrations, ensuring a **secure and stable connection**.
+Our **steering arm is directly connected to the servo**, which moves the two front wheels simultaneously. This ensures that the turning response is immediate and proportional to the servo's motion. The **wheels are mounted on special mounts**, allowing for smooth and precise movement without excessive friction. To ensure **structural integrity and long-term reliability**, the steering system is **assembled using 2mm carbon fiber bars that are glued at the ends to the chassis**.
 
 <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/right-front-wheel-mount-technical-drawing.jpg" width="700">
 
 <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/steering-connector-bar-technical-drawing.jpg" width="700">
 
 **⚙️ Design Considerations & Improvements** <br>
-While the parallelogram steering system is effective, some potential enhancements could improve its performance. Additionally, optimizing the **steering linkages** could reduce mechanical play, making the system more precise. In future iterations, we may experiment with **Ackermann geometry** to better distribute wheel angles during turns, further improving efficiency and reducing tire slippage.
+While the parallelogram steering system is effective, some potential enhancements could improve its performance. Additionally, optimizing the **motor mounts** could reduce mechanical play, making the system more precise. In future iterations, we may experiment with **Ackermann geometry** and suspension to better distribute wheel angles during turns, further improving efficiency and reducing tire slippage.
 
 ---
 
@@ -215,9 +215,9 @@ The robot is driven by **a single high-performance motor**, which is connected t
 
 <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/chassis-technical-drawing.jpg" width="700">
 
-## ✨ **Key Features & Advantages** <a id="key-features"></a>
+**Key Features & Advantages** <a id="key-features"></a>
 
-✔️ **Lightweight & Durable** – The **3D-printed chassis** ensures a strong yet lightweight structure, optimizing performance.  
+✔ **Lightweight & Durable** – The **3D-printed chassis** ensures a strong yet lightweight structure, optimizing performance.  
 ✔️ **Hexagonal Cutouts** – Reduce weight while maintaining strength **+ they enhance the robot's aesthetics**.  
 ✔️ **Balanced Design** – The **battery is centrally placed**, ensuring even weight distribution and stability.  
 ✔️ **Easy Component Mounting** – Pre-designed slots for **motor, PCB, steering servo, and camera** make assembly quick and efficient.  
@@ -252,13 +252,13 @@ Each component has been carefully selected to provide **optimal performance**, m
 
 The **Li-Po battery** provides a **compact, lightweight, and high-discharge** power source, making it ideal for our robot. The **11.1V output** is suitable for running our **motors and voltage regulator**, ensuring stable power delivery.
 
-| <img src="https://gensace.de/cdn/shop/files/1_113_10.jpg?v=1722466075&width=900" width="300"> | **Specifications** |
+| <img src="./other/battery.png" width="300"> | **Specifications** |
 |------------------------------|------------------------------|
 | **Model:** 3S Li-Po | **Capacity:** 450mAh |
-| **Voltage:** 11.1V | **Discharge Rate:** 30C |
+| **Voltage:** 11.1V | **Discharge Rate:** 25C |
 | **Weight:** 38g | **Size:** 56.5 × 31 × 9mm |
 | **Output Current:** Varies by load | **Connector Type:** JST |
-| 🔗 **[Buy Here](https://gensace.de/products/gens-ace-g-tech-soaring-450mah-11-1v-30c-3s1p-lipo-battery-pack-with-jst-syp-plug)** | **Function:** Powers the entire robot |
+| 🔗 **[Buy Here](https://www.jsumo.com/jsumo-3s-111-volt-450-mah-lipo-battery)** | **Function:** Powers the entire robot |
 
 ---
 
