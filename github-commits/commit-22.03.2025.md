@@ -1,5 +1,4 @@
-Commit - 24/02/2025
+Commit - 22/03/2025
 
-- Wrote Power and Sense Management and current Cost Analysis.
-- Uploaded all technical drawings of the 3D printed parts.
-- Wrote Mobility Management.
+- Uploaded robot images from all 6 angles
+- Uploaded open round codes that fully works
