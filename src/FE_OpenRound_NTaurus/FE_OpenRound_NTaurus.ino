@@ -357,14 +357,11 @@ void loop() {
       receivedMessage.toUpperCase();
       if (receivedMessage.indexOf("BLACK") != -1) {
         command = 'B';
-        robot_speed = 190;
       } else if (receivedMessage.indexOf("BLUE") != -1) {
         command = 'L';
-        robot_speed = 90;
         if (turn_direction == '0') turn_direction = 'L';
       } else if (receivedMessage.indexOf("ORANGE") != -1) {
         command = 'O';
-        robot_speed = 90;
         if (turn_direction == '0') turn_direction = 'R';
       }
       execute_command(command);
