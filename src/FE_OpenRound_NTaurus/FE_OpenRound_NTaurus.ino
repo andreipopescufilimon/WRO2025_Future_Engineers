@@ -2,139 +2,159 @@
 #include <ESP32Servo.h>
 #include <SoftwareSerial.h>
 
-// ----- MPU6050 Gyro -----
-#define MPU6050_ADDR 0x68
-#define GYRO_CONFIG 0x1B
-#define PWR_MGMT_1 0x6B
-#define GYRO_ZOUT_H 0x47
-#define GYRO_SCALE 131.0  // Sensitivity factor for ±250°/s
+// ================ Pin Definitions ================
+#define PWMA 11
+#define STBY 10
+#define AIN2 8
+#define AIN1 7
+#define START_BTN 4
+#define STEERING_SERVO 2
+#define P4 0
+#define P5 1
+#define BUILTIN_LED 13
 
-// ----- Interrupt Pin for MPU6050 -----
-// Define the ESP32 pin connected to the MPU6050 INT pin.
-#define MPU_INT_PIN 4
 
-// Flag set by the interrupt routine when new data is available.
-volatile bool mpuDataReady = false;
+// ================ Gyro Variables ================
+float RateRoll, RatePitch, RateYaw;
+float RateCalibrationRoll, RateCalibrationPitch, RateCalibrationYaw;
+int RateCalibrationNumber;
 
-// Interrupt Service Routine (ISR) for MPU6050 data ready.
-void IRAM_ATTR mpuISR() {
-  mpuDataReady = true;
-}
+float AccX, AccY, AccZ;
+float AngleRoll, AnglePitch;
 
-// ----- Steering Servo -----
+uint32_t LoopTimer;
+float KalmanAngleRoll = 0, KalmanUncertaintyAngleRoll = 2 * 2;
+float KalmanAnglePitch = 0, KalmanUncertaintyAnglePitch = 2 * 2;
+float Kalman1DOutput[] = { 0, 0 };
+
+float YawAngle = 0;
+float targetYaw = 1.0;  // 1 due to assimetry
+
+// ================ Speed Control ================
+int robot_speed = 100;  // 90
+int turn_speed = 100;   // 80
+
+// ================ Motors and PID ================
+float kp = 0.32;  // 0.32
+float ki = 0;
+float kd = 8.5;  // 8.5
+float pid_error = 0, last_pid_error = 0, pid_integral = 0;
+
+#define PWM_CHANNEL 5
+#define PWM_FREQ 1000
+#define PWM_RESOLUTION 8
+
 #define SteeringServoPin 2
 Servo steeringServo;
-#define STEERING_LEFT 115   // Max left
-#define STEERING_CENTER 79  // Neutral position
-#define STEERING_RIGHT 40   // Max right
+#define STEERING_LEFT 115
+#define STEERING_CENTER 79
+#define STEERING_RIGHT 40
 
-// ----- UART Communication -----
+// ================ UART Communication ================
 #define RX_PIN 0
 #define TX_PIN 1
 SoftwareSerial cameraSerial(RX_PIN, TX_PIN);
 String receivedMessage = "";
 char command = '0';
 
-// ----- Turns count and direction -----
-char turn_direction = '0';  // Turns direction based on first viewed orange or blue line
-int turn_count = 0;         // Counter for turns
-const int max_turns = 12;   // Maximum turns before stopping (3 laps for a square track)
+// ================ Turns count and direction ================
+char turn_direction = '0';
+int turn_count = 0;
+const int max_turns = 12;
 unsigned long lastTurnTime = 0;
-const unsigned long turnCooldown = 1000;
+const unsigned long turnCooldown = 2000;
 
-// ----- Motor Drive -----
-#define PWMA 11    // PWM pin for motor speed control
-#define AIN1 7     // Motor direction pin 1
-#define AIN2 8     // Motor direction pin 2
-#define STBY 10    // Standby pin
+// ================ Debug Mode ================
+bool debug = false;
+bool debuggyro = false;
 
-#define PWM_CHANNEL 5      // ESP32 PWM channel (0-15)
-#define PWM_FREQ 1000      // PWM frequency in Hz
-#define PWM_RESOLUTION 8   // PWM resolution (8-bit: 0-255)
-
-// ----- Speed Control -----
-int robot_speed = 90;
-int turn_speed = 80;
-
-// ----- Gyro Variables -----
-float yaw = 0;
-float targetYaw = 0;
-float gyro_z_offset = 0;
-unsigned long prev_time, last_pid_time = 0;
-const int PID_INTERVAL = 1;
-
-// ----- PID Control for straight movement -----
-float kp = 4.5;
-float ki = 0.0;
-float kd = 8.3;
-float pid_error = 0, last_pid_error = 0, pid_integral = 0;
-
-// ----- Debug Mode -----
-bool debug = false;  // Set to true for serial debugging
-
-//////////////////////////////////////////////////////////
-//                Gyro Functions                        //
-//////////////////////////////////////////////////////////
-
-void setupMPU6050() {
-  // Wake up the MPU6050 and configure the gyro.
-  Wire.beginTransmission(MPU6050_ADDR);
-  Wire.write(PWR_MGMT_1);
-  Wire.write(0x00);
-  Wire.endTransmission();
-  
-  Wire.beginTransmission(MPU6050_ADDR);
-  Wire.write(GYRO_CONFIG);
-  Wire.write(0x00);
-  Wire.endTransmission();
-  
-  // Enable the Data Ready interrupt (INT_ENABLE register 0x38).
-  Wire.beginTransmission(MPU6050_ADDR);
-  Wire.write(0x38); // INT_ENABLE register
-  Wire.write(0x01); // Enable Data Ready interrupt
-  Wire.endTransmission();
+void kalman_1d(float KalmanState, float KalmanUncertainty, float KalmanInput, float KalmanMeasurement) {
+  KalmanState = KalmanState + 0.004 * KalmanInput;
+  KalmanUncertainty = KalmanUncertainty + 0.004 * 0.004 * 4 * 4;
+  float KalmanGain = KalmanUncertainty * 1 / (1 * KalmanUncertainty + 3 * 3);
+  KalmanState = KalmanState + KalmanGain * (KalmanMeasurement - KalmanState);
+  KalmanUncertainty = (1 - KalmanGain) * KalmanUncertainty;
+  Kalman1DOutput[0] = KalmanState;
+  Kalman1DOutput[1] = KalmanUncertainty;
 }
 
-void calibrateMPU6050() {
-  int numSamples = 500;
-  float sumZ = 0;
-  for (int i = 0; i < numSamples; i++) {
-    sumZ += readGyroZ();
-    delay(1);
+void gyro_signals(void) {
+  Wire.beginTransmission(0x68);
+  Wire.write(0x1A);
+  Wire.write(0x05);
+  Wire.endTransmission();
+
+  Wire.beginTransmission(0x68);
+  Wire.write(0x1C);
+  Wire.write(0x10);
+  Wire.endTransmission();
+
+  Wire.beginTransmission(0x68);
+  Wire.write(0x3B);
+  Wire.endTransmission();
+  Wire.requestFrom(0x68, 6);
+  int16_t AccXLSB = Wire.read() << 8 | Wire.read();
+  int16_t AccYLSB = Wire.read() << 8 | Wire.read();
+  int16_t AccZLSB = Wire.read() << 8 | Wire.read();
+
+  Wire.beginTransmission(0x68);
+  Wire.write(0x1B);
+  Wire.write(0x8);
+  Wire.endTransmission();
+
+  Wire.beginTransmission(0x68);
+  Wire.write(0x43);
+  Wire.endTransmission();
+  Wire.requestFrom(0x68, 6);
+  int16_t GyroX = Wire.read() << 8 | Wire.read();
+  int16_t GyroY = Wire.read() << 8 | Wire.read();
+  int16_t GyroZ = Wire.read() << 8 | Wire.read();
+
+  RateRoll = (float)GyroX / 65.5;
+  RatePitch = (float)GyroY / 65.5;
+  RateYaw = (float)GyroZ / 65.5;
+
+  AccX = (float)AccXLSB / 4096;
+  AccY = (float)AccYLSB / 4096;
+  AccZ = (float)AccZLSB / 4096;
+
+  AngleRoll = atan(AccY / sqrt(AccX * AccX + AccZ * AccZ)) * 1 / (3.142 / 180);
+  AnglePitch = -atan(AccX / sqrt(AccY * AccY + AccZ * AccZ)) * 1 / (3.142 / 180);
+}
+
+void calculate_gyro_data() {
+  gyro_signals();
+
+  RateRoll -= RateCalibrationRoll;
+  RatePitch -= RateCalibrationPitch;
+  RateYaw -= RateCalibrationYaw;
+
+  kalman_1d(KalmanAngleRoll, KalmanUncertaintyAngleRoll, RateRoll, AngleRoll);
+  KalmanAngleRoll = Kalman1DOutput[0];
+  KalmanUncertaintyAngleRoll = Kalman1DOutput[1];
+
+  kalman_1d(KalmanAnglePitch, KalmanUncertaintyAnglePitch, RatePitch, AnglePitch);
+  KalmanAnglePitch = Kalman1DOutput[0];
+  KalmanUncertaintyAnglePitch = Kalman1DOutput[1];
+
+  YawAngle += RateYaw * 0.004;
+
+  if (YawAngle >= 360) YawAngle -= 360;
+  else if (YawAngle < 0) YawAngle += 360;
+
+  if (debuggyro) {
+    Serial.print("Roll Angle [°] ");
+    Serial.print(KalmanAngleRoll);
+    Serial.print(" Pitch Angle [°] ");
+    Serial.print(KalmanAnglePitch);
+    Serial.print(" Yaw Angle [°] ");
+    Serial.println(YawAngle);
   }
-  gyro_z_offset = sumZ / numSamples;
-}
 
-void writeMPU6050(byte reg, byte value) {
-  Wire.beginTransmission(MPU6050_ADDR);
-  Wire.write(reg);
-  Wire.write(value);
-  Wire.endTransmission();
+  while (micros() - LoopTimer < 4000)
+    ;
+  LoopTimer = micros();
 }
-
-float readRawGyroZ() {
-  Wire.beginTransmission(MPU6050_ADDR);
-  Wire.write(GYRO_ZOUT_H);
-  Wire.endTransmission(false);
-  Wire.requestFrom((uint8_t)MPU6050_ADDR, (size_t)2, (bool)true);
-  int16_t rawZ = Wire.read() << 8 | Wire.read();
-  return rawZ / GYRO_SCALE;
-}
-
-float readGyroZ() {
-  return readRawGyroZ() - gyro_z_offset;
-}
-
-float calculateYawError(float targetYaw, float currentYaw) {
-  float error = targetYaw - currentYaw;
-  if (error > 180) error -= 360;
-  if (error < -180) error += 360;
-  return error;
-}
-
-//////////////////////////////////////////////////////////
-//                Motor Functions                       //
-//////////////////////////////////////////////////////////
 
 void motor_driver_setup() {
   pinMode(AIN1, OUTPUT);
@@ -163,89 +183,6 @@ void stop_motor() {
   ledcWrite(PWM_CHANNEL, 0);
 }
 
-//////////////////////////////////////////////////////////
-//                     Turn Function                    //
-//////////////////////////////////////////////////////////
-
-// Turn X degrees; direction: 'L' for left, 'R' for right
-void turn(char direction, int degrees) {
-  float initialYaw = yaw;
-  
-  // Base offset: if it's the first turn of a lap (turn_count % 4 == 0) use 6.5°, otherwise 4°.
-  float baseOffset = (turn_count % 4 == 0) ? 6.5 : 4;
-  
-  // By default, no extra offset is added.
-  float extraTurnOffset = baseOffset;
-  
-  // Apply an extra offset only at the end of lap 2 (turn_count==7)
-  // and at the start of lap 3 (turn_count==8), but reduce the extra offset
-  // for the 8th steer by 1.5°.
-  if (turn_count == 7) {
-    extraTurnOffset = baseOffset + 2;
-  } else if (turn_count == 8) {
-    extraTurnOffset = baseOffset + 2 - 1.5;  // i.e. baseOffset + 0.5
-  }
-  
-  if (direction == 'L' || direction == 'l') {
-    targetYaw = initialYaw - (degrees + extraTurnOffset);
-  } else if (direction == 'R' || direction == 'r') {
-    targetYaw = initialYaw + (degrees + extraTurnOffset);
-  } else {
-    Serial.println("Invalid direction. Use 'L' or 'R'.");
-    return;
-  }
-
-  // Normalize targetYaw within 0-359 degrees.
-  if (targetYaw >= 360) targetYaw -= 360;
-  if (targetYaw < 0) targetYaw += 360;
-
-  if (debug) {
-    Serial.print("Turning ");
-    Serial.print((direction == 'L' || direction == 'l') ? "LEFT" : "RIGHT");
-    Serial.print(" by ");
-    Serial.print(degrees);
-    Serial.print(" degrees plus an extra offset of ");
-    // Print the additional offset compared to baseOffset.
-    Serial.print(extraTurnOffset - baseOffset);
-    Serial.println(" degrees...");
-  }
-
-  // Set steering for turn.
-  if (direction == 'L' || direction == 'l') {
-    steeringServo.write(STEERING_LEFT);
-  } else {
-    steeringServo.write(STEERING_RIGHT);
-  }
-
-  move(turn_speed);
-  const float turnThreshold = 5.0;  // Acceptable error in degrees.
-  while (abs(calculateYawError(targetYaw, yaw)) > turnThreshold) {
-    if (mpuDataReady) {  // Only update when new sensor data is available.
-      mpuDataReady = false;
-      float gz = readGyroZ();
-      unsigned long current_time = millis();
-      float dt = (current_time - prev_time) / 1000.0;
-      prev_time = current_time;
-      yaw -= gz * dt;
-      if (yaw >= 360) yaw -= 360;
-      if (yaw < 0) yaw += 360;
-    }
-    move(turn_speed);
-  }
-  // Reset yaw and PID terms after turn.
-  yaw = targetYaw;
-  pid_integral = 0;
-  last_pid_error = 0;
-  steeringServo.write(STEERING_CENTER);
-  if (debug) {
-    Serial.println("Turn complete. Steering centered and yaw reset.");
-  }
-}
-
-//////////////////////////////////////////////////////////
-//              Steering Functions                      //
-//////////////////////////////////////////////////////////
-
 void steering_servo_setup() {
   steeringServo.attach(SteeringServoPin);
   steeringServo.write(STEERING_CENTER);
@@ -256,63 +193,83 @@ void steer(int steering_angle) {
   steeringServo.write(steering_angle);
 }
 
-void update_steering_move(float targetYaw) {
-  // Only update when new sensor data is available.
-  if (!mpuDataReady) return;
-  mpuDataReady = false;
-  
-  unsigned long current_time = millis();
-  if (current_time - last_pid_time < PID_INTERVAL) return;
-  float dt = (current_time - prev_time) / 1000.0;
-  prev_time = current_time;
-  if (dt > 0.1) dt = 0.1;
-  last_pid_time = current_time;
-  
-  float gz = readGyroZ();
-  yaw -= gz * dt;
-  if (yaw >= 360) yaw -= 360;
-  if (yaw < 0) yaw += 360;
-  
-  // Dynamic gyro offset adjustment.
-  float raw_gz = readRawGyroZ();
-  float measured_gz = raw_gz - gyro_z_offset;
-  const float driftThreshold = 0.5; // degrees/second threshold
-  const float adjustmentFactor = 0.005; // adjustment factor
-  if (abs(measured_gz) < driftThreshold) {
-    gyro_z_offset += adjustmentFactor * measured_gz;
+void turn(char direction, float degrees) {
+  float initialYaw = YawAngle;
+  float desiredYaw;
+
+  if (initialYaw < 0) initialYaw += 360;
+
+  if (direction == 'R') {
+    steer(STEERING_RIGHT);
+    desiredYaw = initialYaw - degrees;
+    if (desiredYaw < 0) desiredYaw += 360;
+  } else if (direction == 'L') {
+    steer(STEERING_LEFT);
+    desiredYaw = initialYaw + degrees;
+    if (desiredYaw >= 360) desiredYaw -= 360;
+  } else {
+    stop_motor();
+    steer(STEERING_CENTER);
+    return;
   }
-  
-  pid_error = calculateYawError(targetYaw, yaw);
-  pid_integral += (pid_error * dt);
-  float pid_derivative = (pid_error - last_pid_error);
-  last_pid_error = pid_error;
-  
-  float correction = (kp * pid_error) + (ki * pid_integral) + (kd * pid_derivative);
-  int steering_angle = STEERING_CENTER - correction;
-  steering_angle = constrain(steering_angle, STEERING_RIGHT, STEERING_LEFT);
-  steeringServo.write(steering_angle);
-  
+
+  move(turn_speed);
+  while (true) {
+    calculate_gyro_data();
+    float currentYaw = YawAngle;
+    if (currentYaw < 0) currentYaw += 360;
+
+    float yawDiff = abs(currentYaw - desiredYaw);
+    if (yawDiff > 180) yawDiff = 360 - yawDiff;
+    if (yawDiff < 5.0) break;
+  }
+
+  targetYaw = desiredYaw;
   if (debug) {
-    Serial.print("Yaw: ");
-    Serial.print(yaw);
-    Serial.print(" | Target: ");
-    Serial.print(targetYaw);
-    Serial.print(" | Error: ");
-    Serial.print(pid_error);
-    Serial.print(" | Correction: ");
-    Serial.print(correction);
-    Serial.print(" | Steering: ");
-    Serial.println(steering_angle);
+    Serial.print("Completed turn. New target Yaw: ");
+    Serial.println(targetYaw);
   }
 }
 
-//////////////////////////////////////////////////////////
-//                Custom Functions                      //
-//////////////////////////////////////////////////////////
+void update_steering_move(float targetYaw) {
+  float currentYaw = YawAngle;
+  if (currentYaw < 0) currentYaw += 360;
+  if (targetYaw < 0) targetYaw += 360;
+
+  float yawError = targetYaw - currentYaw;
+  if (yawError > 180) yawError -= 360;
+  if (yawError < -180) yawError += 360;
+
+  float yawDerivative = yawError - last_pid_error;
+
+  pid_integral *= 0.95;
+  pid_integral += yawError;
+
+  float correction = kp * yawError + kd * yawDerivative + ki * pid_integral;
+  correction *= 10;
+  last_pid_error = yawError;
+
+  int steeringAngle = STEERING_CENTER + correction;
+  if (steeringAngle > STEERING_LEFT) steeringAngle = STEERING_LEFT;
+  if (steeringAngle < STEERING_RIGHT) steeringAngle = STEERING_RIGHT;
+
+  steer(steeringAngle);
+
+  if (debug) {
+    Serial.print("TargetYaw: ");
+    Serial.print(targetYaw);
+    Serial.print(" | CurrentYaw: ");
+    Serial.print(currentYaw);
+    Serial.print(" | Error: ");
+    Serial.print(yawError);
+    Serial.print(" | Steering Angle: ");
+    Serial.println(steeringAngle);
+  }
+}
 
 void custom_delay(long long delay_time) {
   long long start_time = millis();
-  while (millis() - start_time < delay_time) { }
+  while (millis() - start_time < delay_time) {}
 }
 
 void execute_command(char command) {
@@ -333,41 +290,62 @@ void execute_command(char command) {
   }
 }
 
-//////////////////////////////////////////////////////////
-//                      Main Code                       //
-//////////////////////////////////////////////////////////
-
 void setup() {
-  Wire.begin();
-  Serial.begin(115200);
-  cameraSerial.begin(19200);
-  
-  // Setup steering, motor, and MPU6050.
+  delay(1500);
+
   steering_servo_setup();
   motor_driver_setup();
-  setupMPU6050();
-  calibrateMPU6050();
-  
-  // Set up the interrupt pin for MPU6050 data ready.
-  pinMode(MPU_INT_PIN, INPUT);
-  attachInterrupt(digitalPinToInterrupt(MPU_INT_PIN), mpuISR, RISING);
-  
-  prev_time = millis();
+  cameraSerial.begin(19200);
+
+  Wire.setClock(400000);
+  Wire.begin();
+  delay(250);
+
+  Wire.beginTransmission(0x68);
+  Wire.write(0x6B);
+  Wire.write(0x00);
+  Wire.endTransmission();
+
+  for (RateCalibrationNumber = 0; RateCalibrationNumber < 4000; RateCalibrationNumber++) {
+    gyro_signals();
+    RateCalibrationRoll += RateRoll;
+    RateCalibrationPitch += RatePitch;
+    RateCalibrationYaw += RateYaw;
+    delay(1);
+  }
+
+  RateCalibrationRoll /= 4000;
+  RateCalibrationPitch /= 4000;
+  RateCalibrationYaw /= 4000;
+
+  LoopTimer = micros();
+
+  if (debug) Serial.begin(115200);
+
+  pinMode(BUILTIN_LED, OUTPUT);
+  digitalWrite(BUILTIN_LED, HIGH);
+
+  pinMode(START_BTN, INPUT_PULLUP);
+  while (digitalRead(START_BTN) == LOW)
+    ;
+  digitalWrite(BUILTIN_LED, LOW);
+  custom_delay(500);
 }
 
 void loop() {
-  // After finishing the third lap (max_turns reached), move for 500 milliseconds.
   if (turn_count >= max_turns) {
     unsigned long t = millis();
-    while (millis() - t < 600) {
+    while (millis() - t < 800) {
+      calculate_gyro_data();
       update_steering_move(targetYaw);
       move(robot_speed);
     }
     stop_motor();
     if (debug) Serial.println("Maximum turns reached. Stopping...");
-    while (true);
+    while (true)
+      ;
   }
-  
+
   command = '0';
   while (cameraSerial.available() > 0) {
     char receivedChar = cameraSerial.read();
@@ -379,18 +357,15 @@ void loop() {
       receivedMessage.toUpperCase();
       if (receivedMessage.indexOf("BLACK") != -1) {
         command = 'B';
+        robot_speed = 190;
       } else if (receivedMessage.indexOf("BLUE") != -1) {
         command = 'L';
+        robot_speed = 90;
         if (turn_direction == '0') turn_direction = 'L';
       } else if (receivedMessage.indexOf("ORANGE") != -1) {
         command = 'O';
+        robot_speed = 90;
         if (turn_direction == '0') turn_direction = 'R';
-      } else if (receivedMessage.indexOf("RED") != -1) {
-        command = 'R';
-      } else if (receivedMessage.indexOf("GREEN") != -1) {
-        command = 'G';  
-      } else if (receivedMessage.indexOf("PINK") != -1) {
-        command = 'P';
       }
       execute_command(command);
       if (debug) {
@@ -402,6 +377,8 @@ void loop() {
       receivedMessage += receivedChar;
     }
   }
+
+  calculate_gyro_data();
   update_steering_move(targetYaw);
   move(robot_speed);
 }
