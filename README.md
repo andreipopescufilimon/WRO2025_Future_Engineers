@@ -127,7 +127,7 @@ Scoring is based on **accuracy, technical documentation and speed**, rewarding t
 |-----------------------------------|------------------------------------|
 | <p align="center"><b>Left</b></p> | <p align="center"><b>Right</b></p> |
 
-| <img src="https://raw.githubusercontent.com/andreipopescufilimon/WRO2025_Future_Engineers/main/media/robot-photos/front.png" width="300">           | <img src="https://raw.githubusercontent.com/andreipopescufilimon/WRO2025_Future_Engineers/main/media/robot-photos/back2.png" width="300">          |
+| <img src="https://raw.githubusercontent.com/andreipopescufilimon/WRO2025_Future_Engineers/main/media/robot-photos/front.png" width="300">           | <img src="https://raw.githubusercontent.com/andreipopescufilimon/WRO2025_Future_Engineers/main/media/robot-photos/back.png" width="300">          |
 |------------------------------------|-----------------------------------|
 | <p align="center"><b>Front</b></p> | <p align="center"><b>Back</b></p> |
 
