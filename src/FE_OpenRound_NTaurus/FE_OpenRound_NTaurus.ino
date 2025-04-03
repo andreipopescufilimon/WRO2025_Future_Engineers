@@ -32,7 +32,7 @@ float targetYaw = 1.0;  // 1 due to assimetry
 
 // ================ Speed Control ================
 int robot_speed = 100;  // 90
-int turn_speed = 100;   // 80
+int turn_speed = 90;   // 80
 
 // ================ Motors and PID ================
 float kp = 0.32;  // 0.32
@@ -68,6 +68,11 @@ const unsigned long turnCooldown = 2000;
 bool debug = false;
 bool debuggyro = false;
 
+
+
+// -----------------------------------------------------------
+//                     Gyro Functions
+// -----------------------------------------------------------
 void kalman_1d(float KalmanState, float KalmanUncertainty, float KalmanInput, float KalmanMeasurement) {
   KalmanState = KalmanState + 0.004 * KalmanInput;
   KalmanUncertainty = KalmanUncertainty + 0.004 * 0.004 * 4 * 4;
@@ -156,6 +161,9 @@ void calculate_gyro_data() {
   LoopTimer = micros();
 }
 
+// -----------------------------------------------------------
+//                     Motor Functions
+// -----------------------------------------------------------
 void motor_driver_setup() {
   pinMode(AIN1, OUTPUT);
   pinMode(AIN2, OUTPUT);
@@ -183,6 +191,9 @@ void stop_motor() {
   ledcWrite(PWM_CHANNEL, 0);
 }
 
+// -----------------------------------------------------------
+//                    Steering Functions
+// -----------------------------------------------------------
 void steering_servo_setup() {
   steeringServo.attach(SteeringServoPin);
   steeringServo.write(STEERING_CENTER);
@@ -267,6 +278,9 @@ void update_steering_move(float targetYaw) {
   }
 }
 
+// -----------------------------------------------------------
+//                           Customs
+// -----------------------------------------------------------
 void custom_delay(long long delay_time) {
   long long start_time = millis();
   while (millis() - start_time < delay_time) {}
@@ -290,6 +304,9 @@ void execute_command(char command) {
   }
 }
 
+// -----------------------------------------------------------
+//                           Main
+// -----------------------------------------------------------
 void setup() {
   delay(1500);
 
