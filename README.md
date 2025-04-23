@@ -218,11 +218,11 @@ The robot is driven by **a single high-performance motor**, which is connected t
 **Key Features & Advantages** <a id="key-features"></a>
 
 ✔ **Lightweight & Durable** – The **3D-printed chassis** ensures a strong yet lightweight structure, optimizing performance.  
-✔️ **Hexagonal Cutouts** – Reduce weight while maintaining strength **+ they enhance the robot's aesthetics**.  
-✔️ **Balanced Design** – The **battery is centrally placed**, ensuring even weight distribution and stability.  
-✔️ **Easy Component Mounting** – Pre-designed slots for **motor, PCB, steering servo, and camera** make assembly quick and efficient.  
-✔️ **Secure PCB Mounting** – The **PCB is attached using 4 screws**, keeping it firmly in place during operation.  
-✔️ **Organized Wiring & Cable Management**  
+➜ **Hexagonal Cutouts** – Reduce weight while maintaining strength **+ they enhance the robot's aesthetics**.  
+➜ **Balanced Design** – The **battery is centrally placed**, ensuring even weight distribution and stability.  
+➜ **Easy Component Mounting** – Pre-designed slots for **motor, PCB, steering servo, and camera** make assembly quick and efficient.  
+➜ **Secure PCB Mounting** – The **PCB is attached using 4 screws**, keeping it firmly in place during operation.  
+➜ **Organized Wiring & Cable Management**  
 &nbsp; &nbsp; 🔹 **Integrated PCB routing** eliminates unnecessary wiring, ensuring a cleaner and more reliable setup.  
 &nbsp; &nbsp; 🔹 **Hot glue secures servo and camera wires**, preventing loose cables from interfering with movement.  
 
