@@ -355,7 +355,7 @@ The **JS40F Digital Infrared Sensor** is used to **detect obstacles or walls in 
 | **Voltage Supply:** 3.3V – 5V | **Current Draw:** ~15mA |
 | **Signal Type:** Digital (0 = no object, 1 = object detected) | **Reverse Polarity Protection:** Yes |
 | **Dimensions:** 17.7mm × 11.5mm × 12.6mm | **Weight:** 4g (with cable) |
-| 🔗 [Buy Here](https://www.jsumo.com/js40f-digital-infrared-ir-distance-sensor-min-40-cm-range) | **Use Case:** Detects exit wall or guide line for lap direction |
+| 🔗 [Buy Here](https://www.jsumo.com/js40f-digital-infrared-ir-distance-sensor-min-40-cm-range) | **Use Case:** Detects lap direction when starting from parking |
 
 ---
 
