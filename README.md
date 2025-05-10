@@ -22,11 +22,12 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
 - [🛠️ Power and Sense Management](#power-and-sense-management)
   - [🔋 Li-Po Battery](#li-po-battery)
   - [🖥️ Arduino Nano ESP32](#arduino-nano-esp32)
-  - [🧭 IMU Sensor MPU-6050](#imu-sensor-mpu-6050)
+  - [🧭 IMU Sensor BMI088](#imu-sensor-bmi088)
   - [📷 OpenMV H7 Camera](#openmv-h7-camera)
   - [⚙️ Drive Motor](#drive-motor)
   - [⚙️ Motor Driver TB6612FNG](#motor-driver)
   - [🔄 Steering Servo MG90S](#steering-servo)
+  - [📏 Distance Sensor – JS40F](#distance-sensor-js40f)
   - [🔌 Voltage Regulator L7805CV](#voltage-regulator)
   - [🛠️ PCB Design](#pcb-design)
   - [⚡ Power Consumption](#power-consumption)
@@ -77,7 +78,7 @@ This repository is organized as follows:
 **This image was taken at the **WRO 2023 International Final** in Panama, where we placed **14th in the Robomission Junior Category**.*
 
 ### **Popescu Filimon Andrei Cosmin** (Left Side)
-**Age:** 16 <br>
+**Age:** 17 <br>
 
 **High School:** International Computer High School Bucharest (ICHB)  
 
@@ -99,7 +100,7 @@ Hi! I’m Horia from Romania, and this is my second WRO season competing alongsi
 
 The **WRO 2025 Future Engineers** challenge pushes teams to develop a **fully autonomous vehicle** capable of navigating a **dynamic and randomized racetrack** using **sensors, computer vision, and advanced control algorithms**. The goal is to complete **multiple laps** while adapting to randomized obstacles, following **strict driving rules**, and successfully executing a **parallel parking maneuver** at the end of the course.
 
-### 📌 Competition Format
+### 📌 Competition Format 
 
 - **🏁 Open Challenge**: The vehicle must complete **three (3) laps** on a track with **randomly placed inside walls**.
 
@@ -275,16 +276,16 @@ The **Arduino Nano ESP32** provides **high-speed processing, built-in Wi-Fi and 
 
 ---
 
-### **🧭 IMU Sensor – MPU-6050** <a id="imu-sensor-mpu-6050">
+### 🧭 IMU Sensor – BMI088 <a id="imu-sensor-bmi088"></a>
 
-The **MPU-6050 IMU** is used to **measure the robot's angular velocity and acceleration**, helping it maintain **stability and precise movement control**. It is essential for **calculating turns and avoiding drift**.
+The **BMI088 IMU** is used to **measure the robot's angular velocity and acceleration**, helping it maintain **stability and precise movement control**. It is essential for **calculating turns and avoiding drift**.
 
-| <img src="https://static.optimusdigital.ro/7330-large_default/mpu6050-accelerometer-and-gyroscope-module.jpg" width="300"> | **Specifications** |
+| <img src="https://files.seeedstudio.com/wiki/Grove-6-Axis_Accelerometer-Gyroscope-BMI088/img/main.jpg" width="300"> | **Specifications** |
 |------------------------------|------------------------------|
-| **Gyroscope Range:** ±2000°/s | **Accelerometer Range:** ±16g |
-| **Interface:** I2C | **Supply Voltage:** 3.3V – 5V |
-| **Current Draw:** 3.5mA | **Weight:** 5g |
-| 🔗 **[Buy Here](https://www.optimusdigital.ro/en/inertial-sensors/96-mpu6050-accelerometer-and-gyroscope-module.html?srsltid=AfmBOoqUolw8nE5zvAGPay7WXfhQYGzOXsF0TSSw_YOopMMU_cKW5CZV)** | **Function:** Tracks orientation & motion |
+| **Gyroscope Range:** ±2000°/s | **Accelerometer Range:** ±24g |
+| **Interface:** I2C / SPI | **Supply Voltage:** 3.0V – 3.6V |
+| **Current Draw:** ~3.2mA | **Weight:** ~1g |
+| 🔗 [Buy Here](https://wiki.seeedstudio.com/Grove-6-Axis_Accelerometer&Gyroscope_BMI088/) | **Function:** Tracks orientation & motion |
 
 ---
 
@@ -344,6 +345,20 @@ The **MG90S servo is used for precise steering control**, enabling the robot to 
 
 ---
 
+### 📏 Distance Sensor – JS40F IR Digital Sensor <a id="distance-sensor-js40f"></a>
+
+The **JS40F Digital Infrared Sensor** is used to **detect obstacles or walls in front of the robot** and is especially helpful at the start of the match for determining the **lap direction** when exiting the parking zone. Its fast digital response and reliable detection of black objects make it ideal for this task.
+
+| <img src="https://www.jsumo.com/js40f-digital-infrared-ir-distance-sensor-min-40-cm-range-2780-71-B.jpg" width="300"> | **Specifications** |
+|------------------------------|------------------------------|
+| **Detection Range:** 40–80 cm (depends on surface) | **Type:** Reflective IR Digital Output |
+| **Voltage Supply:** 3.3V – 5V | **Current Draw:** ~15mA |
+| **Signal Type:** Digital (0 = no object, 1 = object detected) | **Reverse Polarity Protection:** Yes |
+| **Dimensions:** 17.7mm × 11.5mm × 12.6mm | **Weight:** 4g (with cable) |
+| 🔗 [Buy Here](https://www.jsumo.com/js40f-digital-infrared-ir-distance-sensor-min-40-cm-range) | **Use Case:** Detects exit wall or guide line for lap direction |
+
+---
+
 ### **🔌 L7805CV Voltage Regulator – Power Management** <a id="voltage-regulator"> 
 
 The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**, ensuring **safe power delivery** to the **Arduino, sensors, and camera**. It prevents **overvoltage damage** and includes **thermal & short-circuit protection** for reliability.
@@ -372,7 +387,7 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 
 ---
 
-### **⚡ Power Consumption Summary** <a id="power-consumption">
+### **⚡ Power Consumption Summary** <a id="power-consumption"></a>
 
 | **Component**                 | **Voltage** | **Avg Current Draw** | **Peak Current** |
 |-------------------------------|------------|-----------------------|------------------|
@@ -380,10 +395,11 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 | **Drive Motor (x2)**          | 12V        | 240mA (120mA each)    | 3.2A (1.6A each) |
 | **Steering Servo MG90S**      | 5V         | 120mA                 | 500mA            |
 | **OpenMV H7 Camera**          | 3.3V/5V    | 300mA                 | 400mA            |
-| **IMU Sensor MPU-6050**       | 3.3V/5V    | 3.5mA                 | 5mA              |
+| **IMU Sensor BMI088**         | 3.3V       | 3.2mA                 | 4mA              |
+| **JS40F Distance Sensor**     | 5V         | 15mA                  | 20mA             |
 | **TB6612FNG Motor Driver**    | 5V         | 50mA                  | 100mA            |
-| **Voltage Regulator L7805CV** | 7.4V -> 5V | Power Management      | -                |
-| **Total Robot Power Usage**   | Mixed      | ~1.3A (Avg)           | ~3.8A (Peak)     |
+| **Voltage Regulator L7805CV** | 7.4V → 5V  | Power Management      | -                |
+| **Total Robot Power Usage**   | Mixed      | ~1.4A (Avg)           | ~3.9A (Peak)     |
 
 ---
 
@@ -439,18 +455,20 @@ uart.write(str(direction) + '\n')
 We have optimized our robot for **performance vs. cost efficiency**. The total cost includes motors, sensors, electronics, PCB, 3D printing and custom parts.
 
 ### 📦 **Components Costs** <a id="components-costs"></a>
-| Component                     | Quantity | Unit Price ($) | Total ($)  |
-|-------------------------------|----------|---------------|-------------|
-| **Arduino Nano ESP32**        | 1        | **21.42**     | **21.42**   |
-| **Drive Motor (30:1 HPCB)**   | 1        | **22.45**     | **22.45**   |
-| **Steering Servo (MG90S)**    | 1        | **4.05**      | **4.05**    |
-| **OpenMV H7 Camera**          | 1        | **80.00**     | **80.00**   |
-| **Gyroscope (MPU-6050)**      | 1        | **3.25**      | **3.25**    |
-| **LiPo Battery (3S 450mAh)**  | 1        | **8.99**      | **8.99**    |
-| **L7805CV Voltage Regulator** | 1        | **1.50**      | **1.50**    |
-| **Lego Spike Wheels**         | 4        | **1.64**      | **6.56**    |
-| **Lego Differential**         | 1        | **4.00**      | **4.00**    |
-| **TOTAL COMPONENT COST**      | -        | **-**         | **152.22**  |
+
+| Component                      | Quantity | Unit Price ($) | Total ($)  |
+|--------------------------------|----------|----------------|-------------|
+| **Arduino Nano ESP32**         | 1        | **21.42**      | **21.42**   |
+| **Drive Motor (30:1 HPCB)**    | 1        | **22.45**      | **22.45**   |
+| **Steering Servo (MG90S)**     | 1        | **4.05**       | **4.05**    |
+| **OpenMV H7 Camera**           | 1        | **80.00**      | **80.00**   |
+| **Gyroscope (BMI088)**         | 1        | **8.50**       | **8.50**    |
+| **JS40F Distance Sensor**      | 1        | **12.50**      | **12.50**   |
+| **LiPo Battery (3S 450mAh)**   | 1        | **8.99**       | **8.99**    |
+| **L7805CV Voltage Regulator**  | 1        | **1.50**       | **1.50**    |
+| **Lego Spike Wheels**          | 4        | **1.64**       | **6.56**    |
+| **Lego Differential**          | 1        | **4.00**       | **4.00**    |
+| **TOTAL COMPONENT COST**       | -        | **-**          | **169.97**  |
 
 ---
 
@@ -483,11 +501,11 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 ### **💵 TOTAL** <a id="total-cost"></a>
 | Category                      | Total Cost ($) |
 |-------------------------------|----------------|
-| **Components**                | **152.22**     |
+| **Components**                | **169.97**     |
 | **PCB (JLCPCB + Components)** | **5.50**       |
 | **3D Printing**               | **10.00**      |
 | **Other Materials**           | **9.00**       |
-| **TOTAL PROJECT COST**        | **176.72**     |
+| **TOTAL PROJECT COST**        | **194.47**     |
 
 **Prices are approximate, based on current market prices.*
 
@@ -497,7 +515,8 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 
 Below is a list of **external images** used in this repository.
 - **[Arduino Nano ESP32](https://store.arduino.cc/cdn/shop/files/ABX00092_01.iso_804x603.jpg?v=1727101612)**
-- **[MPU-6050 IMU Sensor](https://static.optimusdigital.ro/7330-large_default/mpu6050-accelerometer-and-gyroscope-module.jpg)**
+- **[BMI088 IMU Sensor](https://files.seeedstudio.com/wiki/Grove-6-Axis_Accelerometer-Gyroscope-BMI088/img/main.jpg)**
+- **[JS40F Distance Sensor](https://www.jsumo.com/js40f-digital-infrared-ir-distance-sensor-min-40-cm-range-2780-71-B.jpg)**  
 - **[OpenMV H7 Camera](https://openmv.io/cdn/shop/products/new-cam-v4-angle-hero-web_1000x.jpg?v=1715735352)**
 - **[Pololu 30:1 Gearmotor](https://a.pololu-files.com/picture/0J6410.600x480.jpg?7b215efad0f55f0963d9f951be03d3d1)**
 - **[TB6612FNG Motor Driver](https://www.sparkfun.com/media/catalog/product/cache/a793f13fd3d678cea13d28206895ba0c/1/4/14451-01.jpg)**
