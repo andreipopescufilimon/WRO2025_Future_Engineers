@@ -1,171 +1,202 @@
 import sensor, time
 from pyb import UART, LED
 
-# **Initialize Camera**
+# -------- DEBUG FLAG --------
+DEBUG = True
+
+# -------- Camera & Sensor Setup --------
 sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
-sensor.set_framesize(sensor.QVGA)
+sensor.set_framesize(sensor.QVGA)       # QVGA: 320x240
 sensor.set_vflip(True)
 sensor.set_hmirror(True)
 sensor.skip_frames(time=500)
 
-# **Disable auto settings for stable color tracking**
+# Disable auto settings for stable color tracking
 sensor.set_auto_gain(False)
 sensor.set_auto_whitebal(False)
-sensor.set_auto_exposure(False, exposure_us=10000)  # Adjusted exposure for better visibility
+sensor.set_auto_exposure(False, exposure_us=10000)
 clock = time.clock()
 
-# **Setup UART Communication**
+# -------- UART & LED Setup --------
 uart = UART(3, 19200)
-
-# **Setup LEDs**
-red_led = LED(1)
+red_led   = LED(1)
 green_led = LED(2)
-blue_led = LED(3)
+blue_led  = LED(3)
 
-# **Indicate Camera Readiness**
-green_led.on()
-red_led.on()  # Blink yellow to indicate qualification mode
+# Blink yellow (green+red) to indicate qualification mode
+green_led.on(); red_led.on()
 time.sleep(0.5)
-red_led.off()
-green_led.off()
-blue_led.off()
+red_led.off(); green_led.off(); blue_led.off()
 time.sleep(0.5)
 
-# **Color Thresholds (LAB Space)**
-red_threshold = [(19, 80, 6, 75, 80, 29)]
-green_threshold = [(20, 85, -60, -16, -2, 54)]
-blue_threshold = [(10, 80, -5, 25, -50, -14)]
-orange_threshold = [(20, 80, 10, 45, 100, -20)]
-pink_threshold =  [(25, 70, 14, 45, -15, 10)]
-black_threshold = [(0, 55, -10, 10, -10, 10)]
+# -------- Color Thresholds (LAB Space) --------
+red_threshold    = [(30, 55, 20, 70, -15, 60)]
+green_threshold  = [(20, 85, -60, -16, -2, 54)]
+blue_threshold   = [(10, 80, -5, 25, -50, -5)]
+orange_threshold = [(50, 80, 5, 45, 15, 75)]
+pink_threshold   = [(30, 70, 10, 60, -15, 15)]
+black_threshold  = [(0, 55, -20, 10, -10, 10)]
 
-# **Define Regions of Interest (ROI)**
-image_height = sensor.height()
-image_width = sensor.width()
-cubes_roi = (10, int(image_height * 0.6), image_width - 20, int(image_height * 0.6))  # Bottom 50%
-lines_roi = (5, int(image_height * 0.6), image_width - 10, int(image_height * 0.6))  # Bottom 50%
-black_roi = (0, int(image_height * 0.6), image_width, int(image_height * 0.4))       # **Bottom 60% of the image**
+# -------- Define Regions of Interest (ROI) --------
+img_h = sensor.height()
+img_w = sensor.width()
+cubes_roi = (0, int(img_h * 0.6), img_w, int(img_h * 0.4))
+lines_roi = (5, int(img_h * 0.6), img_w - 10, int(img_h * 0.4))
+wall_roi  = (10, int(img_h * 0.4), img_w - 10, int(img_h * 0.6))
 
-# **Blob Filtering Parameters**
-min_cube_size = 30  # Lowered to capture full objects
-min_line_size = 80  # Lowered to detect thinner lines
-min_area = 10       # Ignore objects with area < 10
-min_valid_cube_area = 800  # NEW: Ignore red/green blobs smaller than 800
-pink_wall_min_area = 5000  # Threshold for pink highlighting
-black_wall_min_area = 7000  # Threshold for black highlighting
-min_black_height = 15 # Define minimum height for a valid black blob (in pixels)
+# -------- Blob Filtering Parameters --------
+min_cube_size       = 30
+min_line_size       = 1000
+min_area            = 10
+min_valid_cube_area = 800
+pink_wall_min_area  = 5000
+black_wall_min_area = 15000
+min_black_height    = 25
 
+# -------- PD Parameters for Cube Following --------
+kp_cube = 1.6
+kd_cube = 3.9
+pid_error = 0.0
+pid_last_error = 0.0
+follow_threshold = 5000
+
+direction = 0  # turn direction: 0 = not set, 1 = left, 2 = right
+
+# -------- Helper Functions --------
 def get_largest_blob(blobs):
-    """Returns the largest blob in a list or None if empty."""
     return max(blobs, key=lambda b: b.area(), default=None)
 
 def is_elongated(blob):
-    """Check if the blob is at least 5 times taller than its width."""
     return blob.w() >= 5 * blob.h()
 
 def is_invalid_orange(orange_blob, red_blobs):
+    # ignore tall thin orange, or overlap logic with reds
     if orange_blob.h() > orange_blob.w():
-        return "ignore_orange"  # Ignore if taller than wide
-
-    for red_blob in red_blobs:
-        if (
-            red_blob.x() < orange_blob.x() + orange_blob.w() and
-            red_blob.x() + red_blob.w() > orange_blob.x() and
-            red_blob.y() < orange_blob.y() + orange_blob.h() and
-            red_blob.y() + red_blob.h() > orange_blob.y()
-        ):
-            red_area = red_blob.area()
-            orange_area = orange_blob.area()
-
-            if red_area >= orange_area * 1.5:
+        return "ignore_orange"
+    for r in red_blobs:
+        if (r.x() < orange_blob.x()+orange_blob.w() and
+            r.x()+r.w() > orange_blob.x() and
+            r.y() < orange_blob.y()+orange_blob.h() and
+            r.y()+r.h() > orange_blob.y()):
+            ra, oa = r.area(), orange_blob.area()
+            if ra >= oa * 1.5:
                 return "ignore_orange"
-            elif orange_area >= red_area * 0.1:
+            elif oa >= ra * 0.1:
                 return "ignore_red"
-            else:
-                return None
-
     return None
 
-direction = 0
-
+# -------- Main Loop --------
 while True:
+    clock.tick()
     img = sensor.snapshot()
+    target_x = img_w // 2
 
-    # **Detect Blobs**
-    red_blobs = img.find_blobs(red_threshold, roi=cubes_roi, pixels_threshold=min_cube_size, area_threshold=min_cube_size, merge=True)
-    green_blobs = img.find_blobs(green_threshold, roi=cubes_roi, pixels_threshold=min_cube_size, area_threshold=min_cube_size, merge=True)
-    blue_blobs = img.find_blobs(blue_threshold, roi=lines_roi, pixels_threshold=min_line_size, area_threshold=min_line_size, merge=True)
-    orange_blobs = img.find_blobs(orange_threshold, roi=lines_roi, pixels_threshold=min_line_size, area_threshold=min_line_size, merge=True)
-    pink_blobs = img.find_blobs(pink_threshold, roi=cubes_roi, pixels_threshold=min_cube_size, area_threshold=min_cube_size, merge=True)
-    black_blobs = img.find_blobs(black_threshold, roi=cubes_roi, pixels_threshold=min_cube_size, area_threshold=min_cube_size, merge=True)
+    # ---- Detect Blobs ----
+    red_blobs    = img.find_blobs(red_threshold,    roi=cubes_roi,
+                                  pixels_threshold=min_cube_size,
+                                  area_threshold=min_cube_size, merge=True)
+    green_blobs  = img.find_blobs(green_threshold,  roi=cubes_roi,
+                                  pixels_threshold=min_cube_size,
+                                  area_threshold=min_cube_size, merge=True)
+    blue_blobs   = img.find_blobs(blue_threshold,   roi=lines_roi,
+                                  pixels_threshold=min_line_size,
+                                  area_threshold=min_line_size, merge=True)
+    orange_blobs = img.find_blobs(orange_threshold, roi=lines_roi,
+                                  pixels_threshold=min_line_size,
+                                  area_threshold=min_line_size, merge=True)
+    pink_blobs   = img.find_blobs(pink_threshold,   roi=cubes_roi,
+                                  pixels_threshold=min_cube_size,
+                                  area_threshold=min_cube_size, merge=True)
+    black_blobs  = img.find_blobs(black_threshold,  roi=wall_roi,
+                                  pixels_threshold=black_wall_min_area,
+                                  area_threshold=black_wall_min_area, merge=True)
 
-    # **Find Largest Objects**
-    red_cube = get_largest_blob([b for b in red_blobs if b.area() >= min_valid_cube_area])
-    green_cube = get_largest_blob([b for b in green_blobs if b.area() >= min_valid_cube_area])
-    blue_line = get_largest_blob([b for b in blue_blobs if b.area() >= min_area])
+    # ---- Get Largest Blobs ----
+    red_cube    = get_largest_blob([b for b in red_blobs   if b.area() >= min_valid_cube_area])
+    green_cube  = get_largest_blob([b for b in green_blobs if b.area() >= min_valid_cube_area])
+    blue_line   = get_largest_blob([b for b in blue_blobs  if b.area() >= min_area])
     orange_line = get_largest_blob([b for b in orange_blobs if b.area() >= min_area])
-    pink_blob = get_largest_blob(pink_blobs)
-    black_blob = get_largest_blob(black_blobs)
+    pink_blob   = get_largest_blob(pink_blobs)
+    black_blob  = get_largest_blob(black_blobs)
 
-    # **Highlight Large Pink Blob**
+    # ---- Highlight Large Pink Blob ----
     if pink_blob and pink_blob.area() >= pink_wall_min_area:
-        img.draw_rectangle(pink_blob.rect(), color=(255, 20, 147))
-        img.draw_string(pink_blob.x(), pink_blob.y() + pink_blob.h() - 10, str(pink_blob.area()), color=(255, 20, 147))
-        uart.write("PINK")
+        img.draw_rectangle(pink_blob.rect(), color=(255,20,147))
+        img.draw_string(pink_blob.x(), pink_blob.y()+pink_blob.h()-10,
+                        str(pink_blob.area()), color=(255,20,147))
+        uart.write("PINK\n")
 
-    # **Highlight Large Black Blob**
+    # ---- Highlight/Detect Black Wall for Turns ----
     if black_blob and black_blob.h() >= min_black_height:
-        # Compute the bottom of the blob and its horizontal center.
-        black_bottom = black_blob.y() + black_blob.h()
-        black_center_x = black_blob.cx()
-
-        # Define thresholds:
-        # Lower threshold: if the blob reaches below 60% of the image height.
-        lower_threshold = image_height * 0.6
-        # Middle region: if the blob's center is between 33% and 66% of the image width.
-        left_bound = image_width * 0.33
-        right_bound = image_width * 0.66
-
-        if black_bottom >= lower_threshold and left_bound < black_center_x < right_bound:
-            img.draw_rectangle(black_blob.rect(), color=(10, 10, 10))
-            img.draw_string(black_blob.x(), black_blob.y() + black_blob.h() - 10, "TURN", color=(255, 255, 255))
+        btm = black_blob.y() + black_blob.h()
+        lower_th = img_h * 0.6
+        left_th  = img_w * 0.33
+        right_th = img_w * 0.66
+        if btm >= lower_th and left_th < black_blob.cx() < right_th:
+            img.draw_rectangle(black_blob.rect(), color=(10,10,10))
+            img.draw_string(black_blob.x(), black_blob.y()+black_blob.h()-10,
+                            "TURN", color=(255,255,255))
             uart.write("BLACK\n")
 
+    # ---- Choose Closest Cube (largest red or green) ----
+    candidates = []
+    if red_cube:   candidates.append(('R', red_cube))
+    if green_cube: candidates.append(('G', green_cube))
 
+    if candidates:
+        color_char, cube = max(candidates, key=lambda x: x[1].area())
+        area = cube.area()
+        col  = (255,0,0) if color_char=='R' else (0,255,0)
 
-    # **Process Red Cube (Ignore if elongated or too small)**
-    if red_cube and not is_elongated(red_cube):
-        img.draw_rectangle(red_cube.rect(), color=(255, 0, 0))
-        img.draw_cross(red_cube.cx(), red_cube.cy(), color=(255, 0, 0))
-        img.draw_string(red_cube.x(), red_cube.y() + red_cube.h() - 10, str(red_cube.area()), color=(255, 0, 0))
-        uart.write("RED")
+        # draw
+        img.draw_rectangle(cube.rect(), color=col)
+        img.draw_cross(cube.cx(), cube.cy(), color=col)
+        img.draw_string(cube.x(), cube.y()+cube.h()-10, str(area), color=col)
 
-    # **Process Green Cube (Ignore if elongated or too small)**
-    if green_cube and not is_elongated(green_cube):
-        img.draw_rectangle(green_cube.rect(), color=(0, 255, 0))
-        img.draw_cross(green_cube.cx(), green_cube.cy(), color=(0, 255, 0))
-        img.draw_string(green_cube.x(), green_cube.y() + green_cube.h() - 10, str(green_cube.area()), color=(0, 255, 0))
-        uart.write("GREEN")
+        # PD on normalized error
+        error = (cube.cx() - target_x) / float(target_x)
+        pid_error = kp_cube * error + kd_cube * (error - pid_last_error)
+        pid_last_error = error
 
-    # **Process Blue Line (Ignore if too small)**
-    if blue_line:
-        img.draw_rectangle(blue_line.rect(), color=(0, 0, 255))
-        img.draw_string(blue_line.x(), blue_line.y() + blue_line.h() - 10, str(blue_line.area()), color=(0, 0, 255))
-        uart.write("BLUE")
+        if area < follow_threshold:
+            uart.write("S{:+.3f}\n".format(pid_error))
+            if DEBUG:
+                print("{} FOLLOW → err:{:+.3f}, pid:{:+.3f}, area:{}".format(
+                      "RED" if color_char=='R' else "GREEN",
+                      error, pid_error, area))
+        else:
+            # at close range, just report color
+            uart.write(("RED\n" if color_char=='R' else "GREEN\n"))
+            if DEBUG:
+                print("{} CLOSE → area {} >= {}".format(
+                      "RED" if color_char=='R' else "GREEN",
+                      area, follow_threshold))
 
-    # **Process Orange Line (Ignore if invalid or too small)**
+    # ---- Process Line Following (unchanged) ----
+    valid_orange = None
     if orange_line and not is_invalid_orange(orange_line, red_blobs):
-        img.draw_rectangle(orange_line.rect(), color=(255, 165, 0))  # Orange color
-        img.draw_string(orange_line.x(), orange_line.y() + orange_line.h() - 10, str(orange_line.area()), color=(255, 165, 0))
-        uart.write("ORANGE")
+        valid_orange = orange_line
 
-    # **Determine Direction**
-    if direction == 0:
-        if orange_line and not is_invalid_orange(orange_line, red_blobs):
-            direction = 2  # Orange line first → turn right
-        elif blue_line:
-            direction = 1  # Blue line first → turn left
+    chosen_line, chosen_color = None, None
+    if blue_line and valid_orange:
+        if blue_line.area() > valid_orange.area():
+            chosen_line, chosen_color = blue_line, "BLUE"
+        else:
+            chosen_line, chosen_color = valid_orange, "ORANGE"
+    elif blue_line:
+        chosen_line, chosen_color = blue_line, "BLUE"
+    elif valid_orange:
+        chosen_line, chosen_color = valid_orange, "ORANGE"
 
-    # **Send Direction Command**
-    uart.write(str(direction) + '\n')
+    if chosen_line:
+        c = (0,0,255) if chosen_color=="BLUE" else (255,165,0)
+        img.draw_rectangle(chosen_line.rect(), color=c)
+        img.draw_string(chosen_line.x(), chosen_line.y()+chosen_line.h()-10,
+                        str(chosen_line.area()), color=c)
+        uart.write(chosen_color + "\n")
+        if direction == 0:
+            direction = 1 if chosen_color=="BLUE" else 2
+
+    # Always send the current turn direction
+    uart.write(str(direction) + "\n")
