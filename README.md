@@ -34,6 +34,7 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
 - [📝 Obstacle Management](#obstacle-management)
   - [🏁 Open Round](#open-round) 
   - [⚡ Final Round](#final-round)
+  - [🅿️ Start from Parking](#start-from-parking)
   - [🅿️ Parking](#parking)
 - [📽️ Performance Videos](#performance-videos)
 - [💰 Cost Analysis](#cost-analysis)
@@ -441,6 +442,9 @@ uart.write(str(direction) + '\n')
 ### ⚡ Final Round <a id="final-round"></a>
 *To be completed – Overview of how the robot handles the final round challenges, including obstacle adaptation and speed adjustments.*
 
+### 🅿️ Starting from Parking <a id="start-from-parking"></a>
+*To be completed – Explanation of how the robot starts from the parking slot.*
+
 ### 🅿️ Parking <a id="parking"></a>
 *To be completed – Explanation of how the robot identifies and executes the parallel parking maneuver at the end of the course.*
 
@@ -468,7 +472,11 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 | **L7805CV Voltage Regulator**  | 1        | **1.50**       | **1.50**    |
 | **Lego Spike Wheels**          | 4        | **1.64**       | **6.56**    |
 | **Lego Differential**          | 1        | **4.00**       | **4.00**    |
+| **Experimental Parts**         |          | **-.--**       | **-.--**    |
 | **TOTAL COMPONENT COST**       | -        | **-**          | **169.97**  |
+
+**Experimental Parts:**
+- MPU6050 (*to be detailed)
 
 ---
 
