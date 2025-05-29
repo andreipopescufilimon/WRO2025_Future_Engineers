@@ -231,7 +231,7 @@ The robot is driven by **a single high-performance motor**, which is connected t
 ---
 
 **🔧 Assembly Process** <a id="assembly-process"></a>
-🔗 **[Click here to watch the assembly video on YouTube]()** <a id="assembly-process-video"></a>
+🔗 **[Click here to watch the assembly video on YouTube](https://youtu.be/sz8ePobdi_c)** <a id="assembly-process-video"></a>
 
 1️⃣ **Attach the drive motor** using its dedicated mounting bracket.  
 2️⃣ **Secure the steering servo** in its designated slot and secure it using to screws.  
