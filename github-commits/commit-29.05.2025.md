@@ -4,3 +4,4 @@ Commit - 29/05/2025
 - Updated technical drawings
 - Created and uploaded steering animation
 - Updated prices and added experimental parts used and costs of them + reasons why not being used
+- Updated robot photos
