@@ -19,6 +19,7 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
   - [🏎️ Chassis & Component Mounting](#chassis)
     - [✨ Key Features & Advantages](#key-features)
     - [🔧 Assembly Process](#assembly-process)
+    - [🔧 Assembly Process Video](#assembly-process-video)
 - [🛠️ Power and Sense Management](#power-and-sense-management)
   - [🔋 Li-Po Battery](#li-po-battery)
   - [🖥️ Arduino Nano ESP32](#arduino-nano-esp32)
@@ -182,7 +183,7 @@ To control the motor's speed and direction, we integrated a **Sparkfun Dual TB66
 
 The **steering system** is a critical part of the robot, ensuring precise maneuverability and smooth turns. Our design is based on a **parallelogram steering mechanism**, where both front wheels turn at the same angle through a single servo-controlled linkage. This setup provides predictable and stable steering, making it easy to use for an autonomous vehicle. Instead of using an **Ackermann steering system**, which requires more complex calculations and linkages, we opted for a **simpler and more lightweight solution** that offers consistent control. Our steering system allows for a maximum turning angle of 50 degrees in both the left and right directions. This range provides precise maneuverability, enabling the robot to navigate sharp turns efficiently while maintaining stability.
 
-<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/steering-3D-model.png" width="700">
+![Demo GIF](https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/steering.gif)
 
 Our **steering arm is directly connected to the servo**, which moves the two front wheels simultaneously. This ensures that the turning response is immediate and proportional to the servo's motion. The **wheels are mounted on special mounts**, allowing for smooth and precise movement without excessive friction. To ensure **structural integrity and long-term reliability**, the steering system is **assembled using 2mm carbon fiber bars that are glued at the ends to the chassis**.
 
@@ -230,6 +231,7 @@ The robot is driven by **a single high-performance motor**, which is connected t
 ---
 
 **🔧 Assembly Process** <a id="assembly-process"></a>
+🔗 **[Click here to watch the assembly video on YouTube]()** <a id="assembly-process-video"></a>
 
 1️⃣ **Attach the drive motor** using its dedicated mounting bracket.  
 2️⃣ **Secure the steering servo** in its designated slot and secure it using to screws.  
@@ -472,11 +474,16 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 | **L7805CV Voltage Regulator**  | 1        | **1.50**       | **1.50**    |
 | **Lego Spike Wheels**          | 4        | **1.64**       | **6.56**    |
 | **Lego Differential**          | 1        | **4.00**       | **4.00**    |
-| **Experimental Parts**         |          | **-.--**       | **-.--**    |
-| **TOTAL COMPONENT COST**       | -        | **-**          | **169.97**  |
+| **Experimental Parts**         |          | **35.00**      | **35.00**   |
+| **TOTAL COMPONENT COST**       | -        | **-**          | **204.97**  |
 
-**Experimental Parts:**
-- MPU6050 (*to be detailed)
+**Experimental Parts**
+
+- **MPU6050**  
+  A compact IMU that's easy to integrate. However, it comes with several disadvantages, such as significant drifting over short time, even when using a Kalman filter for correction.
+
+- **Pololu 30:1 Micro Metal Gearmotor**  
+  A powerful and compact motor. The main issue is that it was the no encoder version and couldn't add the encoder, making it difficult to achieve precise control.
 
 ---
 
@@ -492,8 +499,8 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 ### **🖨️ 3D Printing Cost Breakdown** <a id="3d-printing-cost"></a>
 | 3D Printed Parts                          | Quantity | Unit Price ($) | Total ($)   |
 |-------------------------------------------|----------|--------------|---------------|
-| **1000g filament (PLA from Aliexpress)**  | 1        | **10.00**    | **10.00**     |
-| **TOTAL 3D PRINTING COST**                | -        | **-**        | **10.00**     |
+| **1000g filament (PLA and PLA-CF)**       | 1        | **20.00**    | **20.00**     |
+| **TOTAL 3D PRINTING COST**                | -        | **-**        | **20.00**     |
 
 ---
 
@@ -509,11 +516,11 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 ### **💵 TOTAL** <a id="total-cost"></a>
 | Category                      | Total Cost ($) |
 |-------------------------------|----------------|
-| **Components**                | **169.97**     |
+| **Components**                | **204.97**     |
 | **PCB (JLCPCB + Components)** | **5.50**       |
-| **3D Printing**               | **10.00**      |
+| **3D Printing**               | **20.00**      |
 | **Other Materials**           | **9.00**       |
-| **TOTAL PROJECT COST**        | **194.47**     |
+| **TOTAL PROJECT COST**        | **239.47**     |
 
 **Prices are approximate, based on current market prices.*
 
