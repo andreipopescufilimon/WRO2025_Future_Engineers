@@ -310,7 +310,7 @@ The **OpenMV H7 Camera** processes **traffic signs, lane detection, and other vi
 
 The **drive motor is responsible for propelling the robot forward**. The **30:1 gearbox** provides an excellent **balance of speed and torque**, while the **built-in encoder** allows for **precise speed control**.
 
-| <img src="https://a.pololu-files.com/picture/0J6410.600x480.jpg?7b215efad0f55f0963d9f951be03d3d1" width="300"> | **Specifications** |
+| <img src="[https://a.pololu-files.com/picture/0J6410.600x480.jpg?7b215efad0f55f0963d9f951be03d3d1](https://a.pololu-files.com/picture/0J12418.220.jpg?8f026fe1675b1109ea574290d3d26081)" width="300"> | **Specifications** |
 |------------------------------|------------------------------|
 | **Type:** Micro Metal Gearmotor | **Gear Ratio:** 30:1 |
 | **Voltage:** 12V | **Encoder:** Yes |
