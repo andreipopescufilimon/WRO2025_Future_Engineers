@@ -533,7 +533,7 @@ Below is a list of **external images** used in this repository.
 - **[BMI088 IMU Sensor](https://files.seeedstudio.com/wiki/Grove-6-Axis_Accelerometer-Gyroscope-BMI088/img/main.jpg)**
 - **[JS40F Distance Sensor](https://www.jsumo.com/js40f-digital-infrared-ir-distance-sensor-min-40-cm-range-2780-71-B.jpg)**  
 - **[OpenMV H7 Camera](https://openmv.io/cdn/shop/products/new-cam-v4-angle-hero-web_1000x.jpg?v=1715735352)**
-- **[Pololu 30:1 Gearmotor](https://a.pololu-files.com/picture/0J6410.600x480.jpg?7b215efad0f55f0963d9f951be03d3d1)**
+- **[Pololu 30:1 Gearmotor](https://a.pololu-files.com/picture/0J12418.220.jpg?8f026fe1675b1109ea574290d3d26081)**
 - **[TB6612FNG Motor Driver](https://www.sparkfun.com/media/catalog/product/cache/a793f13fd3d678cea13d28206895ba0c/1/4/14451-01.jpg)**
 - **[MG90S Steering Servo](https://static.optimusdigital.ro/20565-large_default/mg90s-servomotor.jpg)**
 - **[L7805CV Voltage Regulator](https://ce8dc832c.cloudimg.io/v7/_cdn_/5D/D0/90/00/0/593365_1.jpg?width=640&height=480&wat=1&wat_url=_tme-wrk_%2Ftme_new.png&wat_scale=100p&ci_sign=32c0b49b36a510891beaad3401e2b2b50bdee888)**
