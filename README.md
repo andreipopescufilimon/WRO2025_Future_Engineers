@@ -20,13 +20,13 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
     - [✨ Key Features & Advantages](#key-features)
     - [🔧 Assembly Process](#assembly-process)
       - [🔧 Assembly Process Video](#assembly-process-video)
-      - [1: 3D Print the Parts](#assembly-process-video)
-      - [2: Assemble the Steering System](#assembly-process-video)
-      - [3: Assemble the drive base](#assembly-process-video)
-      - [4: Install the Electronics](#assembly-process-video)
-      - [5: Attach the Wheels](#assembly-process-video)
-      - [6: Add weight](#assembly-process-video)
-      - [7: Upload the Code](#assembly-process-video)
+      - [1: 3D Print the Parts](#3d-print-the-parts)
+      - [2: Assemble the Steering System](#2-assemble-the-steering-system)
+      - [3: Assemble the drive base](#3-assemble-the-drive-base)
+      - [4: Install the Electronics](#4-install-the-electronics)
+      - [5: Attach the Wheels](#5-attach-the-wheels)
+      - [6: Add weight](#6-add-weight)
+      - [7: Upload the Code](#7-upload-the-code)
 - [🛠️ Power and Sense Management](#power-and-sense-management)
   - [🔋 Li-Po Battery](#li-po-battery)
   - [🖥️ Arduino Nano ESP32](#arduino-nano-esp32)
@@ -241,7 +241,7 @@ The robot is driven by **a single high-performance motor**, which is connected t
 
 🔗 **[Click here to watch the assembly video on YouTube](https://youtu.be/sz8ePobdi_c)** <a id="assembly-process-video"></a>
 
-### 1: 3D Print the Parts
+### 1: 3D Print the Parts <a id="3d-print-the-parts"></a>
 The 3D model files are available in the [`/3D-models`](https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/tree/main/3D-models) folder. We used a **BambuLab X1-Carbon**, but any good quality printer will work.
 
 **Our Print Settings:**
@@ -251,7 +251,7 @@ The 3D model files are available in the [`/3D-models`](https://github.com/andrei
 
 ---
 
-### 2: Assemble the Steering System
+### 2: Assemble the Steering System <a id="2-assemble-the-steering-system"></a>
 - Mount the **MG90S servo** into the front slot of the chassis using **2 M2 crews**.
 - Add 4 **2mm metal or carbon rod** to act as the steering axles.
 - Insert the **steering mounts(left&right)** between the chassis and the top steering small bars.
@@ -259,7 +259,7 @@ The 3D model files are available in the [`/3D-models`](https://github.com/andrei
 
 ---
 
-### 3: Assemble the drive base
+### 3: Assemble the drive base <a id="3-assemble-the-drive-base"></a>
 - Mount the **Pololu 30:1 Gearmotor** with the bracket using **2 M3 screws**.
 - Press-hard on the **D-shaped axle gear** until it will be fixed on the motor axle.
 - Attach a **Lego 5 gears Diferential** into its dedicated chassis cut.
@@ -268,7 +268,7 @@ The 3D model files are available in the [`/3D-models`](https://github.com/andrei
 
 ---
 
-### 4: Install the Electronics
+### 4: Install the Electronics <a id="4-install-the-electronics"></a>
 
 - Use the **custom-designed PCB** and solder all required components directly onto it:
   - **Arduino Nano ESP32**  
@@ -296,7 +296,7 @@ The 3D model files are available in the [`/3D-models`](https://github.com/andrei
 
 ---
 
-### 5: Attach the Wheels
+### 5: Attach the Wheels <a id="5-attach-the-wheels"></a>
 - Front Wheels:
   - Connect to **Lego Axle with Stop**.
   - Secure with **Bush 1/2** on both sides.
@@ -306,14 +306,14 @@ The 3D model files are available in the [`/3D-models`](https://github.com/andrei
 
 ---
 
-### 6: Add weight
+### 6: Add weight <a id="6-add-weight"></a>
 - Place **~100g weight** under the robot chassis
 - This will increases grip and stability.
 - Use **double side tape or glue** to hold weights in place.
 
 ---
 
-### 7: Upload the Code
+### 7: Upload the Code <a id="7-upload-the-code"></a>
 - Plug the **Arduino Nano ESP32** into your computer using a USB cable.  
 - Launch the **Arduino IDE**, ensure the **ESP32 board package** is installed, and upload the code onto the board.
 
