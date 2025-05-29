@@ -230,16 +230,88 @@ The robot is driven by **a single high-performance motor**, which is connected t
 
 ---
 
-**🔧 Assembly Process** <a id="assembly-process"></a>
+## 🔧 Assembly Process <a id="assembly-process"></a>
+
 🔗 **[Click here to watch the assembly video on YouTube](https://youtu.be/sz8ePobdi_c)** <a id="assembly-process-video"></a>
 
-1️⃣ **Attach the drive motor** using its dedicated mounting bracket.  
-2️⃣ **Secure the steering servo** in its designated slot and secure it using to screws.  
-3️⃣ **Install the Lego differential** and connect it to the drivetrain.  
-4️⃣ **Place the battery in the center compartment** to keep weight evenly distributed.  
-5️⃣ **Mount the PCB using 4 screws**, ensuring a solid connection to minimize vibrations that can interfere with the IMU.  
-6️⃣ **Use hot glue for cable management**, keeping servo and camera wires in place.  
+### 1: 3D Print the Parts
+The 3D model files are available in the [`/3D-models`](https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/tree/main/3D-models) folder. We used a **BambuLab X1-Carbon**, but any good quality printer will work.
 
+**Our Print Settings:**
+- **Material:** PLA or PLA-CF  
+- **Layer Height:** 0.12mm  
+- **Infill:** 15%  
+
+---
+
+### 2: Assemble the Steering System
+- Mount the **MG90S servo** into the front slot of the chassis using **2 M2 crews**.
+- Add 4 **2mm metal or carbon rod** to act as the steering axles.
+- Insert the **steering mounts(left&right)** between the chassis and the top steering small bars.
+- In each wheel hub insert a **Lego Axle with Stop** into the 3D print for wheel mounting.
+
+---
+
+### 3: Assemble the drive base
+- Mount the **Pololu 30:1 Gearmotor** with the bracket using **2 M3 screws**.
+- Press-hard on the **D-shaped axle gear** until it will be fixed on the motor axle.
+- Attach a **Lego 5 gears Diferential** into its dedicated chassis cut.
+- Use **Lego Axles** to secure the differential from both left and right sides.
+- Add **Lego Bushes** on both sides to eliminate axle play.
+
+---
+
+### 4: Install the Electronics
+
+- Use the **custom-designed PCB** and solder all required components directly onto it:
+  - **Arduino Nano ESP32**  
+  - **TB6612FNG Motor Driver**  
+  - **L7805 Voltage Regulator**  
+  - **Power switch** and **start button**  
+  - All necessary **pin headers and connectors** based on the schematic.
+
+- Once assembled, fix the PCB to the chassis using **four 3D-printed mounts**.
+
+- Insert the **JSumo 3S 450mAh Li-Po battery** into the 3D-printed mount.
+
+- Mount the **BMI088 IMU** to the motor support with under the PCB by using some double sided tape.  
+
+- Fix the **OpenMV H7 Camera** to the front of the chassis using screws, tilted slightly upward for optimal track and sign visibility.
+
+- Connect all modules:
+  - **Camera → UART**
+  - **IMU → I2C**
+  - **Steering servo → appropriate pins**
+
+- Use **wires of custom lenght** for clean wiring.
+- 
+- Organize and secure all wiring using **hot glue**.
+
+---
+
+### 5: Attach the Wheels
+- Front Wheels:
+  - Connect to **Lego Axle with Stop**.
+  - Secure with **Bush 1/2** on both sides.
+- Rear Wheels:
+  - Mount to the **2 Axles** from the differential.
+  - Use additional **1/2 Bush** spacers to align height with the front wheels.
+
+---
+
+### 6: Add weight
+- Place **~100g weight** under the robot chassis
+- This will increases grip and stability.
+- Use **double side tape or glue** to hold weights in place.
+
+---
+
+### 7: Upload the Code
+- Plug the **Arduino Nano ESP32** into your computer using a USB cable.  
+- Launch the **Arduino IDE**, ensure the **ESP32 board package** is installed, and upload the code onto the board.
+
+- Next, connect the **OpenMV H7 Camera** via USB.  
+- Open the **OpenMV IDE**, open the corresponding `.py` script, and upload it to the camera.
 
 ---
 
