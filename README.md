@@ -524,7 +524,50 @@ uart.write(str(direction) + '\n')
 *To be completed – Overview of how the robot handles the final round challenges, including obstacle adaptation and speed adjustments.*
 
 ### 🅿️ Starting from Parking <a id="start-from-parking"></a>
-*To be completed – Explanation of how the robot starts from the parking slot.*
+At the start of the round, our robot is placed in the designated parking zone (the parking zone is 1.5x robot lenght). To determine the direction of the first lap (clockwise or counterclockwise), we use a JS40F object sensor mounted on the left side of the robot.
+
+- If the sensor returns 1, it detects the wall on the left, meaning the lap must be executed in the clockwise direction, as if we had detected an orange line in first turn.
+
+- If the sensor returns 0, there is no wall on the left, meaning the lap should be counterclockwise, like seeing a blue line in first turn.
+
+Once the direction is determined, the robot performs an initial steering exit maneuver (to left or right) using our custom PD-based turning function:
+
+```cpp
+void steer_to_angle(double target_angle, int speed) {
+  read_gyro_data();
+  double current_angle = gz;                    
+  double error = target_angle - current_angle;
+
+  // Determine rotation direction: +1 = turn CW, -1 = turn CCW
+  int direction = (error >= 0) ? 1 : -1;
+
+  pid_last_error = 0;
+
+  // Loop until the heading error is within ±10°
+  while (abs(error) >= 10.0) {
+    // Update gyro data
+    read_gyro_data();
+    error = target_angle - gz;
+
+    // PD controller:
+    pid_error = error * kp + (error - pid_last_error) * kd;
+    pid_last_error = error;  
+
+    steer(pid_error * direction);
+    move(speed);
+  }
+
+  move(0);
+  flush_messages();  // Clear any pending commands from the camera so we don't double proces
+}
+
+```
+
+The robot turns ~75° toward the main track depending on the detected direction. Following this parking exit, the robot enters its standard operating state:
+- If it detects a cube, it enters **FOLLOW_CUBE** mode, where it tries to center itself on the cube using a PD algorithm.
+- If the cube gets **too** close, it enters **AVOID_CUBE** mode, passing the cube left or right based on its color.
+- After **AVOID_CUBE**, it automatically enters **AFTER_CUBE**, where it centers itself on the center of the track to prepare for searching the next cube.
+- When no cube is detected, it enters **PID** mode, in which it simply navigates straight using the gyro—just as in qualification runs.
 
 ### 🅿️ Parking <a id="parking"></a>
 *To be completed – Explanation of how the robot identifies and executes the parallel parking maneuver at the end of the course.*
