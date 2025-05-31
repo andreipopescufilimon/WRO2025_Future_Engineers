@@ -31,35 +31,35 @@ red_led.off(); green_led.off(); blue_led.off()
 time.sleep(0.5)
 
 # -------- Color Thresholds (LAB Space) --------
-red_threshold    = [(30, 55, 20, 70, -15, 60)]
+red_threshold    = [(14, 43, 12, 69, 17, 54)]
 green_threshold  = [(20, 85, -60, -16, -2, 54)]
 blue_threshold   = [(10, 80, -5, 25, -50, -5)]
-orange_threshold = [(50, 80, 5, 45, 15, 75)]
+orange_threshold = [(56, 82, 10, 63, 8, 64)]
 pink_threshold   = [(30, 70, 10, 60, -15, 15)]
-black_threshold  = [(0, 55, -20, 10, -10, 10)]
+black_threshold  = [(0, 27, -39, 5, -11, 13)]
 
 # -------- Define Regions of Interest (ROI) --------
 img_h = sensor.height()
 img_w = sensor.width()
 cubes_roi = (0, int(img_h * 0.6), img_w, int(img_h * 0.4))
 lines_roi = (5, int(img_h * 0.6), img_w - 10, int(img_h * 0.4))
-wall_roi  = (10, int(img_h * 0.4), img_w - 10, int(img_h * 0.6))
+wall_roi  = (30, int(img_h * 0.4), img_w - 30, int(img_h * 0.6))
 
 # -------- Blob Filtering Parameters --------
-min_cube_size       = 30
-min_line_size       = 1000
+min_cube_size       = 25
+min_line_size       = 1200
 min_area            = 10
 min_valid_cube_area = 800
 pink_wall_min_area  = 5000
-black_wall_min_area = 15000
-min_black_height    = 25
+black_wall_min_area = 12000
+min_black_height    = 62
 
 # -------- PD Parameters for Cube Following --------
-kp_cube = 1.6
-kd_cube = 3.9
+kp_cube = 0.21
+kd_cube = 2.8
 pid_error = 0.0
 pid_last_error = 0.0
-follow_threshold = 5000
+follow_threshold = 4500
 
 direction = 0  # turn direction: 0 = not set, 1 = left, 2 = right
 
@@ -130,6 +130,7 @@ while True:
     # ---- Highlight/Detect Black Wall for Turns ----
     if black_blob and black_blob.h() >= min_black_height:
         btm = black_blob.y() + black_blob.h()
+        area = black_blob.w() * black_blob.h()
         lower_th = img_h * 0.6
         left_th  = img_w * 0.33
         right_th = img_w * 0.66
@@ -137,6 +138,7 @@ while True:
             img.draw_rectangle(black_blob.rect(), color=(10,10,10))
             img.draw_string(black_blob.x(), black_blob.y()+black_blob.h()-10,
                             "TURN", color=(255,255,255))
+            print(black_blob.h())
             uart.write("BLACK\n")
 
     # ---- Choose Closest Cube (largest red or green) ----
@@ -160,7 +162,7 @@ while True:
         pid_last_error = error
 
         if area < follow_threshold:
-            uart.write("S{:+.3f}\n".format(pid_error))
+            uart.write("S{:+.3f}\n".format(error))
             if DEBUG:
                 print("{} FOLLOW → err:{:+.3f}, pid:{:+.3f}, area:{}".format(
                       "RED" if color_char=='R' else "GREEN",
