@@ -713,7 +713,7 @@ void pass_cube(char cube_direction) {
 }
 ```
 
-###Camera Side (OpenMV H7)
+### Camera Side (OpenMV H7)
 In the OpenMV python script, we detect the largest visible red or green blob in the bottom 40% section of the frame, while computing a PD steering error, and send either a small follow command "S±pid_error\n" or an avoid trigger "RED\n"/"GREEN\n" over UART.
 
 **Choose Closest Cube & Follows it by using a PD algorithm**
