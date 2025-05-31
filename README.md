@@ -492,7 +492,7 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 During the **Open Round**, our robot follows a **straight trajectory using a PID controller based on gyro yaw**, ensuring stable movement. To determine turns, the **camera detects Orange and Blue lines** on the track:
 - **Orange Line → Right Turn**
 - **Blue Line → Left Turn**
-- The turn is executed when the robot reaches an approximativ **distance from the front black wall**.
+- The turn is executed when the robot reaches an approximate **distance from the front black wall**.
 
 #### **Camera Processing for Line Detection**
 The camera captures frames in **RGB565** format and processes color blobs using **LAB thresholds** to detect relevant track elements. Below is a **snippet of the camera’s core logic** that identifies **track lines and determines turning direction**:
