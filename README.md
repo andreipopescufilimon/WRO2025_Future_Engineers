@@ -462,7 +462,6 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 | <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/electrical-schematics/Schematic_MainBoard.png" width="400"> | <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/electrical-schematics/MainBoardPCB_img4.png" width="400"> |
 
 **🔎 Advantages of a Custom PCB**  
-
 ✔ **Organized layout** → Prevents loose connections & messy wiring  
 ✔ **Power stability** → Ensures consistent voltage supply to all components  
 ✔ **Compact design** → Reduces weight & optimizes space  
