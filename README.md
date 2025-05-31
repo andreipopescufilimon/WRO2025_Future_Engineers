@@ -292,7 +292,7 @@ The 3D model files are available in the [`/3D-models`](https://github.com/andrei
   - **Steering servo → appropriate pins**
 
 - Use **wires of custom lenght** for clean wiring.
-- 
+  
 - Organize and secure all wiring using **hot glue**.
 
 ---
