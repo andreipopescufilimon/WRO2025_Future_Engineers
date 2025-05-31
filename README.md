@@ -282,7 +282,7 @@ The 3D model files are available in the [`/3D-models`](https://github.com/andrei
 
 - Insert the **JSumo 3S 450mAh Li-Po battery** into the 3D-printed mount.
 
-- Mount the **BMI088 IMU** to the motor support with under the PCB by using some double sided tape.  
+- Mount the **BMI088 IMU** under the PCB by using some double sided tape.  
 
 - Fix the **OpenMV H7 Camera** to the front of the chassis using screws, tilted slightly upward for optimal track and sign visibility.
 
@@ -522,7 +522,7 @@ uart.write(str(direction) + '\n')
 
 
 ### ⚡ Final Round <a id="final-round"></a>
-*To be completed – Overview of how the robot handles the final round challenges, including obstacle adaptation and speed adjustments.*
+
 
 ### 🅿️ Starting from Parking <a id="start-from-parking"></a>
 At the start of the round, our robot is placed in the designated parking zone (the parking zone is 1.5x robot lenght). To determine the direction of the first lap (clockwise or counterclockwise), we use a JS40F object sensor mounted on the left side of the robot.
@@ -569,6 +569,7 @@ The robot turns ~75° toward the main track depending on the detected direction.
 - If the cube gets **too** close, it enters **AVOID_CUBE** mode, passing the cube left or right based on its color.
 - After **AVOID_CUBE**, it automatically enters **AFTER_CUBE**, where it centers itself on the center of the track to prepare for searching the next cube.
 - When no cube is detected, it enters **PID** mode, in which it simply navigates straight using the gyro—just as in qualification runs.
+
 
 ### 🅿️ Parking <a id="parking"></a>
 After completing three laps, we’ll:
