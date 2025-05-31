@@ -5,7 +5,7 @@
 #include <SoftwareSerial.h>
 #include "BMI088.h"  // New: BMI088 library header
 
-#define RUN_MODE 1  // 0 - Open Round, 1 - Cubes Round
+#define RUN_MODE 0   // 0 - Open Round, 1 - Cubes Round
 
 // ================ Pin Definitions ================
 #define PWMA D11
@@ -20,9 +20,9 @@
 #define DIST_SENSOR D3
 
 // ================ Speed Control ================
-int robot_speed = 110;  // 200 - 240 in qualy, max 255 but with high drift on turns | stable 100
-int turn_speed = 110;
-int follow_speed = 90;  // not used
+int robot_speed = 100;  // 200 - 240 in qualy, max 255 but with high drift on turns | stable 100
+int turn_speed = 100;
+int follow_speed = 100;  // not used
 
 // === Encoder pins ===
 #define ENCODER_A D5
@@ -37,9 +37,9 @@ volatile int32_t encoder_ticks = 0;
 
 // ================ Motors and PID ================
 double current_angle_gyro = 0.0;  // steering asymmetry
-double kp = 0.048;
+double kp = 0.044;
 double ki = 0;
-double kd = 0.072;
+double kd = 0.082;
 double pid_error = 0, pid_last_error = 0;
 
 // Integration & drift
@@ -66,6 +66,8 @@ Servo steeringServo;
 #define STEERING_CENTER_PARK 79
 #define STEERING_RIGHT_PARK 25
 
+#define FOLLOW_CUBE_DEAD_TIME 250
+
 // ================ UART Communication ================
 #define RX_PIN 0
 #define TX_PIN 1
@@ -81,23 +83,26 @@ const int max_turns = 12;
 unsigned long lastTurnTime = 0, lastLineDetectedTime = 0;
 const unsigned long turnCooldown = 4000;
 
+long last_follow_cube = 0;
+
+
 // ================ Avoid Cubes Variables ================
-#define AVOIDANCE_ANGLE 35       // Base avoidance angle in degrees.
-#define AVOIDANCE_DRIVE_TIME 15  // Time (ms) to drive forward during avoidance.
+#define AVOIDANCE_ANGLE 40       // Base avoidance angle in degrees.
+#define AVOIDANCE_DRIVE_TIME 2  // Time (ms) to drive forward during avoidance.
 float follow_cube_angle = 0;     // PID steering correction for cube following.
 
-#define EXIT_MOVE_TIME 350    // Duration (ms) for the aggressive exit move
-#define RETURN_MOVE_TIME 300  // Duration (ms) for the aggressive return move
+unsigned long last_cube_time = 0;  // remember when we last avoided one
+
 
 // ================ Robot States ================
 enum RobotState {
-  DEFAULT_CASE,
+  PID,
   FOLLOW_CUBE,
   AVOID_CUBE,
   AFTER_CUBE
 };
 
-RobotState currentState = DEFAULT_CASE;
+RobotState currentState = PID;
 char cube_avoid_direction = 'R';  // 'R' for red cube avoidance, 'L' for green cube avoidance
 float desiredSteering = 0.0;
 
@@ -128,8 +133,7 @@ void setup() {
 
   digitalWrite(LED_BUILTIN, HIGH);
   pinMode(START_BTN, INPUT_PULLUP);
-  while (digitalRead(START_BTN) == LOW)
-    ;
+
   digitalWrite(LED_BUILTIN, LOW);
   custom_delay(500);
 
@@ -229,12 +233,13 @@ void setup() {
 }
 
 void loop() {
+  // 1) Max‐turns timeout
   if (turn_count >= max_turns) {
-    unsigned long current_time = millis();
-    while (millis() - current_time < 700) {
+    unsigned long t0 = millis();
+    while (millis() - t0 < 1400) {
       read_gyro_data();
       double error = current_angle_gyro - gz;
-      pid_error = (error)*kp + (pid_error - pid_last_error) * kd;
+      pid_error = error * kp + (pid_error - pid_last_error) * kd;
       pid_last_error = pid_error;
       steer(pid_error);
       move(robot_speed);
@@ -245,66 +250,81 @@ void loop() {
       ;
   }
 
-  command = "";
-  current_color = "";
+  // 2) Fresh gyro read and flush camera
+  read_gyro_data();
+
+  // 3) State‐machine drive logic
+  switch (currentState) {
+
+    case PID:
+      {
+        // PID straight‐drive
+        double err = current_angle_gyro - gz;
+        pid_error = (err)*kp + (pid_error - pid_last_error) * kd;
+        pid_last_error = pid_error;
+        steer(pid_error);
+        move(robot_speed);
+        break;
+      }
+
+    case FOLLOW_CUBE:
+      {
+        if (millis() - last_follow_cube > FOLLOW_CUBE_DEAD_TIME) {
+          currentState = PID;
+        }
+        // steer toward cube
+        steer(follow_cube_angle);
+        move(robot_speed);
+        break;
+      }
+
+    case AVOID_CUBE:
+      {
+        // avoidance maneuver
+        pass_cube(cube_avoid_direction);
+        break;
+      }
+
+    case AFTER_CUBE:
+      {
+        /*last_cube_time = millis();  
+        while (millis() - last_cube_time > 700) {
+          read_gyro_data();
+          double error = current_angle_gyro - gz;
+          pid_error = (error)*kp + (pid_error - pid_last_error) * kd;
+          pid_last_error = pid_error;
+          if (debug == true) {
+            Serial.print(current_angle_gyro);
+            Serial.print("     |      ");
+            Serial.print(turn_direction);
+            Serial.print("     |      ");
+            Serial.print(gz);
+            Serial.print("     |      ");
+            Serial.println(robot_speed);
+          }
+          steer(pid_error);
+          move(robot_speed);
+        }*/
+        currentState = PID;
+        cameraSerial.flush();
+        break;
+      }
+  }
+
+  // 4) Read & dispatch any new OpenMV commands
   while (cameraSerial.available() > 0) {
-    char receivedChar = cameraSerial.read();
-    if (receivedChar == '\n') {
-      if (receivedMessage.startsWith("S")) {
-        command = receivedMessage;
-        if (debugcam) {
-          Serial.print("Received from OpenMV: ");
-          Serial.println(command);
-        }
-      } else {
-        if (debugcam) {
-          Serial.print("Received from OpenMV: ");
-          Serial.println(receivedMessage);
-        }
-        receivedMessage.toUpperCase();
-        if (receivedMessage.indexOf("BLACK") != -1) {
-          command = "B";
-        } else if (receivedMessage.indexOf("BLUE") != -1) {
-          command = "L";
-          if (turn_direction == 0) turn_direction = -1;
-        } else if (receivedMessage.indexOf("ORANGE") != -1) {
-          command = "O";
-          if (turn_direction == 0) turn_direction = 1;
-        } else if (receivedMessage.indexOf("RED") != -1) {
-          command = "R";
-        } else if (receivedMessage.indexOf("GREEN") != -1) {
-          command = "G";
-        } else if (receivedMessage.indexOf("PINK") != -1) {
-          command = "P";
-        } else {
-          command = receivedMessage;
-        }
-      }
-      if (debugcam) {
-        Serial.print("Command received from OpenMV: ");
-        Serial.println(command);
-      }
-      execute_command(command);
+    char c = cameraSerial.read();
+    if (c == '\n') {
+      // Normalize & execute
+      receivedMessage.trim();
+      receivedMessage.toUpperCase();
+      execute_command(receivedMessage);
       receivedMessage = "";
       cameraSerial.flush();
     } else {
-      receivedMessage += receivedChar;
+      receivedMessage += c;
     }
   }
 
-  read_gyro_data();
-  double error = current_angle_gyro - gz;
-  pid_error = (error)*kp + (pid_error - pid_last_error) * kd;
-  pid_last_error = pid_error;
-  if (debug == true) {
-    Serial.print(current_angle_gyro);
-    Serial.print("     |      ");
-    Serial.print(turn_direction);
-    Serial.print("     |      ");
-    Serial.print(gz);
-    Serial.print("     |      ");
-    Serial.println(robot_speed);
-  }
-  steer(pid_error);
-  move(robot_speed);
+  //Serial.println(currentState);
 }

@@ -54,6 +54,7 @@ void move_cm_gyro(int target_cm, int speed, double hold_angle) {
     steer(pid_error);
   }
   move(0);
+  flush_messages();
 }
 
 void steer_to_angle(double target_angle, int speed) {
@@ -78,7 +79,10 @@ void steer_to_angle(double target_angle, int speed) {
   }
 
   move(0);  // stop
+  flush_messages();
 }
+
+
 
 // -----------------------------------------------------------
 //           ISR & setup for single-edge counting
@@ -158,4 +162,5 @@ void move_straight_on_gyro(double speed, long duration_ms) {
     cameraSerial.flush();
   }
   move(0);  // stop
+  flush_messages();
 }
