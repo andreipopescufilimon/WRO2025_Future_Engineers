@@ -757,6 +757,10 @@ if candidates:
                   area, follow_threshold))
 ```
 
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/red-cube-detection.png" width="900">
+
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/green-cube-detection.png" width="900">
+
 
 ### 🅿️ Starting from Parking <a id="start-from-parking"></a>
 At the start of the round, our robot is placed in the designated parking zone (the parking zone is 1.5x robot lenght). To determine the direction of the first lap (clockwise or counterclockwise), we use a JS40F object sensor mounted on the left side of the robot.
