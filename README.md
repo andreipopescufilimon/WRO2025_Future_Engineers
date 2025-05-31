@@ -610,7 +610,7 @@ switch (currentState) {
  
 This function is called whenever a complete line arrives over **UART**. It selects which state to enter (**PID**, **FOLLOW_CUBE**, **AVOID_CUBE**) or adjusts gyro target angle on a **BLACK** message by adding or removing 90 degrees, based on the turn direction.
 
-```
+```cpp
 void execute_command(String cmd) {
   cmd.trim();
   cmd.toUpperCase();
@@ -689,7 +689,7 @@ void execute_command(String cmd) {
 #### Cube Avoidance Subroutine (pass_cube())
 When in **AVOID_CUBE**, the robot executes a hardcoded movement, that includes a fixed turn + move forward maneuver to avoid the cube, then transitions to **AFTER_CUBE**, that alligns the robot for doing **PID** and follow the next cube.
 
-```
+```cpp
 void pass_cube(char cube_direction) {
   read_gyro_data();
   // Convert 'R' ➜ +1 (turn left), 'G' ➜ -1 (turn right)
@@ -717,7 +717,8 @@ void pass_cube(char cube_direction) {
 In the OpenMV python script, we detect the largest visible red or green blob in the bottom 40% section of the frame, while computing a PD steering error, and send either a small follow command "S±pid_error\n" or an avoid trigger "RED\n"/"GREEN\n" over UART.
 
 **Choose Closest Cube & Follows it by using a PD algorithm**
-```
+
+```python
 # ---- Choose Closest Cube (largest red or green) ----
 candidates = []
 if red_cube:   candidates.append(('R', red_cube))
