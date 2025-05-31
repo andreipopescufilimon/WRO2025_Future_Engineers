@@ -1,4 +1,4 @@
-# WRO2025 Future Engineers – Nerdvana Taurus Team
+ # WRO2025 Future Engineers – Nerdvana Taurus Team
 
 Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO) 2025**, Future Engineers category. 
 
@@ -824,7 +824,7 @@ After completing three laps, we’ll:
    - **Move 1:** Turn the steering toward the parking space and reverse into the spot.
    - **Move 2:** Run a short PD loop using gyro to straighten perfectly within the 33 cm (1.5 x robot lenght, 33cm in our case) gap in our case.
 
-<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/parking-maneuever.png" width="900">
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/parking-maneuever.png" width="500">
 
 ---
 
