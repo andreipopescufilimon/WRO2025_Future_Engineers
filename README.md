@@ -115,8 +115,8 @@ The **WRO 2025 Future Engineers** challenge pushes teams to develop a **fully au
 - **🏁 Open Challenge**: The vehicle must complete **three (3) laps** on a track with **randomly placed inside walls**.
 
 - **🚦 Obstacle Challenge**: The vehicle must complete **three (3) laps** while detecting and responding to **randomly placed red and green traffic signs**:
-  - 🟥 **Red markers** → The vehicle must stay on the **right side of the lane**.
-  - 🟩 **Green markers** → The vehicle must stay on the **left side of the lane**.
+  - 🟥 **Red markers** ➜ The vehicle must stay on the **right side of the lane**.
+  - 🟩 **Green markers** ➜ The vehicle must stay on the **left side of the lane**.
   
   After completing the three laps, the vehicle must **locate the designated parking zone** and perform a **precise parallel parking maneuver** within a limited space, adding an extra layer of difficulty.
   
@@ -287,9 +287,9 @@ The 3D model files are available in the [`/3D-models`](https://github.com/andrei
 - Fix the **OpenMV H7 Camera** to the front of the chassis using screws, tilted slightly upward for optimal track and sign visibility.
 
 - Connect all modules:
-  - **Camera → UART**
-  - **IMU → I2C**
-  - **Steering servo → appropriate pins**
+  - **Camera ➜ UART**
+  - **IMU ➜ I2C**
+  - **Steering servo ➜ appropriate pins**
 
 - Use **wires of custom lenght** for clean wiring.
   
@@ -462,10 +462,10 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 | <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/electrical-schematics/Schematic_MainBoard.png" width="400"> | <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/electrical-schematics/MainBoardPCB_img4.png" width="400"> |
 
 **🔎 Advantages of a Custom PCB**  
-✔ **Organized layout** → Prevents loose connections & messy wiring  
-✔ **Power stability** → Ensures consistent voltage supply to all components  
-✔ **Compact design** → Reduces weight & optimizes space  
-✔ **Reliability** → Minimizes risk of failure due to poor wiring  
+✔ **Organized layout** ➜ Prevents loose connections & messy wiring  
+✔ **Power stability** ➜ Ensures consistent voltage supply to all components  
+✔ **Compact design** ➜ Reduces weight & optimizes space  
+✔ **Reliability** ➜ Minimizes risk of failure due to poor wiring  
 
 ---
 
@@ -480,7 +480,7 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 | **IMU Sensor BMI088**         | 3.3V       | 3.2mA                 | 4mA              |
 | **JS40F Distance Sensor**     | 5V         | 15mA                  | 20mA             |
 | **TB6612FNG Motor Driver**    | 5V         | 50mA                  | 100mA            |
-| **Voltage Regulator L7805CV** | 7.4V → 5V  | Power Management      | -                |
+| **Voltage Regulator L7805CV** | 7.4V ➜ 5V  | Power Management      | -                |
 | **Total Robot Power Usage**   | Mixed      | ~1.4A (Avg)           | ~3.9A (Peak)     |
 
 ---
@@ -489,8 +489,8 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 
 ### 🏁 Open Round <a id="open-round"></a>
 During the **Open Round**, our robot follows a **straight trajectory using a PID controller based on gyro yaw**, ensuring stable movement. To determine turns, the **camera detects Orange and Blue lines** on the track:
-- **Orange Line → Right Turn**
-- **Blue Line → Left Turn**
+- **Orange Line ➜ Right Turn**
+- **Blue Line ➜ Left Turn**
 - The turn is executed when the robot reaches an approximate **distance from the front black wall**.
 
 #### **Camera Processing for Line Detection**
@@ -509,9 +509,9 @@ black_blobs = img.find_blobs(black_threshold, roi=cubes_roi, pixels_threshold=mi
 # Determine Direction
 if direction == 0:
     if orange_line and not is_invalid_orange(orange_line, red_blobs):
-        direction = 2  # Orange line first → turn right
+        direction = 2  # Orange line first ➜ turn right
     elif blue_line:
-        direction = 1  # Blue line first → turn left
+        direction = 1  # Blue line first ➜ turn left
 
 # Send Direction Command
 uart.write(str(direction) + '\n')
@@ -521,13 +521,13 @@ uart.write(str(direction) + '\n')
 
 ### ⚡ Final Round <a id="final-round"></a>
 
-In the final round, we extend our open rount algorithm by adding real‐time cube detection, following, and avoidance algorithms. The OpenMV H7 camera handles live frames processing and sends compact UART messages to the Arduino Nano ESP32. On the Arduino, incoming UART messages drive a four‐state algorithm: in **PID**, the robot adjust to hold a straight heading by using a PD on the gyro and pivots 90° whenever it receives a **BLACK** signal (lap turning point in each corner). In **FOLLOW_CUBE**, the camera’s **S<corrected_servo>** message directly sets the servo angle to chase the closest visible cube; if no follow message arrives within 250-500 ms, it returns to **PID** as the cube might have been passed or lost from the view. When a proximity trigger (**RED** or **GREEN**, **R** or **G**) arrives, it switches to **AVOID_CUBE**, executes a 37° pivot plus an 8 cm clear‐away while holding that heading, then enters **AFTER_CUBE** to reallign on gyro while moving back to center section of each side of the map, and to flush the leftover commands before reverting to **PID**.
+In the final round, we extend our open rount algorithm by adding real‐time cube detection, following, and avoidance algorithms. The OpenMV H7 camera handles live frames processing and sends compact UART messages to the Arduino Nano ESP32. On the Arduino, incoming UART messages drive a four‐state algorithm: in **PID**, the robot adjust to hold a straight heading by using a PD on the gyro and turns 90° whenever it receives a **BLACK** signal (lap turning point in each corner). In **FOLLOW_CUBE**, the camera’s **S<corrected_servo>** message directly sets the servo angle to chase the closest visible cube; if no follow message arrives within 250-500 ms, it returns to **PID** as the cube might have been passed or lost from the view. When a proximity trigger (**RED** or **GREEN**, **R** or **G**) arrives, it switches to **AVOID_CUBE**, executes a 37° turn plus an 8 cm clear‐away while holding that heading, then enters **AFTER_CUBE** to reallign on gyro while moving back to center section of each side of the map, and to flush the leftover commands before reverting to **PID**.
 
 ---
 
 ### Arduino Side
 
-#### State‐Machine Drive Logic
+#### States Driving Logic
 
 This `switch` statement runs inside `void loop()` and decides what the robot does in each of the four states.
 
@@ -600,7 +600,7 @@ switch (currentState) {
 - Otherwise, use `follow_cube_angle` (sent by the camera) to set the servo and follow the cube.
 
 **AVOID_CUBE:**
-- Calls `pass_cube(cube_avoid_direction)`, which executes a pivot to left or right based on the cube color. This code sequence is hard coded.
+- Calls `pass_cube(cube_avoid_direction)`, which executes a turn to left or right based on the cube color. This code sequence is hard coded.
   
 **AFTER_CUBE:**
 - Return to **PID** after getting to be straight again, while ignoring all commands.
@@ -615,7 +615,7 @@ void execute_command(String cmd) {
   cmd.trim();
   cmd.toUpperCase();
 
-  // “S…” steering to follow cube → FOLLOW_CUBE
+  // “S…” steering to follow cube ➜ FOLLOW_CUBE
   if (cmd.startsWith("S") && RUN_MODE == 1) {
     float val = cmd.substring(1).toFloat();
     follow_cube_angle = val;
@@ -623,7 +623,7 @@ void execute_command(String cmd) {
     last_follow_cube  = millis();
 
     if (debug) {
-      Serial.print("FOLLOW_CUBE angle → ");
+      Serial.print("FOLLOW_CUBE angle ➜ ");
       Serial.println(follow_cube_angle);
     }
     return;
@@ -655,20 +655,20 @@ void execute_command(String cmd) {
     }
   }
 
-  // “RED” or “GREEN” close to a cube and need to avoid it → AVOID_CUBE
+  // “RED” or “GREEN” close to a cube and need to avoid it ➜ AVOID_CUBE
   if ((c == 'R' || c == 'G') && millis() - last_cube_time >= AVOIDANCE_DRIVE_TIME) {
-    cube_avoid_direction = (c == 'R') ? 'L' : 'R';  // 'R' means pivot left, 'G' pivot right
+    cube_avoid_direction = (c == 'R') ? 'L' : 'R';  // 'R' means turn left, 'G' turn right
     currentState         = AVOID_CUBE;
     last_cube_time       = millis();
     if (debug) {
-      Serial.print("AVOID_CUBE dir → ");
+      Serial.print("AVOID_CUBE dir ➜ ");
       Serial.println(cube_avoid_direction);
     }
     return;
   }
 
   if (debugcam) {
-    Serial.print("Ignored cmd → ");
+    Serial.print("Ignored cmd ➜ ");
     Serial.println(cmd);
   }
 }
@@ -692,7 +692,7 @@ When in **AVOID_CUBE**, the robot executes a hardcoded movement, that includes a
 ```
 void pass_cube(char cube_direction) {
   read_gyro_data();
-  // Convert 'R' → +1 (turn left), 'G' → -1 (turn right)
+  // Convert 'R' ➜ +1 (turn left), 'G' ➜ -1 (turn right)
   int sign = (cube_direction == 'R') ? 1 : -1;
 
   double start_angle  = gz;
@@ -713,6 +713,48 @@ void pass_cube(char cube_direction) {
 }
 ```
 
+###Camera Side (OpenMV H7)
+In the OpenMV python script, we detect the largest visible red or green blob in the bottom 40% section of the frame, while computing a PD steering error, and send either a small follow command "S±pid_error\n" or an avoid trigger "RED\n"/"GREEN\n" over UART.
+
+**Choose Closest Cube & Follows it by using a PD algorithm**
+```
+# ---- Choose Closest Cube (largest red or green) ----
+candidates = []
+if red_cube:   candidates.append(('R', red_cube))
+if green_cube: candidates.append(('G', green_cube))
+
+if candidates:
+    # Pick the cube (red or green) with the largest area
+    color_char, cube = max(candidates, key=lambda x: x[1].area())
+    area = cube.area()
+    col  = (255,0,0) if color_char == 'R' else (0,255,0)
+
+    # Draw rectangle and crosshair on the selected cube
+    img.draw_rectangle(cube.rect(), color=col)
+    img.draw_cross(cube.cx(), cube.cy(), color=col)
+    img.draw_string(cube.x(), cube.y() + cube.h() - 10,
+                    str(area), color=col)
+
+    # Compute normalized horizontal error in [-1, 1]
+    error = (cube.cx() - target_x) / float(target_x)
+    pid_error = kp_cube * error + kd_cube * (error - pid_last_error)
+    pid_last_error = error
+
+    if area < follow_threshold:
+        # Send “S±error\n” to indicate a small servo correction (➜ FOLLOW_CUBE)
+        uart.write("S{:+.3f}\n".format(error))
+        if DEBUG:
+            print("{} FOLLOW ➜ err:{:+.3f}, pid:{:+.3f}, area:{}".format(
+                  "RED" if color_char == 'R' else "GREEN",
+                  error, pid_error, area))
+    else:
+        # At close range, send just “RED\n” or “GREEN\n” to trigger avoidance
+        uart.write(("RED\n" if color_char == 'R' else "GREEN\n"))
+        if DEBUG:
+            print("{} CLOSE ➜ area {} >= {}".format(
+                  "RED" if color_char == 'R' else "GREEN",
+                  area, follow_threshold))
+```
 
 
 ### 🅿️ Starting from Parking <a id="start-from-parking"></a>
@@ -777,6 +819,7 @@ After completing three laps, we’ll:
    - **Move 1:** Turn the steering toward the parking space and reverse into the spot.
    - **Move 2:** Run a short PD loop using gyro to straighten perfectly within the 33 cm (1.5 x robot lenght, 33cm in our case) gap in our case.
 
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/parking-maneuever.png" width="900">
 
 ---
 
