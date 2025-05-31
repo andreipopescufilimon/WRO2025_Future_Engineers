@@ -519,8 +519,200 @@ uart.write(str(direction) + '\n')
 
 <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/line-detection.png" width="900">
 
-
 ### ⚡ Final Round <a id="final-round"></a>
+
+In the final round, we extend our open rount algorithm by adding real‐time cube detection, following, and avoidance algorithms. The OpenMV H7 camera handles live frames processing and sends compact UART messages to the Arduino Nano ESP32. On the Arduino, incoming UART messages drive a four‐state algorithm: in **PID**, the robot adjust to hold a straight heading by using a PD on the gyro and pivots 90° whenever it receives a **BLACK** signal (lap turning point in each corner). In **FOLLOW_CUBE**, the camera’s **S<corrected_servo>** message directly sets the servo angle to chase the closest visible cube; if no follow message arrives within 250-500 ms, it returns to **PID** as the cube might have been passed or lost from the view. When a proximity trigger (**RED** or **GREEN**, **R** or **G**) arrives, it switches to **AVOID_CUBE**, executes a 37° pivot plus an 8 cm clear‐away while holding that heading, then enters **AFTER_CUBE** to reallign on gyro while moving back to center section of each side of the map, and to flush the leftover commands before reverting to **PID**.
+
+---
+
+### Arduino Side
+
+#### State‐Machine Drive Logic
+
+This `switch` statement runs inside `void loop()` and decides what the robot does in each of the four states.
+
+```cpp
+switch (currentState) {
+
+  case PID:
+    {
+      // PID straight‐drive, maintain heading using gyro PD
+      double err = current_angle_gyro - gz;
+      pid_error        = (err) * kp + (pid_error - pid_last_error) * kd;
+      pid_last_error   = pid_error;
+      steer(pid_error);
+      move(robot_speed);
+      break;
+    }
+
+  case FOLLOW_CUBE:
+    {
+      // If no follow command arrives within 250-500ms, go back to gyro PD
+      if (millis() - last_follow_cube > FOLLOW_CUBE_LOST_TIME) {
+        currentState = PID;
+      }
+      // Otherwise, steer directly toward the cube, so we do active cube following, using a PD that runs on the camera
+      steer(follow_cube_angle);
+      move(robot_speed);
+      break;
+    }
+
+  case AVOID_CUBE:
+    {
+      // Perform the hard coded avoidance maneuver
+      pass_cube(cube_avoid_direction);
+      break;
+    }
+
+  case AFTER_CUBE:
+    {
+      // Return to PID after getting to be straight again, while ignoring all commands
+      while (millis() - last_cube_time > 1500) {
+        read_gyro_data();
+        double error = current_angle_gyro - gz;
+        pid_error = (error)*kp + (pid_error - pid_last_error) * kd;
+        pid_last_error = pid_error;
+        if (debug == true) {
+          Serial.print(current_angle_gyro);
+          Serial.print("     |      ");
+          Serial.print(turn_direction);
+          Serial.print("     |      ");
+          Serial.print(gz);
+          Serial.print("     |      ");
+          Serial.println(robot_speed);
+        }
+        steer(pid_error);
+        move(robot_speed);
+      }
+      currentState = PID;
+      cameraSerial.flush();
+      break;
+    }
+}
+```
+
+**PID:**
+- Uses a PD loop on the integrated gyro yaw (`gz`) vs. desired heading (`current_angle_gyro`).
+- Calls `steer(pid_error)` and `move(robot_speed)` to drive straight.
+
+**FOLLOW_CUBE:**
+- If we haven’t received a new `"S…\n"` follow message for at least 250-500 ms, assume the cube is lost or passed and switch back to **PID**.
+- Otherwise, use `follow_cube_angle` (sent by the camera) to set the servo and follow the cube.
+
+**AVOID_CUBE:**
+- Calls `pass_cube(cube_avoid_direction)`, which executes a pivot to left or right based on the cube color. This code sequence is hard coded.
+  
+**AFTER_CUBE:**
+- Return to **PID** after getting to be straight again, while ignoring all commands.
+
+
+ #### UART Command Parser (execute_command())
+ 
+This function is called whenever a complete line arrives over **UART**. It selects which state to enter (**PID**, **FOLLOW_CUBE**, **AVOID_CUBE**) or adjusts gyro target angle on a **BLACK** message by adding or removing 90 degrees, based on the turn direction.
+
+```
+void execute_command(String cmd) {
+  cmd.trim();
+  cmd.toUpperCase();
+
+  // “S…” steering to follow cube → FOLLOW_CUBE
+  if (cmd.startsWith("S") && RUN_MODE == 1) {
+    float val = cmd.substring(1).toFloat();
+    follow_cube_angle = val;
+    currentState      = FOLLOW_CUBE;
+    last_follow_cube  = millis();
+
+    if (debug) {
+      Serial.print("FOLLOW_CUBE angle → ");
+      Serial.println(follow_cube_angle);
+    }
+    return;
+  }
+
+  // Map color words to one letter commands and set turn_direction on first BLUE/ORANGE
+  char c = cmd.charAt(0);
+  if      (cmd.indexOf("BLACK")  != -1) { c = 'B'; }
+  else if (cmd.indexOf("BLUE")   != -1) { c = 'L'; lastLineDetectedTime = millis(); if (turn_direction == 0) turn_direction = -1; }
+  else if (cmd.indexOf("ORANGE") != -1) { c = 'O'; lastLineDetectedTime = millis(); if (turn_direction == 0) turn_direction =  1; }
+  else if (cmd.indexOf("RED")    != -1) { c = 'R'; }
+  else if (cmd.indexOf("GREEN")  != -1) { c = 'G'; }
+  else if (cmd.indexOf("PINK")   != -1) { c = 'P'; }
+  else { return; }  // Ignore any other strings
+
+  // “BLACK” turn 90° if in PID
+  if (currentState == PID) {
+    if (c == 'B' || (millis() - lastLineDetectedTime > 1800 && lastLineDetectedTime > 0)) {
+      if (millis() - lastTurnTime < 1000) {
+        if (debug) Serial.println("Ignoring repeated 'B' command due to cooldown.");
+        return;
+      }
+      if (debug) Serial.println("Received 'BLACK' command. Turning 90°...");
+      current_angle_gyro += turn_direction * 90;
+      turn_count++;
+      lastTurnTime         = millis();
+      lastLineDetectedTime = 0;
+      return;
+    }
+  }
+
+  // “RED” or “GREEN” close to a cube and need to avoid it → AVOID_CUBE
+  if ((c == 'R' || c == 'G') && millis() - last_cube_time >= AVOIDANCE_DRIVE_TIME) {
+    cube_avoid_direction = (c == 'R') ? 'L' : 'R';  // 'R' means pivot left, 'G' pivot right
+    currentState         = AVOID_CUBE;
+    last_cube_time       = millis();
+    if (debug) {
+      Serial.print("AVOID_CUBE dir → ");
+      Serial.println(cube_avoid_direction);
+    }
+    return;
+  }
+
+  if (debugcam) {
+    Serial.print("Ignored cmd → ");
+    Serial.println(cmd);
+  }
+}
+```
+
+**“S…” (e.g. `"S+0.120\n"`):**
+- Parses the float after `S`, sets `follow_cube_angle` to the value that was sent after S character, and switches to **FOLLOW_CUBE**.
+- Records the time to `last_follow_cube` so we know how long it has been since the camera last issued a “follow” command.
+
+**“BLACK”:**
+- Only when in **PID**, add or substract 90° based on the lap direction, by adjusting `current_angle_gyro += ±90`.
+- Increment `turn_count` and enforce a 1 s cooldown to avoid repeated turning signals.
+
+**“RED” or “GREEN”:**
+- When getting to close to a cube, it sets `cube_avoid_direction` based on the cube color and enter **AVOID_CUBE**.
+
+
+#### Cube Avoidance Subroutine (pass_cube())
+When in **AVOID_CUBE**, the robot executes a hardcoded movement, that includes a fixed turn + move forward maneuver to avoid the cube, then transitions to **AFTER_CUBE**, that alligns the robot for doing **PID** and follow the next cube.
+
+```
+void pass_cube(char cube_direction) {
+  read_gyro_data();
+  // Convert 'R' → +1 (turn left), 'G' → -1 (turn right)
+  int sign = (cube_direction == 'R') ? 1 : -1;
+
+  double start_angle  = gz;
+  double target_angle = start_angle - sign * AVOIDANCE_ANGLE;
+
+  // Turn ~37° away from cube
+  move_until_angle(robot_speed, target_angle);
+
+  // Drive ~8 cm forward while holding that heading
+  move_cm_gyro(8, robot_speed, target_angle);
+
+  // Move to AFTER_CUBE case
+  last_cube_time = millis();
+  currentState   = AFTER_CUBE;
+
+  // Discard any leftover UART messages before returning to PID
+  flush_messages();
+}
+```
+
 
 
 ### 🅿️ Starting from Parking <a id="start-from-parking"></a>
