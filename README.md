@@ -309,7 +309,7 @@ The 3D model files are available in the [`/3D-models`](https://github.com/andrei
 
 ### 6: Add weight <a id="6-add-weight"></a>
 - Place **~100g weight** under the robot chassis
-- This will increases grip and stability.
+- This will increase grip and stability.
 - Use **double side tape or glue** to hold weights in place.
 
 ---
@@ -325,7 +325,7 @@ The 3D model files are available in the [`/3D-models`](https://github.com/andrei
 
 ## 🛠️ Power and Sense Management <a id="power-and-sense-management"></a>
 
-The robot's **power and sensing system** is designed for **efficiency, precision, and adaptability**. It consists of an **Arduino Nano ESP32, a Li-Po battery, MPU-6050 IMU, OpenMV H7 Camera, motors, and a voltage regulator**, all working together to ensure **stable operation and accurate navigation**.  
+The robot's **power and sensing system** is designed for **efficiency, precision, and adaptability**. It consists of an **Arduino Nano ESP32, a Li-Po battery, BMI088 IMU, OpenMV H7 Camera, motors(drive motor and servo motor), and a voltage regulator**, all working together to ensure **stable operation and accurate navigation**.  
 
 Each component has been carefully selected to provide **optimal performance**, minimize power consumption, and ensure **reliability in competition environments**.
 
@@ -347,7 +347,7 @@ The **Li-Po battery** provides a **compact, lightweight, and high-discharge** po
 
 ### **🖥️ Arduino Nano ESP32 – Main Controller** <a id="arduino-nano-esp32">
 
-The **Arduino Nano ESP32** provides **high-speed processing, built-in Wi-Fi and Bluetooth, and extensive GPIO capabilities** in a **compact form factor**. This allows it to handle **sensor data, motor control, and vision processing efficiently**.
+The **Arduino Nano ESP32** provides **high-speed processing, built-in Wi-Fi and Bluetooth, and extensive GPIO capabilities** in a **compact form**. This allows it to handle **sensor data, motor control, and vision processing efficiently**.
 
 | <img src="https://store.arduino.cc/cdn/shop/files/ABX00092_01.iso_804x603.jpg?v=1727101612" width="300"> | **Specifications** |
 |------------------------------|------------------------------|
