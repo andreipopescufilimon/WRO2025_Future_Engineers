@@ -571,7 +571,20 @@ The robot turns ~75° toward the main track depending on the detected direction.
 - When no cube is detected, it enters **PID** mode, in which it simply navigates straight using the gyro—just as in qualification runs.
 
 ### 🅿️ Parking <a id="parking"></a>
-*To be completed – Explanation of how the robot identifies and executes the parallel parking maneuver at the end of the course.*
+After completing three laps, we’ll:
+- **Align so we will be able to turn 90 degrees exactly on the middle section of the track.**
+  
+- **Determine parking-lot side.**  
+   - If the laps were clockwise, the lot sits at the **beginning** of that side.  
+   - If the laps were counterclockwise, the lot sits at the **end** of that side.
+
+- **Drive a fixed distance (in cm) forward.**  
+   - This moves us into the position from where we can perform our two-step parking.
+
+- **Two-moves parking:**
+   - **Move 1:** Turn the steering toward the parking space and reverse into the spot.
+   - **Move 2:** Run a short PD loop using gyro to straighten perfectly within the 33 cm (1.5 x robot lenght, 33cm in our case) gap in our case.
+
 
 ---
 
