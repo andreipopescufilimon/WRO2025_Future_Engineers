@@ -3,9 +3,9 @@
 #include <ESP32Encoder.h>
 #include <ESP32Servo.h>
 #include <SoftwareSerial.h>
-#include "BMI088.h"  // New: BMI088 library header
+#include "BMI088.h" 
 
-#define RUN_MODE 0   // 0 - Open Round, 1 - Cubes Round
+#define RUN_MODE 1  // 0 - Open Round, 1 - Cubes Round
 
 // ================ Pin Definitions ================
 #define PWMA D11
@@ -18,11 +18,12 @@
 #define P5 D1
 #define DEBUG_LED D12
 #define DIST_SENSOR D3
+#define FRONT_ULTRASONIC_PIN A3
+#define BACK_ULTRASONIC_PIN A0
 
 // ================ Speed Control ================
-int robot_speed = 100;  // 200 - 240 in qualy, max 255 but with high drift on turns | stable 100
-int turn_speed = 100;
-int follow_speed = 100;  // not used
+int robot_speed = 85;  // 200 - 240 in qualy, max 255 but with high drift on turns | stable 100
+int cube_last = 1;
 
 // === Encoder pins ===
 #define ENCODER_A D5
@@ -33,13 +34,13 @@ volatile int32_t encoder_ticks = 0;
 #define QUAD_EDGES (PPR * 4.0f)
 #define GEAR_RATIO 1.0f
 #define WHEEL_DIAM 56.0f  // mm
-#define MM_PER_TICK 1.2979f
+#define MM_PER_TICK 1.2979f 
 
 // ================ Motors and PID ================
-double current_angle_gyro = 0.0;  // steering asymmetry
-double kp = 0.044;
+double current_angle_gyro = -1.0;  // steering asymmetry
+double kp = 0.032;                 // 0.044
 double ki = 0;
-double kd = 0.082;
+double kd = 0.051;  // 0.082
 double pid_error = 0, pid_last_error = 0;
 
 // Integration & drift
@@ -55,16 +56,11 @@ double gz = 0;        // integrated angle in degrees
 
 #define STEERING_SERVO 2
 Servo steeringServo;
-#define STEERING_LEFT 120
-#define STEERING_CENTER 79
+#define STEERING_LEFT 130
+#define STEERING_CENTER 82
 #define STEERING_RIGHT 30
 
-#define STEERING_AVOID_LEFT 120  // Max left for avoidance maneuvers
-#define STEERING_AVOID_RIGHT 30  // Max right for avoidance maneuvers
-
-#define STEERING_LEFT_PARK 130
-#define STEERING_CENTER_PARK 79
-#define STEERING_RIGHT_PARK 25
+#define CORRECTION_ANGLE 50
 
 #define FOLLOW_CUBE_DEAD_TIME 250
 
@@ -81,15 +77,12 @@ int turn_direction = 0;
 int turn_count = 0;
 const int max_turns = 12;
 unsigned long lastTurnTime = 0, lastLineDetectedTime = 0;
-const unsigned long turnCooldown = 4000;
 
 long last_follow_cube = 0;
 
 
 // ================ Avoid Cubes Variables ================
-#define AVOIDANCE_ANGLE 40       // Base avoidance angle in degrees.
-#define AVOIDANCE_DRIVE_TIME 2  // Time (ms) to drive forward during avoidance.
-float follow_cube_angle = 0;     // PID steering correction for cube following.
+float follow_cube_angle = 0;  // PID steering correction for cube following.
 
 unsigned long last_cube_time = 0;  // remember when we last avoided one
 
@@ -99,7 +92,8 @@ enum RobotState {
   PID,
   FOLLOW_CUBE,
   AVOID_CUBE,
-  AFTER_CUBE
+  AFTER_CUBE,
+  PARK
 };
 
 RobotState currentState = PID;
@@ -116,6 +110,9 @@ bool firstcube = false;
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(DEBUG_LED, OUTPUT);
+
+  setupUltrasonic(FRONT_ULTRASONIC_PIN);
+  setupUltrasonic(BACK_ULTRASONIC_PIN);
 
   steering_servo_setup();
   motor_driver_setup();
@@ -134,109 +131,37 @@ void setup() {
   digitalWrite(LED_BUILTIN, HIGH);
   pinMode(START_BTN, INPUT_PULLUP);
 
+  while (digitalRead(START_BTN) == 1) {
+    move(0);
+    flush_messages();
+  }
+
   digitalWrite(LED_BUILTIN, LOW);
   custom_delay(500);
 
+  pinMode(DIST_SENSOR, INPUT);
   // Start from parking
-  /*
   if (RUN_MODE == 1) {
-    // --- Parameters to tune ---
-    float ENTRY_ROTATION_DEG = 75.0f;  // initial turn to exit the parking slot
-    const int FORWARD_EXIT_CM = 2;          // how far to drive forward after exit
-    const int RED_PARK_FORWARD_CM = 2;      // small forward bump on red detection
-    const int GREEN_APPROACH_CM = 5;         // initial approach on green detection
-    const int GREEN_TURN_CM = 15;            // lateral shift distance in green maneuver
-    const int GREEN_STRAIGHT_CM = 25;        // straight-through distance in green maneuver
-    const int GREEN_BACK_OUT_CM = 15;        // reverse out distance in green maneuver
-    const int EXIT_SPEED = 80;             // PWM speed for all moves
-
-    // read which side we're approaching from
-    int way = digitalRead(DIST_SENSOR);
-
-    // 1) Initial steer into the slot, then drive in by a fixed distance
-    if (way == 1) {
-      ENTRY_ROTATION_DEG = 75.0;
-    } else {
-      ENTRY_ROTATION_DEG = -75.0;
-    }
-    steer_to_angle(ENTRY_ROTATION_DEG, EXIT_SPEED);  // rotate to entry angle
-    move_cm(FORWARD_EXIT_CM, EXIT_SPEED);          // drive in a bit
-
-    // 2) Wait for the camera to send a line of text
-    command = "";
-    while (cameraSerial.available() > 0) {
-      char c = cameraSerial.read();
-      if (c == '\n') {
-        receivedMessage.trim();
-        receivedMessage.toUpperCase();
-
-        if (receivedMessage.startsWith("S")) {
-          // Special “S” command from OpenMV
-          command = receivedMessage;
-          if (debugcam) {
-            Serial.print("CMD from OpenMV: ");
-            Serial.println(command);
-          }
-
-        } else {
-          // Color-based parking maneuver
-          if (debugcam) {
-            Serial.print("Color from OpenMV: ");
-            Serial.println(receivedMessage);
-          }
-
-          if (receivedMessage.indexOf("RED") != -1) {
-            // RED: just a small forward bump, then stop
-            if (way == 0) {
-              set_steer_angle(STEERING_RIGHT_PARK);
-            } else {
-              set_steer_angle(STEERING_LEFT_PARK);
-            }
-            move_cm(RED_PARK_FORWARD_CM, EXIT_SPEED);
-
-          } else if (receivedMessage.indexOf("GREEN") != -1) {
-            // GREEN: a little approach, then an S-shaped maneuver
-            move_cm(GREEN_APPROACH_CM, EXIT_SPEED);
-
-            if (way == 0) {
-              // first curve to the left
-              set_steer_angle(STEERING_LEFT_PARK);
-              move_cm(GREEN_TURN_CM, EXIT_SPEED);
-
-              // then curve back to the right and go through
-              set_steer_angle(STEERING_RIGHT_PARK);
-              move_cm(GREEN_STRAIGHT_CM, EXIT_SPEED);
-
-            } else {
-              // mirror for the opposite side
-              set_steer_angle(STEERING_RIGHT_PARK);
-              move_cm(GREEN_TURN_CM, EXIT_SPEED);
-
-              set_steer_angle(STEERING_LEFT_PARK);
-              move_cm(GREEN_STRAIGHT_CM, EXIT_SPEED);
-            }
-
-            // finally back out a bit
-            move_cm(GREEN_BACK_OUT_CM, -EXIT_SPEED);
-          }
-        }
-
-        // clear for next message
-        receivedMessage = "";
-        cameraSerial.flush();
-      } else {
-        receivedMessage += c;
-      }
+    if (digitalRead(DIST_SENSOR) == 1) { // exit right
+      move_until_angle_max(75, 80);
+      turn_direction = 1;
+      move_until_angle_max(75, 0);
+    } else { // exit left
+      move_until_angle_max(75, -80);
+      turn_direction = -1;
+      move_until_angle_max(75, 0);
     }
   }
-  */
 }
 
 void loop() {
   // 1) Max‐turns timeout
   if (turn_count >= max_turns) {
+    if (RUN_MODE == 1) {
+      currentState = PARK;
+    } else {
     unsigned long t0 = millis();
-    while (millis() - t0 < 1400) {
+    while (millis() - t0 < 2000) {
       read_gyro_data();
       double error = current_angle_gyro - gz;
       pid_error = error * kp + (pid_error - pid_last_error) * kd;
@@ -249,9 +174,12 @@ void loop() {
     while (true)
       ;
   }
+  }
 
   // 2) Fresh gyro read and flush camera
   read_gyro_data();
+
+  //if (abs(gz - current_angle_gyro) >= 89) current_angle_gyro += 90;
 
   // 3) State‐machine drive logic
   switch (currentState) {
@@ -285,30 +213,38 @@ void loop() {
         break;
       }
 
-    case AFTER_CUBE:
+    case AFTER_CUBE:    
       {
-        /*last_cube_time = millis();  
-        while (millis() - last_cube_time > 700) {
-          read_gyro_data();
-          double error = current_angle_gyro - gz;
-          pid_error = (error)*kp + (pid_error - pid_last_error) * kd;
-          pid_last_error = pid_error;
-          if (debug == true) {
-            Serial.print(current_angle_gyro);
-            Serial.print("     |      ");
-            Serial.print(turn_direction);
-            Serial.print("     |      ");
-            Serial.print(gz);
-            Serial.print("     |      ");
-            Serial.println(robot_speed);
+        int angle_addition = (cube_last == 1) ? -9 : 0;
+        double err = current_angle_gyro - gz + cube_last * (CORRECTION_ANGLE + angle_addition);
+        if (abs(err) < 10) {
+          if (-cube_last == turn_direction) {
+            move_cm(5, robot_speed, current_angle_gyro + cube_last * (CORRECTION_ANGLE + angle_addition));
+          } else {
+            move_cm(10, robot_speed, current_angle_gyro + cube_last * (CORRECTION_ANGLE + angle_addition));
           }
+          currentState = PID;
+        } else {
+          pid_error = (err)*kp + (pid_error - pid_last_error) * kd;
+          pid_last_error = pid_error;
           steer(pid_error);
-          move(robot_speed);
-        }*/
-        currentState = PID;
-        cameraSerial.flush();
+        }
+        move(robot_speed);
+        //flush_messages();
         break;
       }
+
+    case PARK: {
+      double err = current_angle_gyro - gz - turn_direction * 90;
+      pid_error = (err) * kp + (pid_error - pid_last_error) * kd;
+      pid_last_error = pid_error;
+      steer(pid_error);
+      move(60);
+      delay(500);
+      move(0);
+      delay(20000);
+      break;
+    }
   }
 
   // 4) Read & dispatch any new OpenMV commands
@@ -320,7 +256,7 @@ void loop() {
       receivedMessage.toUpperCase();
       execute_command(receivedMessage);
       receivedMessage = "";
-      cameraSerial.flush();
+      flush_messages();
     } else {
       receivedMessage += c;
     }
