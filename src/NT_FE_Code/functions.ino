@@ -1,8 +1,5 @@
-#define AVOIDANCE_ANGLE 37  // how far to pivot around the cube
-
-#define EXIT_MOVE_TIME 300    // Duration (ms) for the aggressive exit move
-#define RETURN_MOVE_TIME 500  // Duration (ms) for the aggressive return move
-#define CORRECTION_ANGLE 30   // how much extra to hold when driving past cube
+#define AVOIDANCE_ANGLE 50  // how far to pivot around the cube
+int delayTurns = 1000;
 
 void flush_messages() {
   while (cameraSerial.available() > 0) {
@@ -15,42 +12,48 @@ void flush_messages() {
   }
 }
 
+void setupUltrasonic(int pin) {
+  int ultrasonicPin = pin;
+  pinMode(ultrasonicPin, OUTPUT);
+  digitalWrite(ultrasonicPin, LOW);  // Ensure it's LOW at start
+}
+
+float getUltrasonicDistance(int pin) {
+  int ultrasonicPin = pin;
+
+  // Send trigger pulse
+  pinMode(ultrasonicPin, OUTPUT);
+  digitalWrite(ultrasonicPin, LOW);
+  digitalWrite(ultrasonicPin, HIGH);
+  digitalWrite(ultrasonicPin, LOW);
+
+  // Listen for echo
+  pinMode(ultrasonicPin, INPUT);
+  long duration = pulseIn(ultrasonicPin, HIGH);
+
+  // Switch back to output for future use
+  pinMode(ultrasonicPin, OUTPUT);
+
+  // Calculate distance (in cm)
+  return duration * 0.0343 / 2;
+}
+
 // -----------------------------------------------------------
 //                Cube Following / Avoidance Functions
 // -----------------------------------------------------------
 void pass_cube(char cube_direction) {
+  double angle_addition = (cube_direction == 'R') ? 13 : 0;
+
   read_gyro_data();
   // translate 'R' → +1, 'L' → -1
-  int cube_last = (cube_direction == 'R') ? 1 : -1;
+  cube_last = (cube_direction == 'R') ? 1 : -1;
 
-  // 1) pivot away from cube by AVOIDANCE_ANGLE
   double start_angle = gz;
-  move_until_angle(robot_speed, start_angle - cube_last * AVOIDANCE_ANGLE);
-
-  // 2) drive forward ~4 cm while holding a slight offset so you clear the cube
-  move_cm_gyro(8, robot_speed, start_angle - cube_last * AVOIDANCE_ANGLE);
+  move_until_angle(robot_speed, start_angle - cube_last * (40 + angle_addition));
+  move_cm_gyro(4.5, robot_speed, start_angle - cube_last * (40 + angle_addition));
 
   last_cube_time = millis();
   currentState = AFTER_CUBE;
-
-  while (millis() - last_cube_time > 1500) {
-    read_gyro_data();
-    double error = current_angle_gyro - gz;
-    pid_error = (error)*kp + (pid_error - pid_last_error) * kd;
-    pid_last_error = pid_error;
-    if (debug == true) {
-      Serial.print(current_angle_gyro);
-      Serial.print("     |      ");
-      Serial.print(turn_direction);
-      Serial.print("     |      ");
-      Serial.print(gz);
-      Serial.print("     |      ");
-      Serial.println(robot_speed);
-    }
-    steer(pid_error);
-    move(robot_speed);
-  }
-
   flush_messages();
 }
 
@@ -121,29 +124,59 @@ void execute_command(String cmd) {
     c = 'G';
   } else if (cmd.indexOf("PINK") != -1) {
     c = 'P';
-  } else {
-    return;  // we don’t change state here—loop() will handle the next drive step
   }
 
   //––– 3) BLACK-line detection → 90° turn in PID––––––––––––––
-  if (currentState == PID) {
-    if (c == 'B' || (millis() - lastLineDetectedTime > 1800 && lastLineDetectedTime > 0)) {
-      if (millis() - lastTurnTime < 1000) {
-        if (debug) Serial.println("Ignoring repeated 'B' command due to cooldown.");
-        return;
-      }
+  //if (currentState == FOLLOW_CUBE && (c == 'L' || c == 'O')) current_angle_gyro += turn_direction * 90;
+  if ((c == 'B' || c == 'L' || c == 'O') && turn_direction != 0) {
+    if (millis() - lastTurnTime > delayTurns) {
+      turn_count++;
       if (debug) Serial.println("Received 'BLACK' command. Turning 90°...");
+      if (turn_count == 12 && RUN_MODE == 1) {
+        move_straight_on_gyro(robot_speed, 1200);
+        //move_straight_on_gyro_till_dist(robot_speed, 26, FRONT_ULTRASONIC_PIN);
+        current_angle_gyro += turn_direction * 90;
+
+        move_until_angle(robot_speed, current_angle_gyro);
+        double err = current_angle_gyro - gz - turn_direction * 90;
+        pid_error = (err)*kp + (pid_error - pid_last_error) * kd;
+        pid_last_error = pid_error;
+        steer(pid_error);
+        move(60);
+        delay(500);
+        move(0);
+        delay(20000);
+      } else {
+        if (abs(current_angle_gyro - gz) < 10) {
+          if (RUN_MODE == 1)
+            move_cm_gyro(10, robot_speed, current_angle_gyro);  // 15
+          else
+            move_straight_on_gyro(robot_speed, 1000);
+        } else if (currentState == AFTER_CUBE) {
+          if (-cube_last == turn_direction) {
+            move_until_angle(robot_speed, current_angle_gyro + (-1) * turn_direction * 30);
+          } else {
+            move_until_angle(robot_speed, current_angle_gyro + (-1) * turn_direction * 30);
+            move_cm_gyro(10, robot_speed, current_angle_gyro + (-1) * turn_direction * 30);
+          }
+          currentState = PID;
+        }
+      }
+
       current_angle_gyro += turn_direction * 90;
 
-      turn_count++;
+      //move_until_angle_max(robot_speed, current_angle_gyro - 10);
+      //move_straight_on_gyro(-robot_speed, 1100);
+
+      delayTurns = 4500;  // 3500 
       lastTurnTime = millis();
       lastLineDetectedTime = 0;
-      return;
     }
   }
 
+
   //––– 4) Cube-avoidance: see a cube up close (R/G) –––––––––––––––––––––
-  if ((c == 'R' || c == 'G') && millis() - last_cube_time >= AVOIDANCE_DRIVE_TIME) {
+  if ((c == 'R' || c == 'G')) {
     // R means avoid left, G avoid right
     cube_avoid_direction = (c == 'R' ? 'L' : 'R');
     currentState = AVOID_CUBE;
