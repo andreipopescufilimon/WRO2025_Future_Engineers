@@ -2,7 +2,7 @@ import sensor, time
 from pyb import UART, LED
 
 # -------- DEBUG FLAG --------
-DEBUG = True
+DEBUG = False
 
 # -------- Camera & Sensor Setup --------
 sensor.reset()
@@ -10,12 +10,14 @@ sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.QVGA)       # QVGA: 320x240
 sensor.set_vflip(True)
 sensor.set_hmirror(True)
-sensor.skip_frames(time=500)
 
 # Disable auto settings for stable color tracking
 sensor.set_auto_gain(False)
 sensor.set_auto_whitebal(False)
-sensor.set_auto_exposure(False, exposure_us=10000)
+sensor.set_auto_exposure(False, exposure_us=11000) # 9000 open,  10000 rest
+
+sensor.skip_frames(time=2000)
+
 clock = time.clock()
 
 # -------- UART & LED Setup --------
@@ -31,35 +33,36 @@ red_led.off(); green_led.off(); blue_led.off()
 time.sleep(0.5)
 
 # -------- Color Thresholds (LAB Space) --------
-red_threshold    = [(14, 43, 12, 69, 17, 54)]
-green_threshold  = [(20, 85, -60, -16, -2, 54)]
-blue_threshold   = [(10, 80, -5, 25, -50, -5)]
-orange_threshold = [(56, 82, 10, 63, 8, 64)]
+red_threshold    = [(32, 54, 40, 67, 17, 63)]
+green_threshold  = [(36, 69, -56, -21, -19, 32)]
+blue_threshold   = [(9, 76, -45, 27, -57, -8)]
+orange_threshold = [(38, 77, -15, 34, 14, 55)]   #[(62, 91, -3, 43, 5, 69)]
 pink_threshold   = [(30, 70, 10, 60, -15, 15)]
-black_threshold  = [(0, 27, -39, 5, -11, 13)]
+black_threshold  = [(0, 37, -26, 7, -17, 11)]
 
 # -------- Define Regions of Interest (ROI) --------
 img_h = sensor.height()
 img_w = sensor.width()
-cubes_roi = (0, int(img_h * 0.6), img_w, int(img_h * 0.4))
-lines_roi = (5, int(img_h * 0.6), img_w - 10, int(img_h * 0.4))
-wall_roi  = (30, int(img_h * 0.4), img_w - 30, int(img_h * 0.6))
+cubes_roi = (0, int(img_h * 0.5), img_w, int(img_h * 0.5))
+lines_roi = (5, int(img_h * 0.5), img_w - 10, int(img_h * 0.4))
+wall_roi  = (50, int(img_h * 0.5 - 18), img_w - 100, int(img_h * 0.2 - 10))
 
 # -------- Blob Filtering Parameters --------
-min_cube_size       = 25
-min_line_size       = 1200
+min_cube_size       = 100
+min_line_size       = 1000
 min_area            = 10
-min_valid_cube_area = 800
+min_valid_cube_area = 450
 pink_wall_min_area  = 5000
-black_wall_min_area = 12000
-min_black_height    = 62
+black_wall_min_area = 7000
+min_black_height    = 37
+min_black_width     = 0
 
 # -------- PD Parameters for Cube Following --------
 kp_cube = 0.21
 kd_cube = 2.8
 pid_error = 0.0
 pid_last_error = 0.0
-follow_threshold = 4500
+follow_threshold = 4205
 
 direction = 0  # turn direction: 0 = not set, 1 = left, 2 = right
 
@@ -90,6 +93,16 @@ def is_invalid_orange(orange_blob, red_blobs):
 while True:
     clock.tick()
     img = sensor.snapshot()
+
+    # ---- Draw ROIs on the image for debugging ----
+    # cubes_roi: bottom 40% of the frame
+#    img.draw_rectangle(cubes_roi, color=(255, 155, 0))  # yellow
+    # lines_roi: slightly inset bottom 40%
+#    img.draw_rectangle(lines_roi, color=(0, 255, 255))  # cyan
+    # wall_roi: middle 60% of the frame
+#img.draw_rectangle(wall_roi,  color=(255,   0, 255))  # magenta
+
+
     target_x = img_w // 2
 
     # ---- Detect Blobs ----
@@ -105,9 +118,9 @@ while True:
     orange_blobs = img.find_blobs(orange_threshold, roi=lines_roi,
                                   pixels_threshold=min_line_size,
                                   area_threshold=min_line_size, merge=True)
-    pink_blobs   = img.find_blobs(pink_threshold,   roi=cubes_roi,
-                                  pixels_threshold=min_cube_size,
-                                  area_threshold=min_cube_size, merge=True)
+#    pink_blobs   = img.find_blobs(pink_threshold,   roi=cubes_roi,
+#                                  pixels_threshold=min_cube_size,
+#                                  area_threshold=min_cube_size, merge=True)
     black_blobs  = img.find_blobs(black_threshold,  roi=wall_roi,
                                   pixels_threshold=black_wall_min_area,
                                   area_threshold=black_wall_min_area, merge=True)
@@ -117,29 +130,28 @@ while True:
     green_cube  = get_largest_blob([b for b in green_blobs if b.area() >= min_valid_cube_area])
     blue_line   = get_largest_blob([b for b in blue_blobs  if b.area() >= min_area])
     orange_line = get_largest_blob([b for b in orange_blobs if b.area() >= min_area])
-    pink_blob   = get_largest_blob(pink_blobs)
+#    pink_blob   = get_largest_blob(pink_blobs)
     black_blob  = get_largest_blob(black_blobs)
 
     # ---- Highlight Large Pink Blob ----
-    if pink_blob and pink_blob.area() >= pink_wall_min_area:
-        img.draw_rectangle(pink_blob.rect(), color=(255,20,147))
-        img.draw_string(pink_blob.x(), pink_blob.y()+pink_blob.h()-10,
-                        str(pink_blob.area()), color=(255,20,147))
-        uart.write("PINK\n")
+#    if pink_blob and pink_blob.area() >= pink_wall_min_area:
+#        img.draw_rectangle(pink_blob.rect(), color=(255,20,147))
+#        img.draw_string(pink_blob.x(), pink_blob.y()+pink_blob.h()-10,
+#                        str(pink_blob.area()), color=(255,20,147))
+#        uart.write("PINK\n")
 
     # ---- Highlight/Detect Black Wall for Turns ----
-    if black_blob and black_blob.h() >= min_black_height:
-        btm = black_blob.y() + black_blob.h()
-        area = black_blob.w() * black_blob.h()
-        lower_th = img_h * 0.6
-        left_th  = img_w * 0.33
-        right_th = img_w * 0.66
-        if btm >= lower_th and left_th < black_blob.cx() < right_th:
-            img.draw_rectangle(black_blob.rect(), color=(10,10,10))
-            img.draw_string(black_blob.x(), black_blob.y()+black_blob.h()-10,
+    if black_blob:
+        blob_h = black_blob.h()
+        blob_area = black_blob.area()  # or black_blob.w() * black_blob.h()
+        if blob_h >= min_black_height and blob_area >= black_wall_min_area:
+            img.draw_rectangle(black_blob.rect(), color=(200,200,10))
+            img.draw_string(black_blob.x(), black_blob.y() + blob_h - 10,
                             "TURN", color=(255,255,255))
-            print(black_blob.h())
+            if DEBUG:
+                print("Black wall: h={} area={}".format(blob_h, blob_area))
             uart.write("BLACK\n")
+
 
     # ---- Choose Closest Cube (largest red or green) ----
     candidates = []
