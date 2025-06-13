@@ -23,8 +23,8 @@ void move(int speed) {
 }
 
 void stop_motor() {
-  move(-200);
-  delay(10);
+  move(-3);
+  delay(100);
   move(0);
   digitalWrite(AIN1, LOW);
   digitalWrite(AIN2, LOW);
@@ -35,14 +35,49 @@ void stop_motor() {
 // Helper: turn in place until you hit exactly target_angle
 // -----------------------------------------------------------------
 void move_until_angle(int speed, double target_angle) {
-  // Reuse your steer_to_angle() logic
-  steer_to_angle(target_angle, speed);
+  int dir = (speed < 0) ? -1 : 1;
+
+  read_gyro_data();
+  double error = target_angle - gz;
+  while (abs(error) >= 10) {
+    read_gyro_data();
+    error = target_angle - gz;
+    pid_error = (error)*kp + (pid_error - pid_last_error) * kd;
+    pid_last_error = pid_error;
+    steer(pid_error * dir);
+    move(robot_speed);
+    flush_messages();
+  }
 }
+
+void move_until_angle_max(int speed, double target_angle) {
+    int dir = (speed < 0) ? -1 : 1;
+
+    read_gyro_data();
+    double error = target_angle - gz;
+    move(speed);
+    while (fabs(error) >= 10.0) {
+        read_gyro_data();
+        error = target_angle - gz;
+        int steer_cmd;
+        if (error * dir > 0) {
+            steer_cmd =  1;
+        } else {
+            steer_cmd = -1;
+        }
+        steer(steer_cmd);
+        move(speed);
+        flush_messages();
+    }
+}
+
 
 // -----------------------------------------------------------------
 // Helper: drive forward target_cm while holding a given gyro angle
 // -----------------------------------------------------------------
 void move_cm_gyro(int target_cm, int speed, double hold_angle) {
+  int dir = (speed < 0) ? -1 : 1;
+
   encoder_ticks = 0;
   move(speed);
   while (read_cm() < target_cm) {
@@ -51,38 +86,10 @@ void move_cm_gyro(int target_cm, int speed, double hold_angle) {
     double err = hold_angle - gz;
     pid_error = err * kp + (pid_error - pid_last_error) * kd;
     pid_last_error = err;
-    steer(pid_error);
+    steer(pid_error * dir);
+    flush_messages();
   }
-  move(0);
-  flush_messages();
 }
-
-void steer_to_angle(double target_angle, int speed) {
-  read_gyro_data();
-  double current_angle = gz;
-  double error = target_angle - current_angle;
-  int direction = (error >= 0) ? 1 : -1;
-
-  pid_last_error = 0;
-  move(speed);
-
-  unsigned long start_time = millis();  // timeout start
-
-  while (abs(error) >= 10.0) {  // max 1.5 sec turn
-    read_gyro_data();
-    error = target_angle - gz;
-
-    pid_error = error * kp + (error - pid_last_error) * kd;
-    pid_last_error = error;
-
-    steer(pid_error * direction);
-  }
-
-  move(0);  // stop
-  flush_messages();
-}
-
-
 
 // -----------------------------------------------------------
 //           ISR & setup for single-edge counting
@@ -116,26 +123,41 @@ float read_cm() {
   return dist_cm;
 }
 
-void move_cm(int target_cm, int speed) {
+void move_cm(int target_cm, int speed, double gyro_offset) {
+  noInterrupts();
   encoder_ticks = 0;
+  interrupts();
+
+  pid_last_error = 0;
+  pid_error = 0;
+
   move(speed);
   while (read_cm() < target_cm) {
-    // your gyro‐PID steering here…
     read_gyro_data();
-    double error = current_angle_gyro - gz;
-    pid_error = error * kp + (pid_error - pid_last_error) * kd;
-    pid_last_error = pid_error;
-    steer(pid_error);
+    double error = gyro_offset - gz;
+    pid_error = error * kp + ((error - pid_last_error) * kd);
+    pid_last_error = error;
+
+    double sign = (speed < 0) ? -1.0 : 1.0;
+    steer(pid_error * sign);
+
+    move(speed);
+    flush_messages();
   }
 }
+
 
 // -----------------------------------------------------------
 //                    Steering Functions
 // -----------------------------------------------------------
 void steering_servo_setup() {
   steeringServo.attach(STEERING_SERVO);
+  steeringServo.write(STEERING_LEFT);
+  delay(300);
+  steeringServo.write(STEERING_RIGHT);
+  delay(300);
   steeringServo.write(STEERING_CENTER);
-  delay(200);
+  delay(300);
 }
 
 void steer(double steering_angle) {
@@ -158,9 +180,24 @@ void move_straight_on_gyro(double speed, long duration_ms) {
     pid_last_error = pid_error;
 
     steer(pid_error * sign);
-    move(robot_speed);
+    move(speed);
     cameraSerial.flush();
+    flush_messages();
   }
-  move(0);  // stop
-  flush_messages();
+}
+
+void move_straight_on_gyro_till_dist(double speed, float distance, int pin) {
+  int dir = (speed < 0) ? -1 : 1;
+
+  unsigned long start_time = millis();
+  while (getUltrasonicDistance(pin) > distance) {
+    read_gyro_data();
+    double error = current_angle_gyro - gz;
+    pid_error = error * kp + ((error - pid_last_error) * kd);
+    pid_last_error = error;
+
+    steer(pid_error * dir);
+    move(speed);
+    flush_messages();
+  }
 }
