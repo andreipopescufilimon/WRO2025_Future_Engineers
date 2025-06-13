@@ -47,12 +47,12 @@ void gyro_setup() {
   // reset integration
   gz = 0;
   gyro_last_read_time = millis();
-}
+} 
 
 void read_gyro_data() {
   // call this frequently (e.g. every loop)
   double now = millis();
-  double dt  = (now - gyro_last_read_time) * 0.001; // s
+  double dt  = (now - gyro_last_read_time) * 0.001; // s          
   float rate = imu.getGyroscopeZ();              // °/s
   double corrected = rate - drifts_z;               // drift-compensated
   gz += corrected * dt;                             // integrate to degrees
