@@ -460,15 +460,16 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 ---
 
 ### **🛠️ PCB Design** <a id="pcb-design"></a>
-| **Electrical Schematics** | **PCB Design** |
-|---------------------------|---------------------------|
-| <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/electrical-schematics/Schematic_MainBoard.png" width="400"> | <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/electrical-schematics/MainBoardPCB_img4.png" width="400"> |
+| **Electrical Schematics** | **PCB Design Cooper Traces** | **Chassis after Production** |
+|---------------------------|---------------------------|---------------------------|
+| <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/electrical-schematics/Schematic_Chassis.png" width="400"> | <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/electrical-schematics/PCB_traces.jpg" width="400"> | <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/electrical-schematics/PCB_board.jpg" width="400"> |
 
-**🔎 Advantages of a Custom PCB**  
+**Advantages of a Custom PCB Chassis**  
 ✔ **Organized layout** ➜ Prevents loose connections & messy wiring  
 ✔ **Power stability** ➜ Ensures consistent voltage supply to all components  
 ✔ **Compact design** ➜ Reduces weight & optimizes space  
 ✔ **Reliability** ➜ Minimizes risk of failure due to poor wiring  
+✔ **Resistance** ➜ Having a full PCB Chassis is more resistent compared to 3D printed parts glued or screwed together
 
 ---
 
