@@ -1,5 +1,8 @@
  # WRO2025 Future Engineers – Nerdvana Taurus Team
 
+
+## **This repository is under updates for upcoming international competition**
+
 Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO) 2025**, Future Engineers category. 
 
 ---
