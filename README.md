@@ -23,13 +23,6 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
     - [✨ Key Features & Advantages](#key-features)
     - [🔧 Assembly Process](#assembly-process)
       - [🔧 Assembly Process Video](#assembly-process-video)
-      - [1: 3D Print the Parts](#3d-print-the-parts)
-      - [2: Assemble the Steering System](#2-assemble-the-steering-system)
-      - [3: Assemble the drive base](#3-assemble-the-drive-base)
-      - [4: Install the Electronics](#4-install-the-electronics)
-      - [5: Attach the Wheels](#5-attach-the-wheels)
-      - [6: Add weight](#6-add-weight)
-      - [7: Upload the Code](#7-upload-the-code)
 - [🛠️ Power and Sense Management](#power-and-sense-management)
   - [🔋 Li-Po Battery](#li-po-battery)
   - [🖥️ Arduino Nano ESP32](#arduino-nano-esp32)
@@ -150,22 +143,22 @@ Scoring is based on **accuracy, technical documentation and speed**, rewarding t
 
 ## 🚗 Mobility Management <a id="mobility-management"></a>
 
-The robot's mobility is controlled through **a fully 3D-printed chassis, a servo-based steering system, and a drivetrain featuring a Lego differential and axles**. These components work together to ensure smooth, **precise movement with optimized traction, stability, and efficient power management**.
+The robot's mobility is controlled through **a fully PCB chassis, a servo-based steering system, and a drivetrain featuring a RC differential and axes**. These components work together to ensure smooth, **precise movement with optimized traction, stability, and efficient power management**.
 
 
 ## ⚙️ **Drivebase** <a id="drivebase"></a>
 
 ### 🔧 **Drivetrain** <a id="drivetrain"></a>
 
-To optimize performance and minimize **energy loss due to friction**, the drivetrain uses a **Lego 5-gear differential combined with Lego axles to connect the wheels**. The **motor is attached to the drivetrain using a custom 3D-printed bracket**, ensuring **a secure and efficient power transfer**.
+*To be updated...*
 
 <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/motor-bracket-technical-drawing.jpg" width="700">
 
-A **custom 3D-printed gear with a D-shaped axle mount** is directly connected to the motor shaft. This **gear provides a 1:1 gear ratio between the motor and the differential**, ensuring that the **motor’s full speed and torque are transferred efficiently to the drivetrain** without unnecessary losses. This setup allows for **smooth acceleration, precise speed control, and optimal wheel synchronization**, improving overall handling and maneuverability.
+*To be updated...*
 
 <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/gear-D-axle-technical-drawing.jpg" width="700">
 
-By using **Lego components**, we gained the advantages of **precision-engineered mechanical parts** while maintaining a **lightweight and modular system** that allows easy modifications. The **rear 5 gears differential enables smoother turns** by balancing wheel speeds dynamically.
+*To be updated...*
 
 ### ⚙️ **Motor – 30:1 Micro Metal Pololu Gearmotor HPCB** <a id="motor"></a>
 Following past testing, we selected **a high-power 30:1 Micro Metal Gearmotor (12V)** for the drive system. This motor provides an **optimal balance of speed and torque**, allowing the robot to maintain stability while navigating turns.
@@ -181,16 +174,22 @@ Following past testing, we selected **a high-power 30:1 Micro Metal Gearmotor (1
 **- Gear ratio provides sufficient torque** without sacrificing efficiency.  
 **- Compact and lightweight design**, allowing integration into a lightweight robot.  
 
-### 🔌 **Motor Driver – Sparkfun TB6612FNG** <a id="motor-driver"></a>
-To control the motor's speed and direction, we integrated a **Sparkfun Dual TB6612FNG motor driver** into the PCB. This dual motor driver enables **precise adjustments for acceleration, braking, and turning** through **PWM control**.
+### 🔌 **IFX9201SG Motor Driver** <a id="motor-driver"></a>
 
-| <img src="https://www.sparkfun.com/media/catalog/product/cache/a793f13fd3d678cea13d28206895ba0c/1/4/14451-01.jpg" width="300"> | **Specifications** |
+The **IFX9201SG** motor driver is used to control the robot’s high-performance drive or impeller motor with precision and efficiency. It supports PWM-based speed control and direction control while integrating advanced protection features, making it ideal for demanding robotics applications. The IFX9201SG is directly integrated into our PCB, ensuring compact design and reliable communication with the Arduino Nano ESP32.
+
+| <img src="https://assets.lcsc.com/images/lcsc/900x900/20230316_Infineon-Technologies-IFX9201SG_C112633_front.jpg" width="300"> | **Specifications** |
 |------------------------------|------------------------------|
-| **Model:** TB6612FNG | **Operating Voltage:** 2.5V – 13.5V |
-| **PWM Frequency:** Up to 100 kHz | **Max Continuous Current:** 1.2A |
-| 🔗 **[Buy Here](https://www.sparkfun.com/sparkfun-motor-driver-dual-tb6612fng-1a.html)** | **Function:** Controls the drive motor |
+| **Model:** IFX9201SG | **Operating Voltage:** 5.5V – 45V |
+| **Logic Voltage:** 3.3V / 5V compatible | **PWM Frequency:** Up to 20 kHz |
+| **Max Continuous Current:** 5A | **Max Peak Current:** 8A per channel |
+| **Control Interface:** PWM + Direction pins | **Built-in Protections:** Overtemperature, Overcurrent, Undervoltage, Short-to-GND/Battery |
+| 🔗 **[Buy Here](https://www.lcsc.com/product-image/C112633.html)** | **Function:** Controls drive motors |
+
 
 ## 🔄 **Steering** <a id="steering"></a>
+
+*To be updated...*
 
 The **steering system** is a critical part of the robot, ensuring precise maneuverability and smooth turns. Our design is based on a **parallelogram steering mechanism**, where both front wheels turn at the same angle through a single servo-controlled linkage. This setup provides predictable and stable steering, making it easy to use for an autonomous vehicle. Instead of using an **Ackermann steering system**, which requires more complex calculations and linkages, we opted for a **simpler and more lightweight solution** that offers consistent control. Our steering system allows for a maximum turning angle of 50 degrees in both the left and right directions. This range provides precise maneuverability, enabling the robot to navigate sharp turns efficiently while maintaining stability.
 
@@ -223,6 +222,8 @@ To control the steering system, we use an **MG90S micro servo**, known for its h
 
 ## 🏎️ **Chassis & Component Mounting** <a id="chassis"></a>
 
+*To be updated...*
+
 The chassis is the **main structure** of the robot, providing a **stable and lightweight base** for all components. Since this is our **first year competing**, we decided to **skip Lego-based designs** and go straight for a **fully 3D-printed chassis**. This allowed us to create a **more compact, lightweight, and optimized structure**.
 
 The robot is driven by **a single high-performance motor**, which is connected to a **Lego 5 gears differential**. This setup allows reducing complexity while maintaining precise control over movement.
@@ -248,82 +249,7 @@ The robot is driven by **a single high-performance motor**, which is connected t
 ### 1: 3D Print the Parts <a id="3d-print-the-parts"></a>
 The 3D model files are available in the [`/3D-models`](https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/tree/main/3D-models) folder. We used a **BambuLab X1-Carbon**, but any good quality printer will work.
 
-**Our Print Settings:**
-- **Material:** PLA or PLA-CF  
-- **Layer Height:** 0.12mm  
-- **Infill:** 15%  
-
----
-
-### 2: Assemble the Steering System <a id="2-assemble-the-steering-system"></a>
-- Mount the **MG90S servo** into the front slot of the chassis using **2 M2 crews**.
-- Add 4 **2mm metal or carbon rod** to act as the steering axles.
-- Insert the **steering mounts(left&right)** between the chassis and the top steering small bars.
-- In each wheel hub insert a **Lego Axle with Stop** into the 3D print for wheel mounting.
-
----
-
-### 3: Assemble the drive base <a id="3-assemble-the-drive-base"></a>
-- Mount the **Pololu 30:1 Gearmotor** with the bracket using **2 M3 screws**.
-- Press-hard on the **D-shaped axle gear** until it will be fixed on the motor axle.
-- Attach a **Lego 5 gears Diferential** into its dedicated chassis cut.
-- Use **Lego Axles** to secure the differential from both left and right sides.
-- Add **Lego Bushes** on both sides to eliminate axle play.
-
----
-
-### 4: Install the Electronics <a id="4-install-the-electronics"></a>
-
-- Use the **custom-designed PCB** and solder all required components directly onto it:
-  - **Arduino Nano ESP32**  
-  - **TB6612FNG Motor Driver**  
-  - **L7805 Voltage Regulator**  
-  - **Power switch** and **start button**  
-  - All necessary **pin headers and connectors** based on the schematic.
-
-- Once assembled, fix the PCB to the chassis using **four 3D-printed mounts**.
-
-- Insert the **JSumo 3S 450mAh Li-Po battery** into the 3D-printed mount.
-
-- Mount the **BMI088 IMU** under the PCB by using some double sided tape.  
-
-- Fix the **OpenMV H7 Camera** to the front of the chassis using screws, tilted slightly upward for optimal track and sign visibility.
-
-- Connect all modules:
-  - **Camera ➜ UART**
-  - **IMU ➜ I2C**
-  - **Steering servo ➜ appropriate pins**
-
-- Use **wires of custom lenght** for clean wiring.
-  
-- Organize and secure all wiring using **hot glue**.
-
----
-
-### 5: Attach the Wheels <a id="5-attach-the-wheels"></a>
-- Front Wheels:
-  - Connect to **Lego Axle with Stop**.
-  - Secure with **Bush 1/2** on both sides.
-- Rear Wheels:
-  - Mount to the **2 Axles** from the differential.
-  - Use additional **1/2 Bush** spacers to align height with the front wheels.
-
----
-
-### 6: Add weight <a id="6-add-weight"></a>
-- Place **~100g weight** under the robot chassis
-- This will increase grip and stability.
-- Use **double side tape or glue** to hold weights in place.
-
----
-
-### 7: Upload the Code <a id="7-upload-the-code"></a>
-- Plug the **Arduino Nano ESP32** into your computer using a USB cable.  
-- Launch the **Arduino IDE**, ensure the **ESP32 board package** is installed, and upload the code onto the board.
-
-- Next, connect the **OpenMV H7 Camera** via USB.  
-- Open the **OpenMV IDE**, open the corresponding `.py` script, and upload it to the camera.
-
+*To be updated...*
 ---
 
 ## 🛠️ Power and Sense Management <a id="power-and-sense-management"></a>
@@ -334,15 +260,15 @@ Each component has been carefully selected to provide **optimal performance**, m
 
 ---
 
-### **🔋 Li-Po Battery – 3S 450mAh** <a id="li-po-battery"></a>
+### **🔋 Li-Po Battery – 2S 300mAh** <a id="li-po-battery"></a>
 
-The **Li-Po battery** provides a **compact, lightweight, and high-discharge** power source, making it ideal for our robot. The **11.1V output** is suitable for running our **motors and voltage regulator**, ensuring stable power delivery.
+The **Li-Po battery** provides a **compact, lightweight, and high-discharge** power source, making it ideal for our robot. The **7.4V output** is suitable for running our **motors and voltage regulator**, ensuring stable power delivery.
 
-| <img src="./other/battery.png" width="300"> | **Specifications** |
+| <img src="https://img-va.myshopline.com/image/store/2000408386/1640672930478/GNB3002S60AHV-(4)_1800x.jpeg?w=1000&h=1000" width="300"> | **Specifications** |
 |------------------------------|------------------------------|
-| **Model:** 3S Li-Po | **Capacity:** 450mAh |
-| **Voltage:** 11.1V | **Discharge Rate:** 25C |
-| **Weight:** 38g | **Size:** 56.5 × 31 × 9mm |
+| **Model:** 2S Li-Po | **Capacity:** 300mAh |
+| **Voltage:** 7.4V | **Discharge Rate:** 60C |
+| **Weight:** 12g | **Size:** 13.8 x 12 x 52.5mm |
 | **Output Current:** Varies by load | **Connector Type:** JST |
 | 🔗 **[Buy Here](https://www.jsumo.com/jsumo-3s-111-volt-450-mah-lipo-battery)** | **Function:** Powers the entire robot |
 
@@ -389,31 +315,31 @@ The **OpenMV H7 Camera** processes **traffic signs, lane detection, and other vi
 
 ---
 
-### **⚙️ Drive Motor – 30:1 Micro Metal Gearmotor HPCB 12V w/ Encoder** <a id="drive-motor">
+### **⚙️ Drive Motor – 30:1 Micro Metal Gearmotor HPCB 6V w/ Encoder** <a id="drive-motor">
 
 The **drive motor is responsible for propelling the robot forward**. The **30:1 gearbox** provides an excellent **balance of speed and torque**, while the **built-in encoder** allows for **precise speed control**.
 
 | <img src="https://a.pololu-files.com/picture/0J12418.220.jpg?8f026fe1675b1109ea574290d3d26081" width="300"> | **Specifications** |
 |------------------------------|------------------------------|
 | **Type:** Micro Metal Gearmotor | **Gear Ratio:** 30:1 |
-| **Voltage:** 12V | **Encoder:** Yes |
+| **Voltage:** 6V | **Encoder:** Yes |
 | **Current Draw (Avg):** 120mA | **Peak Current:** 1.6A |
 | **Weight:** ~10g | **Shaft Diameter:** 3mm |
 | 🔗 **[Buy Here](https://www.pololu.com/product/3038)** | **Function:** Drives the robot |
 
 ---
 
-### **⚙️ Dual Motor Driver – TB6612FNG** <a id="motor-driver"></a>
+### **⚙️ IFX9201SG Motor Driver** <a id="motor-driver"></a>
 
-The **TB6612FNG** motor driver is used to **control the robot’s two drive motors** efficiently. It supports **precise speed and direction control** using **PWM signals**, making it ideal for **differential drive robots**. The **TB6612FNG is directly integrated into our PCB**, enabling smooth communication with the **Arduino Nano ESP32**.
+The **IFX9201SG** motor driver is used to control the robot’s high-performance drive or impeller motor with precision and efficiency. It supports PWM-based speed control and direction control while integrating advanced protection features, making it ideal for demanding robotics applications. The IFX9201SG is directly integrated into our PCB, ensuring compact design and reliable communication with the Arduino Nano ESP32.
 
-| <img src="https://www.sparkfun.com/media/catalog/product/cache/a793f13fd3d678cea13d28206895ba0c/1/4/14451-01.jpg" width="300"> | **Specifications** |
+| <img src="https://assets.lcsc.com/images/lcsc/900x900/20230316_Infineon-Technologies-IFX9201SG_C112633_front.jpg" width="300"> | **Specifications** |
 |------------------------------|------------------------------|
-| **Model:** TB6612FNG | **Operating Voltage:** 2.5V – 13.5V |
-| **Logic Voltage:** 2.7V – 5.5V | **PWM Frequency:** Up to 100 kHz |
-| **Max Continuous Current:** 1.2A per channel | **Max Peak Current:** 3.2A per channel |
-| **Number of Channels:** 2 (Dual Motor Control) | **Built-in Protections:** Thermal & Overcurrent |
-| 🔗 **[Buy Here](https://www.sparkfun.com/sparkfun-motor-driver-dual-tb6612fng-1a.html)** | **Function:** Controls drive motors |
+| **Model:** IFX9201SG | **Operating Voltage:** 5.5V – 45V |
+| **Logic Voltage:** 3.3V / 5V compatible | **PWM Frequency:** Up to 20 kHz |
+| **Max Continuous Current:** 5A | **Max Peak Current:** 8A per channel |
+| **Control Interface:** PWM + Direction pins | **Built-in Protections:** Overtemperature, Overcurrent, Undervoltage, Short-to-GND/Battery |
+| 🔗 **[Buy Here](https://www.lcsc.com/product-image/C112633.html)** | **Function:** Controls drive motors |
 
 ---
 
@@ -431,17 +357,17 @@ The **MG90S servo is used for precise steering control**, enabling the robot to 
 
 ---
 
-### 📏 Distance Sensor – JS40F IR Digital Sensor <a id="distance-sensor-js40f"></a>
+### 📏 Distance Sensor – Pololu PWM Distance Sensor <a id="distance-sensor-js40f"></a>
 
-The **JS40F Digital Infrared Sensor** is used to **detect obstacles or walls in front of the robot** and is especially helpful at the start of the match for determining the **lap direction** when exiting the parking zone. Its fast digital response and reliable detection of black objects make it ideal for this task.
+The **Pololu Digital Distance Sensor (PW output, 50 cm max)** uses a short-range lidar module and reports distance as the width of a digital pulse (similar to a hobby-servo signal). It’s ideal for reliable, fast obstacle detection and gives you an actual distance reading (3 mm resolution), perfect for lap direction detection at start and for close-range wall sensing.
 
-| <img src="https://www.jsumo.com/js40f-digital-infrared-ir-distance-sensor-min-40-cm-range-2780-71-B.jpg" width="300"> | **Specifications** |
+| <img src="https://a.pololu-files.com/picture/0J11135.1200.jpg?1910ced553e34153046a4c95021a93b3" width="300"> | **Specifications** |
 |------------------------------|------------------------------|
-| **Detection Range:** 40–80 cm (depends on surface) | **Type:** Reflective IR Digital Output |
-| **Voltage Supply:** 3.3V – 5V | **Current Draw:** ~15mA |
-| **Signal Type:** Digital (0 = no object, 1 = object detected) | **Reverse Polarity Protection:** Yes |
-| **Dimensions:** 17.7mm × 11.5mm × 12.6mm | **Weight:** 4g (with cable) |
-| 🔗 [Buy Here](https://www.jsumo.com/js40f-digital-infrared-ir-distance-sensor-min-40-cm-range) | **Use Case:** Detects lap direction when starting from parking |
+| **Detection Range:** 50 cm (depends on surface) | **Type:** Digital pulse width (HIGH-time encodes distance) |
+| **Voltage Supply:** 3.0V – 5.5V | **Current Draw:** ~30 mA enabled, ~0.4 mA disabled (EN low) |
+| **Resolution:** 3 mm (≈ 4 µs per 3 mm)	 | **Update Rate:** ~50–110 Hz (period ~20–9 ms) |
+| **Dimensions:** 21.6mm × 8.9mm × 3.1mm | **Weight:** 1g |
+| 🔗 [Buy Here](https://www.pololu.com/product/4064) | **Use Case:** Start-line lap direction & close-range obstacle sensing for parking |
 
 ---
 
@@ -449,13 +375,13 @@ The **JS40F Digital Infrared Sensor** is used to **detect obstacles or walls in 
 
 The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**, ensuring **safe power delivery** to the **Arduino, sensors, and camera**. It prevents **overvoltage damage** and includes **thermal & short-circuit protection** for reliability.
 
-| <img src="https://ce8dc832c.cloudimg.io/v7/_cdn_/5D/D0/90/00/0/593365_1.jpg?width=640&height=480&wat=1&wat_url=_tme-wrk_%2Ftme_new.png&wat_scale=100p&ci_sign=32c0b49b36a510891beaad3401e2b2b50bdee888" width="300">  | **Specifications** |
+| <img src="https://assets.lcsc.com/images/lcsc/900x900/20230102_STMicroelectronics-L7805CV_C111887_front.jpg" width="300">  | **Specifications** |
 |------------------------------|------------------------------|
 | **Model:** L7805CV | **Input Voltage:** 7V – 35V |
 | **Output Voltage:** 5V | **Output Current:** 1.5A |
 | **Efficiency:** Linear Regulator | **Dropout Voltage:** ~2V |
 | **Protection:** Short-circuit & thermal shutdown | **Mounting Type:** TO-220 Package |
-| 🔗 **[Buy Here](https://www.tme.eu/ro/details/l7805cv/regulatoare-de-tensiune-neregulata/stmicroelectronics/)** | **Function:** Converts battery voltage to 5V |
+| 🔗 **[Buy Here](https://www.lcsc.com/product-detail/C111887.html?s_z=n_L7805C)** | **Function:** Converts battery voltage to 5V |
 
 ---
 
@@ -475,17 +401,22 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 
 ### **⚡ Power Consumption Summary** <a id="power-consumption"></a>
 
-| **Component**                 | **Voltage** | **Avg Current Draw** | **Peak Current** |
-|-------------------------------|------------|-----------------------|------------------|
-| **Arduino Nano ESP32**        | 5V         | 200mA                 | 500mA            |
-| **Drive Motor (x2)**          | 12V        | 240mA (120mA each)    | 3.2A (1.6A each) |
-| **Steering Servo MG90S**      | 5V         | 120mA                 | 500mA            |
-| **OpenMV H7 Camera**          | 3.3V/5V    | 300mA                 | 400mA            |
-| **IMU Sensor BMI088**         | 3.3V       | 3.2mA                 | 4mA              |
-| **JS40F Distance Sensor**     | 5V         | 15mA                  | 20mA             |
-| **TB6612FNG Motor Driver**    | 5V         | 50mA                  | 100mA            |
-| **Voltage Regulator L7805CV** | 7.4V ➜ 5V  | Power Management      | -                |
-| **Total Robot Power Usage**   | Mixed      | ~1.4A (Avg)           | ~3.9A (Peak)     |
+| Item / Designators                   | Part            |                    Supply |    Typical Current |    Peak Current | Notes                               |
+| ------------------------------------ | --------------- | ------------------------: | -----------------: | --------------: | ----------------------------------- |
+| Arduino Nano ESP32                   | MCU board       |                       5 V |             200 mA |          500 mA | Wi-Fi/BLE spikes                    |
+| Steering Servo (MG90S)               | Servo           |                       5 V |             120 mA |          500 mA | Peak at start/stall                 |
+| OpenMV H7 Camera                     | Camera          |                       5 V |             300 mA |          400 mA | If on 3.3 V, power is lower         |
+| BMI088                               | IMU             |                     3.3 V |             3.2 mA |            4 mA | Negligible                          |
+| **1020 Coreless Impeller (via ESC)** | Ducted fan      |          **7.4 V (VBAT)** |          **0.6 A** |       **1.8 A** | Load-dependent; startup spikes high |
+| Pololu 6 V 30:1 HPCB Motor           | DC motor        |                     \~6 V | \~120 mA (no-load) | \~1.6 A (stall) | Running current depends on load     |
+| IFX9201SG (IFX\_A1)                  | Motor driver IC | 5 V (logic), VBAT (motor) |     \~5 mA (logic) | \~10 mA (logic) | Motor current from VBAT             |
+| IRFR3411TRPBF-VB (Q1)                | N-MOSFET        |                  VBAT/5 V |           ≈0 mA DC |               — | Gate draw ≈0 DC                     |
+| 78M05 (U5)                           | 5 V LDO         |                 7.4 V→5 V |     6 mA quiescent |            6 mA | Plus it sources all 5 V loads       |
+| LED5                                 | XL-1608SURC-06  |                       5 V |               5 mA |           10 mA | Red, assumed 5 mA                   |
+| LED1–LED4                            | XL-1608UBC-04   |                       5 V |     4×5 mA = 20 mA |         \~40 mA | Blue, assumed 5 mA each             |
+| R8,R9,R10,R4–R7                      | Resistors       |                         — |             \~0 mA |               — | Included via LED rows               |
+| C3,C4,C5,C6,C8                       | Capacitors      |                         — |                  0 |               — | Reactive only                       |
+| RST, START (B3U-1000P)               | Tact switches   |                         — |                  0 |               — | No DC draw                          |
 
 ---
 
@@ -845,17 +776,18 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 | Component                      | Quantity | Unit Price ($) | Total ($)  |
 |--------------------------------|----------|----------------|-------------|
 | **Arduino Nano ESP32**         | 1        | **21.42**      | **21.42**   |
-| **Drive Motor (30:1 HPCB)**    | 1        | **22.45**      | **22.45**   |
+| **Drive Motor 6V (30:1 HPCB)** | 1        | **22.45**      | **22.45**   |
+| **IFX9201SG Motor Driver**     | 1        | **19.92**      | **19.92**   |
 | **Steering Servo (MG90S)**     | 1        | **4.05**       | **4.05**    |
 | **OpenMV H7 Camera**           | 1        | **80.00**      | **80.00**   |
 | **Gyroscope (BMI088)**         | 1        | **8.50**       | **8.50**    |
-| **JS40F Distance Sensor**      | 1        | **12.50**      | **12.50**   |
-| **LiPo Battery (3S 450mAh)**   | 1        | **8.99**       | **8.99**    |
+| **Pololu Distance Sensor**     | 4        | **17.95**      | **71.80**   |
+| **LiPo Battery (2S 300mAh)**   | 1        | **5.60**       | **5.60**    |
 | **L7805CV Voltage Regulator**  | 1        | **1.50**       | **1.50**    |
-| **Lego Spike Wheels**          | 4        | **1.64**       | **6.56**    |
-| **Lego Differential**          | 1        | **4.00**       | **4.00**    |
+| **Custom Silicone Wheels**     | 4        | **9.24**       | **36.96**   |
+| **RC Differential**            | 1        | **4.00**       | **19.04**   |
 | **Experimental Parts**         |          | **35.00**      | **35.00**   |
-| **TOTAL COMPONENT COST**       | -        | **-**          | **204.97**  |
+| **TOTAL COMPONENT COST**       | -        | **-**          | **325.24**  |
 
 **Experimental Parts**
 
@@ -870,9 +802,9 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 ### **🔌 PCB Cost (Manufactured via JLCPCB)** <a id="pcb-cost"></a>
 | PCB Component                  | Quantity | Unit Price ($) | Total ($)  |
 |--------------------------------|----------|--------------|--------------|
-| **PCB Manufacturing (JLCPCB)** | 5        | **0.40**     | **2.00**     |
-| **Connectors & Soldering**     | -        | **3.50**     | **3.50**     |
-| **TOTAL PCB COST**             | -        | **-**        | **5.50**     |
+| **PCB Manufacturing (JLCPCB)** | 5        | **7.82**     | **39.10**    |
+| **PCB Assembly (JLCPCB)**      | 5        | **14.55**    | **72.75**    |
+| **TOTAL PCB COST**             | -        | **-**        | **111.85**   |
 
 ---
 
@@ -887,8 +819,8 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 ### **🔩 Other Materials (Screws, Nuts, and Miscellaneous)** <a id="other-materials-cost"></a>
 | Material                       | Quantity | Unit Price ($) | Total ($)   |
 |--------------------------------|----------|--------------|---------------|
-| **M3 Screws & Nuts Set**       | -        | **4.00**     | **4.00**      |
-| **Wiring & Connectors**        | -        | **5.00**     | **5.00**      |
+| **M3 Screws & Nuts Set**       | -        | **-**        | **4.00**      |
+| **Wiring & Connectors**        | -        | **-**        | **5.00**      |
 | **TOTAL OTHER MATERIALS COST** | -        | **-**        | **9.00**      |
 
 ---
@@ -896,11 +828,11 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 ### **💵 TOTAL** <a id="total-cost"></a>
 | Category                      | Total Cost ($) |
 |-------------------------------|----------------|
-| **Components**                | **204.97**     |
-| **PCB (JLCPCB + Components)** | **5.50**       |
+| **Components**                | **325.24**     |
+| **PCB (JLCPCB + Components)** | **111.85**     |
 | **3D Printing**               | **20.00**      |
 | **Other Materials**           | **9.00**       |
-| **TOTAL PROJECT COST**        | **239.47**     |
+| **TOTAL PROJECT COST**        | **466.09**     |
 
 **Prices are approximate, based on current market prices.*
 
@@ -911,13 +843,13 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 Below is a list of **external images** used in this repository.
 - **[Arduino Nano ESP32](https://store.arduino.cc/cdn/shop/files/ABX00092_01.iso_804x603.jpg?v=1727101612)**
 - **[BMI088 IMU Sensor](https://files.seeedstudio.com/wiki/Grove-6-Axis_Accelerometer-Gyroscope-BMI088/img/main.jpg)**
-- **[JS40F Distance Sensor](https://www.jsumo.com/js40f-digital-infrared-ir-distance-sensor-min-40-cm-range-2780-71-B.jpg)**  
 - **[OpenMV H7 Camera](https://openmv.io/cdn/shop/products/new-cam-v4-angle-hero-web_1000x.jpg?v=1715735352)**
 - **[Pololu 30:1 Gearmotor](https://a.pololu-files.com/picture/0J12418.220.jpg?8f026fe1675b1109ea574290d3d26081)**
-- **[TB6612FNG Motor Driver](https://www.sparkfun.com/media/catalog/product/cache/a793f13fd3d678cea13d28206895ba0c/1/4/14451-01.jpg)**
 - **[MG90S Steering Servo](https://static.optimusdigital.ro/20565-large_default/mg90s-servomotor.jpg)**
-- **[L7805CV Voltage Regulator](https://ce8dc832c.cloudimg.io/v7/_cdn_/5D/D0/90/00/0/593365_1.jpg?width=640&height=480&wat=1&wat_url=_tme-wrk_%2Ftme_new.png&wat_scale=100p&ci_sign=32c0b49b36a510891beaad3401e2b2b50bdee888)**
-- **[3S 450mAh Li-Po Battery](https://www.jsumo.com/jsumo-3s-111-volt-450-mah-lipo-battery-4126-14-B.jpg)**
+- **[L7805CV Voltage Regulator](https://assets.lcsc.com/images/lcsc/900x900/20230102_STMicroelectronics-L7805CV_C111887_front.jpg)**
+- **[2S 300mAh Li-Po Battery](https://img-va.myshopline.com/image/store/2000408386/1640672930478/GNB3002S60AHV-(4)_1800x.jpeg?w=1000&h=1000)**
+- **[IFX9201SG Motor Driver](https://assets.lcsc.com/images/lcsc/900x900/20230316_Infineon-Technologies-IFX9201SG_C112633_front.jpg)**
+- **[Pololu Distance Sensor](https://a.pololu-files.com/picture/0J11135.1200.jpg?1910ced553e34153046a4c95021a93b3)**
   
 ---
 
