@@ -1,4 +1,4 @@
- # WRO2025 Future Engineers – Nerdvana Taurus Team
+# WRO2025 Future Engineers – Nerdvana Taurus Team
 
 
 ## **This repository is under updates for upcoming international competition**
@@ -157,6 +157,7 @@ The robot's mobility is controlled through **a fully PCB chassis, a servo-based 
 *To be updated...*
 
 <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/gear-D-axle-technical-drawing.jpg" width="700">
+<img src="https://hpi-racing.ro/34028-thickbox_default/diferential-complet-arrma-mojave-grom-118-30t-08mod-v2.jpg" width="700">
 
 *To be updated...*
 
@@ -165,13 +166,13 @@ Following past testing, we selected **a high-power 30:1 Micro Metal Gearmotor (1
 
 | <img src="https://a.pololu-files.com/picture/0J12418.220.jpg?8f026fe1675b1109ea574290d3d26081" width="300"> | **Specifications** |
 |------------------------------|------------------------------|
-| **Model:** 30:1 HPCB | **Voltage:** 12V |
+| **Model:** 30:1 HPCB | **Voltage:** 6V |
 | **No-load Speed:** 1000 RPM | **No-load Current:** 120mA |
 | **Stall Torque:** ~0.4 kg·cm | **Stall Current:** 1.6A |
 | 🔗 **[Buy Here](https://www.pololu.com/product/3038)** | **Function:** Drives the robot |
 
 **Why We Chose This Motor?**  
-**- Gear ratio provides sufficient torque** without sacrificing efficiency.  
+**- Gear ratio provides suffi cient torque** without sacrificing efficiency.  
 **- Compact and lightweight design**, allowing integration into a lightweight robot.  
 
 ### 🔌 **IFX9201SG Motor Driver** <a id="motor-driver"></a>
@@ -354,6 +355,20 @@ The **MG90S servo is used for precise steering control**, enabling the robot to 
 | **Current Draw (Avg):** 120mA | **Peak Current:** 500mA |
 | **Weight:** ~13.4g | **Gears:** Plastic |
 | 🔗 **[Buy Here](https://www.optimusdigital.ro/ro/motoare-servomotoare/271-servomotor-mg90s.html?srsltid=AfmBOooTrDsx2UoJ3Px8J26kkCbcuYhlpKYmuIYkivK_5ZSzPJx0ZNo8)** | **Function:** Controls steering |
+
+---
+
+### **⚙️ Impeller for downforce** <a id="impeller">
+
+The **impeller** generates downforce to improve the robot’s grip on the track at high speeds. Powered by a **1020 coreless DC motor**, it delivers extremely high RPM with minimal weight, making it ideal for competitive line follower and robotracer builds. Its low rotor inertia ensures instant acceleration, while the compact size allows for easy integration.
+
+| <img src="https://hyperlinerobotics.com/assets/images/products/impeller.jpg" width="300"> | **Specifications** |
+|------------------------------|------------------------------|
+| **Type:** Coreless DC Motor | **Model:** 1020 |
+| **Voltage:** 3.7–7.4V | **Shaft Diameter:** 1.0mm |
+| **No-Load Speed:** ~53,000 RPM @ 3.7V	 | **	Weight:** ~4.5g |
+| **Current Draw (Avg):** ~1A @ 3.7V	 | **Peak Current:** ~2.5A |
+| 🔗 **[Buy Here](https://hyperlinerobotics.com/products/impeller.html)** | **Function:** Drives the downforce impeller |
 
 ---
 
