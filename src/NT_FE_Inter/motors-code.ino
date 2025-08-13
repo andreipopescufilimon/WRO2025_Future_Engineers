@@ -152,6 +152,7 @@ void move_cm(int target_cm, int speed, double gyro_offset) {
 void steering_servo_setup() {
   steeringServo.attach(STEERING_SERVO);
   delay(100);
+
   steeringServo.write(STEERING_LEFT);
   delay(300);
   steeringServo.write(STEERING_RIGHT);
@@ -161,11 +162,12 @@ void steering_servo_setup() {
 }
 
 void steer(double steering_angle) {
-  steering_angle = map_double(steering_angle, -1, 1, STEERING_LEFT, STEERING_RIGHT);  // prevent over-rotation
-  steeringServo.write(steering_angle);
-}
+  // Clamp input between -1 and 1
+  if (steering_angle > 1)  steering_angle = 1;
+  if (steering_angle < -1) steering_angle = -1;
 
-void set_steer_angle(double steering_angle) {
+  // Map to servo range
+  steering_angle = map_double(steering_angle, -1, 1, STEERING_LEFT, STEERING_RIGHT);
   steeringServo.write(steering_angle);
 }
 

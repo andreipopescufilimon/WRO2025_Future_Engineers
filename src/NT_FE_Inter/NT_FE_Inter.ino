@@ -26,10 +26,17 @@
 #define PWM_DIST_LEFT A3
 #define PWM_DIST_RIGHT A1
 
+// ======= Distance sensor direction enum =======
+enum DistanceDir : uint8_t { FRONT_DIR,
+                             LEFT_DIR,
+                             RIGHT_DIR,
+                             BACK_DIR };
+
 
 // ================ Speed Control ================
-int robot_speed = 120;  // 200 - 240 in qualy, max 255 but with high drift on turns | stable 100
-int impeller_speed = 30;
+int robot_speed = 61;  // 110
+int exit_speed = 62;
+int impeller_speed = 0;
 int cube_last = 1;
 
 // === Encoder pins ===
@@ -40,14 +47,14 @@ volatile int32_t encoder_ticks = 0;
 #define PPR 12.0f  // 12 pulses per rev, single-edge
 #define QUAD_EDGES (PPR * 4.0f)
 #define GEAR_RATIO 1.0f
-#define WHEEL_DIAM 56.0f  // mm
-#define MM_PER_TICK 1.2979f
+#define WHEEL_DIAM 28.0f  // mm
+#define MM_PER_TICK 1.8326f
 
 // ================ Motors and PID ================
 double current_angle_gyro = 0.0;  // steering asymmetry
-double kp = 0.032;                // 0.044
+double kp = 0.031;                // 0.044
 double ki = 0;
-double kd = 0.051;  // 0.082
+double kd = 0.061;  // 0.082
 double pid_error = 0, pid_last_error = 0;
 
 // Integration & drift
@@ -68,8 +75,8 @@ double gz = 0;        // integrated angle in degrees
 #define STEERING_SERVO D2
 Servo steeringServo;
 #define STEERING_LEFT 140
-#define STEERING_CENTER 82
-#define STEERING_RIGHT 20
+#define STEERING_CENTER 85
+#define STEERING_RIGHT 40
 
 #define CORRECTION_ANGLE 50
 
@@ -160,18 +167,30 @@ void setup() {
   custom_delay(500);
 
   // Start from parking
-  /*if (RUN_MODE == 1) 
-  {
-    if (digitalRead(PWM_DIST_LEFT) == 1) {  // exit right/.
-      move_until_angle_max(75, 80);
+  if (RUN_MODE == 1) {
+    if (readDistanceMM(LEFT_DIR, 3) < readDistanceMM(RIGHT_DIR, 3)) {  // exit right/.
+      move_until_angle_max(exit_speed, 75);
+
+      move(65);
+      delay(100);
+
       turn_direction = 1;
-      move_until_angle_max(75, 0);
+      move_until_angle_max(exit_speed, 0);
+
+      move_straight_on_gyro(-robot_speed, 900);
     } else {  // exit left
-      move_until_angle_max(75, -80);
+      move_until_angle_max(exit_speed, -70);
+
+      move(65);
+      delay(100);
+
       turn_direction = -1;
-      move_until_angle_max(75, 0);
+
+      move_until_angle_max(exit_speed, 0);
+
+      move_straight_on_gyro(-robot_speed, 1800);
     }
-  }*/
+  }
 }
 
 void loop() {
@@ -182,7 +201,7 @@ void loop() {
       currentState = PARK;
     } else {
       unsigned long t0 = millis();
-      while (millis() - t0 < 2000) {
+      while (millis() - t0 < 1400) {
         read_gyro_data();
         double error = current_angle_gyro - gz;
         pid_error = error * kp + (pid_error - pid_last_error) * kd;
@@ -191,6 +210,10 @@ void loop() {
         move(robot_speed);
       }
       stop_motor();
+      setImpeller(255);
+      delay(1000);
+      setImpeller(0);
+      delay(500);
       if (debug) Serial.println("Maximum turns reached. Stopping...");
       while (true)
         ;
@@ -199,8 +222,6 @@ void loop() {
 
   // 2) Fresh gyro read and flush camera
   read_gyro_data();
-
-  //if (abs(gz - current_angle_gyro) >= 89) current_angle_gyro += 90;
 
   // 3) State‐machine drive logic
   switch (currentState) {
@@ -238,7 +259,7 @@ void loop() {
       {
         int angle_addition = (cube_last == 1) ? -9 : 0;
         double err = current_angle_gyro - gz + cube_last * (CORRECTION_ANGLE + angle_addition);
-        if (abs(err) < 10) {
+        if (abs(err) < 5) {
           if (-cube_last == turn_direction) {
             move_cm(5, robot_speed, current_angle_gyro + cube_last * (CORRECTION_ANGLE + angle_addition));
           } else {
@@ -257,14 +278,14 @@ void loop() {
 
     case PARK:
       {
-        double err = current_angle_gyro - gz - turn_direction * 90;
+        /*double err = current_angle_gyro - gz - turn_direction * 90;
         pid_error = (err)*kp + (pid_error - pid_last_error) * kd;
         pid_last_error = pid_error;
         steer(pid_error);
         move(60);
         delay(500);
         move(0);
-        delay(20000);
+        delay(20000);*/
         break;
       }
   }

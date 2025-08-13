@@ -2,7 +2,7 @@ import sensor, time
 from pyb import UART, LED
 
 # -------- DEBUG FLAG --------
-DEBUG = False
+DEBUG = True
 
 # -------- Camera & Sensor Setup --------
 sensor.reset()
@@ -14,7 +14,7 @@ sensor.set_hmirror(True)
 # Disable auto settings for stable color tracking
 sensor.set_auto_gain(False)
 sensor.set_auto_whitebal(False)
-sensor.set_auto_exposure(False, exposure_us=11000) # 9000 open,  10000 rest
+sensor.set_auto_exposure(False, exposure_us=10000) # 9000 open,  10000 rest
 
 sensor.skip_frames(time=2000)
 
@@ -36,33 +36,35 @@ time.sleep(0.5)
 red_threshold    = [(32, 54, 40, 67, 17, 63)]
 green_threshold  = [(36, 69, -56, -21, -19, 32)]
 blue_threshold   = [(9, 76, -45, 27, -57, -8)]
-orange_threshold = [(38, 77, -15, 34, 14, 55)]   #[(62, 91, -3, 43, 5, 69)]
+orange_threshold = [(62, 91, -3, 43, 5, 69)]
 pink_threshold   = [(30, 70, 10, 60, -15, 15)]
 black_threshold  = [(0, 37, -26, 7, -17, 11)]
 
 # -------- Define Regions of Interest (ROI) --------
 img_h = sensor.height()
 img_w = sensor.width()
-cubes_roi = (0, int(img_h * 0.5), img_w, int(img_h * 0.5))
+cubes_roi = (0, int(img_h * 0.4), img_w, int(img_h * 0.6))
 lines_roi = (5, int(img_h * 0.5), img_w - 10, int(img_h * 0.4))
 wall_roi  = (50, int(img_h * 0.5 - 18), img_w - 100, int(img_h * 0.2 - 10))
+final_wall_roi  = (30, int(80), img_w - 60, int(img_h - 60))
 
 # -------- Blob Filtering Parameters --------
-min_cube_size       = 100
-min_line_size       = 1000
+min_cube_size       = 300
+min_line_size       = 800
 min_area            = 10
 min_valid_cube_area = 450
 pink_wall_min_area  = 5000
 black_wall_min_area = 7000
-min_black_height    = 37
+final_black_wall_min_area = 9000
+min_black_height    = 39
 min_black_width     = 0
 
 # -------- PD Parameters for Cube Following --------
 kp_cube = 0.21
-kd_cube = 2.8
+kd_cube = 2.4
 pid_error = 0.0
 pid_last_error = 0.0
-follow_threshold = 4205
+follow_threshold = 4100
 
 direction = 0  # turn direction: 0 = not set, 1 = left, 2 = right
 
@@ -96,11 +98,11 @@ while True:
 
     # ---- Draw ROIs on the image for debugging ----
     # cubes_roi: bottom 40% of the frame
-#    img.draw_rectangle(cubes_roi, color=(255, 155, 0))  # yellow
+ #   img.draw_rectangle(cubes_roi, color=(255, 155, 0))  # yellow
     # lines_roi: slightly inset bottom 40%
 #    img.draw_rectangle(lines_roi, color=(0, 255, 255))  # cyan
     # wall_roi: middle 60% of the frame
-#img.draw_rectangle(wall_roi,  color=(255,   0, 255))  # magenta
+    #img.draw_rectangle(final_wall_roi,  color=(255,   0, 255))  # magenta
 
 
     target_x = img_w // 2
@@ -124,6 +126,10 @@ while True:
     black_blobs  = img.find_blobs(black_threshold,  roi=wall_roi,
                                   pixels_threshold=black_wall_min_area,
                                   area_threshold=black_wall_min_area, merge=True)
+
+    black_blobs  = img.find_blobs(black_threshold,  roi=final_wall_roi,
+                                pixels_threshold=final_black_wall_min_area,
+                                area_threshold=final_black_wall_min_area, merge=True)
 
     # ---- Get Largest Blobs ----
     red_cube    = get_largest_blob([b for b in red_blobs   if b.area() >= min_valid_cube_area])
