@@ -16,6 +16,7 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
   - [🚗 Drivebase](#drivebase)
     - [🔧 Drivetrain](#drivetrain)
     - [⚙️ Motor](#motor)
+    - [🛞 Wheels](#wheels)
     - [🔌 Motor Driver IFX9201SG](#motor-driver)
     - [🌪️ Impeller](#impeller)
   - [🔄 Steering](#steering)
@@ -185,6 +186,24 @@ Following past testing, we selected **a high-power 30:1 Micro Metal Gearmotor (1
 **Why We Chose This Motor?**  
 **- Gear ratio provides suffi cient torque** without sacrificing efficiency.  
 **- Compact and lightweight design**, allowing integration into a lightweight robot.  
+
+### 🛞 Wheels & Tires (Silicone) <a id="wheels"></a>
+
+Our robot uses cast silicone tires on 3D-printed hubs. Silicone provides high, repeatable static friction on painted boards and vinyl, which pairs perfectly with the rear differential and downforce impeller—more grip when we need it, without adding mass.
+
+**Why silicone?**
+- Grip & consistency: Strong adhesion on smooth surfaces → faster exits and shorter braking distances.
+- Low wear on the map: Softer compound grips without scratching.
+- Stable handling: Predictable breakaway, so PD/PID steering stays smooth.
+
+**Construction:**
+- Rims: 3D-printed hubs with dual bearings (inner + outer) for a rigid, wobble-free wheel.
+- Tire: Cast silicone ring fitted onto a mechanical bead on the rim (no harsh solvents needed).
+- Fit: Rear wheels mount directly to the diff outputs; fronts ride on steering hubs for low friction.
+
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/front-wheel.jpg" width="700">
+
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/back-wheel.jpg" width="700">
 
 ### 🔌 **IFX9201SG Motor Driver** <a id="motor-driver"></a>
 
