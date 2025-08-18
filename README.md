@@ -164,7 +164,7 @@ The robot's mobility is controlled through **a fully PCB chassis, a servo-based 
 The drivetrain uses a sealed RC differential at the rear, driven by a **Pololu 30:1 HPCB micro gearmotor** through a **3D printed pinion** → **differential input gear**. The motor is held in a 3D-printed support with the battery mounted above, keeping the center of mass centered and low. Rear outputs rotate in bearings seated inside 4 printed rings that are super-glued to the PCB chassis, minimizing friction and parts count.
 At the front, the wheels are fully 3D-printed and each wheel runs on two bearings (inner + outer) for a rigid, wobble-free hub that steers precisely.
 
-<img src="https://hpi-racing.ro/34028-thickbox_default/diferential-complet-arrma-mojave-grom-118-30t-08mod-v2.jpg" width="600">
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/differential.png" width="600">
 
 <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/pinion-differential.jpg" width="700">
 
