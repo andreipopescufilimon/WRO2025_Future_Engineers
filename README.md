@@ -41,7 +41,7 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
   - [⚡ Final Round](#final-round)
   - [🅿️ Start from Parking](#start-from-parking)
   - [🅿️ Parking](#parking)
-- [📽️ Performance Videos](#performance-videos)
+- [📽️ Performance Video](#performance-video)
 - [💰 Cost Analysis](#cost-analysis)
   - [📦 Component Costs](#components-costs)
   - [🔌 PCB Manufacturing Cost](#pcb-cost)
@@ -777,7 +777,7 @@ After completing three laps, we’ll:
 
 ---
 
-## 📽️ Performance Videos <a id="performance-videos"></a>
+## 📽️ Performance Video <a id="performance-video"></a>
 🔗 **[Click here to watch the video on YouTube](https://youtu.be/ZELCxp2fEmI?si=_0gKM8rAUfyjFkyQ)**  
 
 ---
