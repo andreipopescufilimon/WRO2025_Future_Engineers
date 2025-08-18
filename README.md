@@ -23,6 +23,8 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
     - [✨ Key Features & Advantages](#key-features)
     - [🔧 Assembly Process](#assembly-process)
       - [🔧 Assembly Process Video](#assembly-process-video)
+      - [🔧 3D print the parts](#3d-print-the-parts)
+      - [🔧 Assemble the robot](#assembly)
 - [🛠️ Power and Sense Management](#power-and-sense-management)
   - [🔋 Li-Po Battery](#li-po-battery)
   - [🖥️ Arduino Nano ESP32](#arduino-nano-esp32)
@@ -222,23 +224,20 @@ To control the steering system, we use an **MG90S micro servo**, known for its h
 
 ## 🏎️ **Chassis & Component Mounting** <a id="chassis"></a>
 
-*To be updated...*
+At the national stage, we used a **fully 3D-printed chassis**, which allowed us to quickly prototype a compact and optimized structure. However, for the current version, we upgraded to a **PCB-based chassis**. This not only reduces weight further but also integrates electronics directly into the structure, making the robot lighter, cleaner, and more reliable.
 
-The chassis is the **main structure** of the robot, providing a **stable and lightweight base** for all components. Since this is our **first year competing**, we decided to **skip Lego-based designs** and go straight for a **fully 3D-printed chassis**. This allowed us to create a **more compact, lightweight, and optimized structure**.
-
-The robot is driven by **a single high-performance motor**, which is connected to a **Lego 5 gears differential**. This setup allows reducing complexity while maintaining precise control over movement.
+The robot is driven by **a single high-performance motor**, which is connected to a **professional RC differential**. This setup allows reducing complexity while maintaining precise control over movement.
 
 <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/chassis-technical-drawing.jpg" width="700">
 
 **Key Features & Advantages** <a id="key-features"></a>
 
-➜ **Lightweight & Durable** – The **3D-printed chassis** ensures a strong lightweight structure, optimizing performance.  
-➜ **Balanced Design** – The **battery is centrally placed**, ensuring even weight distribution and stability.  
-➜ **Easy Component Mounting** – Pre-designed slots for **motor, PCB, steering servo, and camera** make assembly quick and efficient.  
-➜ **Secure PCB Mounting** – The **PCB is attached using 4 screws**, keeping it firmly in place.  
+➜ **Lightweight & Durable** – The **PCB chassis** ensures a strong lightweight structure, optimizing performance.  
+➜ **Balanced Design** – The **battery is centrally placed on top of the motor**, ensuring even weight distribution and stability. Meanwhile we use a high power impeller that sucks the air under the robot and create an artificial downforce effect over the robot maintaining its grip.  
+➜ **Easy Component Mounting** – Pre-designed slots for **motor, steering servo, and camera** make assembly quick and efficient.  
 ➜ **Organized Wiring & Cable Management**  
 &nbsp; &nbsp; 🔹 **Integrated PCB routing** eliminates unnecessary wiring, ensuring a cleaner and more reliable setup.  
-&nbsp; &nbsp; 🔹 **Hot glue secures servo and camera wires**, preventing loose cables from interfering with movement.  
+&nbsp; &nbsp; 🔹 **Super glue secures servo and other tiny parts**, keeping each part in its place even after longer runs. 
 
 ---
 
@@ -247,9 +246,55 @@ The robot is driven by **a single high-performance motor**, which is connected t
 🔗 **[Click here to watch the assembly video on YouTube](https://youtu.be/sz8ePobdi_c)** <a id="assembly-process-video"></a>
 
 ### 1: 3D Print the Parts <a id="3d-print-the-parts"></a>
+
 The 3D model files are available in the [`/3D-models`](https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/tree/main/3D-models) folder. We used a **BambuLab X1-Carbon**, but any good quality printer will work.
 
-*To be updated...*
+Printed components include:
+
+* **Servo base** – for securing the MG90S steering servo.
+* **Camera mount (90° bracket)** – to hold the camera in position.
+* **Motor support** – for fixing the drive motor with M3 screws.
+* **Bearing rings** – 4 small rings to be glued on the PCB chassis for smooth differential rotation.
+* **Front wheels** – fully 3D-printed, each equipped with **2 bearings (inner + outer)** for stable and secured placement.
+
+---
+
+### 2: Assemble the Chassis & Components <a id="assembly"></a>
+
+The final robot is built on a **custom PCB chassis**, manufactured by **JLCPCB**, which acts as both the **structural base** and the **mainboard for electronics**.
+
+#### 🔧 **Main Assembly Steps**
+
+1. **PCB Preparation**
+
+   * Order the chassis PCB from **JLCPCB**.
+   * Solder the **Arduino Nano ESP32** into its slot.
+   * Solder the **4 distance sensors** with **90° male pins**, positioned on all four sides of the robot.
+
+2. **Steering System**
+
+   * Mount the **MG90S servo** on the **3D-printed base**, then super glue the base securely to the PCB chassis.
+   * Fix the **steering hubs** (left & right) on **M2 screws**, allowing smooth wheel hub rotation.
+   * Connect the **servo arm to the steering hubs** using **two metal link bars** for precise steering.
+   * Install the **3D-printed front wheels**, each fitted with **dual bearings (inner + outer)** for reliable and stable rotation.
+
+3. **Camera Mounting**
+
+   * Attach the camera using the **90° 3D-printed bracket**.
+   * Secure it with **2 screws to the chassis** and **2 screws for the camera itself**.
+
+4. **Motor & Drivetrain**
+
+   * Place the **drive motor** on the **3D-printed support**, fixed with **2 × M3 screws**.
+   * Secure the **impeller** with **4 screws** to its mounting position.
+   * Assemble the **Lego 5-gears differential** with the rear wheels.
+   * Glue **4 printed rings** on the PCB chassis to house bearings, ensuring **smooth rear wheel rotation**.
+
+5. **Wiring & Final Connections**
+
+   * Solder all cables (servo, camera, motor encoder, impeller) to their designated pads on the PCB.
+   * Use minimal hot glue to fix loose wires and prevent interference during movement.
+
 ---
 
 ## 🛠️ Power and Sense Management <a id="power-and-sense-management"></a>
