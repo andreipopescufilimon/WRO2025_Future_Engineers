@@ -250,7 +250,7 @@ The robot is driven by **a single high-performance motor**, which is connected t
 
 ## 🔧 Assembly Process <a id="assembly-process"></a>
 
-🔗 **[Click here to watch the assembly video on YouTube](https://youtu.be/sz8ePobdi_c)** <a id="assembly-process-video"></a>
+🔗 **[Click here to watch the assembly video on YouTube](https://youtu.be/sC2x8HgDEvk)** <a id="assembly-process-video"></a>
 
 ### 1: 3D Print the Parts <a id="3d-print-the-parts"></a>
 
