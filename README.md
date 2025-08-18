@@ -17,6 +17,7 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
     - [🔧 Drivetrain](#drivetrain)
     - [⚙️ Motor](#motor)
     - [🔌 Motor Driver IFX9201SG](#motor-driver)
+    - [🌪️ Impeller](#impeller)
   - [🔄 Steering](#steering)
     - [🔄 Steering Servo Motor](#servo-motor)
   - [🏎️ Chassis & Component Mounting](#chassis)
@@ -192,6 +193,20 @@ The **IFX9201SG** motor driver is used to control the robot’s high-performance
 | **Max Continuous Current:** 5A | **Max Peak Current:** 8A per channel |
 | **Control Interface:** PWM + Direction pins | **Built-in Protections:** Overtemperature, Overcurrent, Undervoltage, Short-to-GND/Battery |
 | 🔗 **[Buy Here](https://www.lcsc.com/product-image/C112633.html)** | **Function:** Controls drive motors |
+
+### **⚙️ Impeller for downforce** <a id="impeller">
+
+The **impeller** generates downforce to improve the robot’s grip on the track at high speeds. Powered by a **1020 coreless DC motor**, it delivers extremely high RPM with minimal weight, making it ideal for competitive line follower and robotracer builds. Its low rotor inertia ensures instant acceleration, while the compact size allows for easy integration.
+
+| <img src="https://hyperlinerobotics.com/assets/images/products/impeller.jpg" width="300"> | **Specifications** |
+|------------------------------|------------------------------|
+| **Type:** Coreless DC Motor | **Model:** 1020 |
+| **Voltage:** 3.7–7.4V | **Shaft Diameter:** 1.0mm |
+| **No-Load Speed:** ~53,000 RPM @ 3.7V	 | **	Weight:** ~4.5g |
+| **Current Draw (Avg):** ~1A @ 3.7V	 | **Peak Current:** ~2.5A |
+| 🔗 **[Buy Here](https://hyperlinerobotics.com/products/impeller.html)** | **Function:** Drives the downforce impeller |
+
+---
 
 
 ## 🔄 **Steering** <a id="steering"></a>
