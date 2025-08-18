@@ -162,12 +162,8 @@ The robot's mobility is controlled through **a fully PCB chassis, a servo-based 
 
 *To be updated...*
 
-<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/motor-bracket-technical-drawing.jpg" width="700">
-
-*To be updated...*
-
 <img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/gear-D-axle-technical-drawing.jpg" width="700">
-<img src="https://hpi-racing.ro/34028-thickbox_default/diferential-complet-arrma-mojave-grom-118-30t-08mod-v2.jpg" width="700">
+<img src="https://hpi-racing.ro/34028-thickbox_default/diferential-complet-arrma-mojave-grom-118-30t-08mod-v2.jpg" width="600">
 
 *To be updated...*
 
@@ -490,15 +486,259 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 
 ### ⚡ Drive motor <a id="drive-motor-coding"></a>
 
+The motor driver is based on the **Infineon IFX9201SG**, which allows us to directly manage the motor with only two control signals: a **PWM** pin that regulates speed, and a direction pin that selects forward or reverse rotation. Thanks to this chip’s integrated design, no external library was required for motor control.
+
+We implemented a set of functions within our control system: one to initialize the driver, one to control motor velocity, and another to stop it effectively using an active braking routine. The function **move(int speed)** takes an input in the range **−255** to **+255**. The absolute value of the input is written to the **PWM channel**, while the sign determines the motor’s rotation direction. A dedicated **stop_motor()** function applies a short reverse torque pulse before setting the PWM duty cycle to zero, ensuring the robot stops quickly without uncontrolled coasting.
+
+Since the robot is powered by an **ESP32**, **PWM** signals must be generated using the **LEDC** hardware utility, which provides stable and precise duty cycles.
+
+```cpp
+void motor_driver_setup() {
+  pinMode(PWMA, OUTPUT);
+  pinMode(DIRA, OUTPUT);
+  ledcSetup(PWM_MOTOR_CHANNEL, PWM_MOTOR_FREQ, PWM_MOTOR_RESOLUTION);
+  ledcAttachPin(PWMA, PWM_MOTOR_CHANNEL);
+  move(0);
+}
+
+void move(int speed) {
+  ledcWrite(PWM_MOTOR_CHANNEL, abs(speed));
+  digitalWrite(DIRA, speed > 0 ? LOW : HIGH);
+}
+
+void stop_motor() {
+  move(-3);
+  delay(100);
+  move(0);
+}
+```
+
+For odometry, the motor includes an encoder. We implemented an interrupt-based approach to count ticks in real time, avoiding the need for a dedicated library. The encoder setup attaches an interrupt on the rising edge of channel A, and the distance traveled is computed from tick counts.
+
+In this configuration, the encoder provides 12 counts per revolution, and by applying the gear ratio, wheel diameter, and π, we obtain a conversion factor of `MM_PER_TICK = 1.8326`. This enables the robot to measure traveled distance with centimeter-level accuracy, which is crucial for precise maneuvers during navigation.
+
+```cpp
+void encoder_setup() {
+  // Enable pull-ups so A/B never float
+  pinMode(ENCODER_A, INPUT_PULLUP);
+  pinMode(ENCODER_B, INPUT_PULLUP);
+  // Attach only A’s rising edge:
+  attachInterrupt(digitalPinToInterrupt(ENCODER_A), encoderISR, RISING);
+  encoder_ticks = 0;
+}
+
+float read_cm() {
+  noInterrupts();
+  int32_t t = encoder_ticks;
+  interrupts();
+
+  float dist_mm = t * MM_PER_TICK;
+  float dist_cm = dist_mm / 10.0f;
+  //Serial.printf("ticks=%ld  dist_cm=%.2f\n", t, dist_cm);
+  return dist_cm;
+}
+```
+
 ### 🌪️ Impeller <a id="impeller-coding"></a>
+
+The impeller is responsible for generating downforce, which increases stability and traction when the robot operates at high speed. To control it, we use an **RFR3411 MOSFET**, wired as a low-side switch. This **MOSFET** can safely handle the high current required by the impeller, while allowing speed control via **PWM** modulation.
+
+Only a single PWM pin from the ESP32 is needed to drive the MOSFET gate. The PWM duty cycle determines how much power is applied to the impeller:
+
+```
+0 = off
+255 = full speed
+```
+
+Two functions were implemented for simplicity: one for initializing the PWM channel and one for setting the impeller speed.
+
+```cpp
+void impeller_setup() {
+  pinMode(PWM_IMPELLER, OUTPUT);
+  ledcSetup(PWM_IMPELLER_CHANNEL, PWM_IMPELLER_FREQ, PWM_IMPELLER_RESOLUTION);
+  ledcAttachPin(PWM_IMPELLER, PWM_IMPELLER_CHANNEL);
+}
+
+void setImpeller(int _pwm) {
+  ledcWrite(PWM_IMPELLER_CHANNEL, constrain(_pwm, 0, 255));
+}
+```
 
 ### 🎮 Servo motor <a id="servo-motor-coding"></a>
 
+The steering system is controlled by a **MG90S servo**, which adjusts the angle of the front wheels. This enables the robot to follow precise paths while maintaining stability during turns.
+
+The servo is connected directly to the **ESP32** and driven using the `ESP32Servo.h` library interface. To ensure consistent and safe motion, we defined three reference positions:
+
+```
+STEERING_LEFT = 140
+STEERING_CENTER = 85
+STEERING_RIGHT = 40
+```
+
+These values were experimentally calibrated to match the geometry of the steering mechanism.
+
+The function `steering_servo_setup()` attaches the servo to its pin, performs a left–right sweep to verify operation, and finally centers it. This ensures that the robot always starts in a straight-line configuration.
+
+The function `steer(double steering_angle)` accepts an input in the range `[-1, 1]`, representing normalized steering:
+
+```
+-1 = maximum right
+0 = centered
++1 = maximum left
+```
+
+The input is first clamped to stay within the allowed range, then mapped to the calibrated servo values using **map_double**. This abstraction allows higher-level controllers (such as PID) to provide normalized outputs without directly worrying about servo limits.
+
+```cpp
+void steering_servo_setup() {
+  steeringServo.attach(STEERING_SERVO);
+  delay(100);
+
+  steeringServo.write(STEERING_LEFT);
+  delay(300);
+  steeringServo.write(STEERING_RIGHT);
+  delay(300);
+  steeringServo.write(STEERING_CENTER);
+  delay(300);
+}
+
+void steer(double steering_angle) {
+  // Clamp input between -1 and 1
+  if (steering_angle > 1)  steering_angle = 1;
+  if (steering_angle < -1) steering_angle = -1;
+
+  // Map to servo range
+  steering_angle = map_double(steering_angle, -1, 1, STEERING_LEFT, STEERING_RIGHT);
+  steeringServo.write(steering_angle);
+}
+```
+
 ### 🧭 IMU <a id="imu-coding"></a>
+
+To keep the robot on a straight path and execute precise turns, we rely on the **Bosch BMI088 Inertial Measurement Unit (IMU)**. This sensor combines a high-resolution accelerometer and gyroscope, and in our case we primarily use the **Z-axis** gyroscope for yaw angle estimation.
+
+During initialization, the function `gyro_setup()` configures the BMI088 via **I²C** communication. The accelerometer is set to a **±6 g** range at **200 Hz**, while the gyroscope is set to **±2000 °/s** at **400 Hz** with a **47 Hz bandwidth**. These parameters provide a good balance between responsiveness and noise filtering.
+
+A key challenge with gyroscopes is drift — the tendency of small measurement errors to accumulate over time. To correct this, the setup function performs a calibration routine: for a predefined duration **(DRIFT_TEST_TIME)**, the sensor’s output is averaged while the robot is stationary. The resulting bias **(drifts_z)** is subtracted from all subsequent readings.
+
+```cpp
+void gyro_setup() {
+  // 1) Wire + basic init
+  Wire.begin();
+  imu.initialize();
+
+  imu.setAccScaleRange(RANGE_6G);
+  imu.setAccOutputDataRate(ODR_200);       // 200 Hz accel
+  imu.setAccPoweMode(ACC_ACTIVE);
+
+  imu.setGyroScaleRange(RANGE_2000);
+  imu.setGyroOutputDataRate(ODR_400_BW_47); // 400 Hz, BW=47 Hz
+  imu.setGyroPoweMode(GYRO_NORMAL);
+
+  if (!imu.isConnection()) {
+    if (debugGyro) {
+      Serial.println("BMI088 connection failed!");
+    }
+    return;
+  }
+
+  if (debugGyro) Serial.println("Starting gyro drift calculation...");
+  double start = millis();
+  gyro_last_read_time = start;
+  gz = 0;
+
+  while (millis() - start < DRIFT_TEST_TIME * 1000) {
+    double now = millis();
+    double dt = (now - gyro_last_read_time) * 0.001; // s
+    float rate = imu.getGyroscopeZ();                // °/s
+    gz += rate * dt;                                 // accumulate degrees
+    gyro_last_read_time = now;
+  }
+
+  drifts_z = gz / DRIFT_TEST_TIME;  // average °/s
+  if (debugGyro) {
+    Serial.print("Drift test done! drifts_z = ");
+    Serial.print(drifts_z, 6);
+    Serial.println(" °/s");
+  }
+
+  // reset integration
+  gz = 0;
+  gyro_last_read_time = millis();
+} 
+```
+
+The function `read_gyro_data()` must be called continuously in the control loop. It computes the elapsed time **dt**, reads the current angular rate from the **BMI088**, subtracts the drift offset, and integrates the result into **gz**, which represents the robot’s absolute yaw angle in degrees. This value is used directly in the **PID controller** for heading correction.
+
+```cpp
+void read_gyro_data() {
+  // call this frequently (e.g. every loop)
+  double now = millis();
+  double dt  = (now - gyro_last_read_time) * 0.001; // s          
+  float rate = imu.getGyroscopeZ();              // °/s
+  double corrected = rate - drifts_z;               // drift-compensated
+  gz += corrected * dt;                             // integrate to degrees
+  gyro_last_read_time = now;
+
+  if (debugGyro) {
+    Serial.print("Gyro angle (°): ");
+    Serial.println(gz, 4);
+  }
+}
+```
+
 
 ### 📡 Distance sensors <a id="distance-sensors-coding"></a>
 
+The robot integrates four **Pololu PWM distance sensors**, placed on the **front, back, left, and right sides** of the chassis. Each sensor outputs a pulse width signal, where the duration is proportional to the measured distance. This gives us precise range data without requiring complex communication protocols.
+
+The function `distanceSensorPin(DistanceDir d)` maps each logical direction (FRONT_DIR, LEFT_DIR, RIGHT_DIR, BACK_DIR) to its corresponding analog pin. Using `pulseIn()`, we measure the pulse width, and the helper function `pulseToMM()` converts it into millimeters based on the calibration constants:
+
+```
+PW_OFFSET_US – offset at ~0 mm (typically ~1000 µs)
+PW_US_PER_MM – scaling factor (1 µs per mm)
+PULSE_TIMEOUT_US – maximum waiting time for a valid pulse (30 ms)
+```
+
+If no valid pulse is received, the function returns **-1** to indicate a timeout.
+
+```cpp
+// ======= Pololu PWM Distance Sensor Settings =======
+static const float PW_OFFSET_US   = 1000.0f; // microseconds offset at ~0 mm
+static const float PW_US_PER_MM   = 1.0f;    // microseconds per millimeter
+static const unsigned long PULSE_TIMEOUT_US = 30000UL; // 30 ms timeout
+
+// ======= Map direction to the correct pin =======
+static inline int distanceSensorPin(DistanceDir d) {
+  switch (d) {
+    case FRONT_DIR: return PWM_DIST_FRONT; // A0
+    case LEFT_DIR:  return PWM_DIST_LEFT;  // A3
+    case RIGHT_DIR: return PWM_DIST_RIGHT; // A1
+    case BACK_DIR:  return PWM_DIST_BACK;  // A2
+  }
+  return PWM_DIST_FRONT;
+}
+
+// ======= Read pulse in microseconds =======
+static inline unsigned long readPulseUS(int pin) {
+  pinMode(pin, INPUT);
+  return pulseIn(pin, HIGH, PULSE_TIMEOUT_US);
+}
+
+// ======= Convert pulse width to millimeters =======
+static inline float pulseToMM(unsigned long pw_us) {
+  if (pw_us == 0) return -1.0f; // timeout
+  float mm = (float(pw_us) - PW_OFFSET_US) / PW_US_PER_MM;
+  if (mm < 0) mm = 0;
+  return mm;
+}
+```
+
 ### 📷 Camera <a id="camera-coding"></a>
+
+*to be updated...*
+
 
 ## 📝 Obstacle Management <a id="obstacle-management"></a>
 
@@ -825,6 +1065,8 @@ The robot turns ~75° toward the main track depending on the detected direction.
 
 
 ### 🅿️ Parking <a id="parking"></a>
+
+*to be updated...*
 After completing three laps, we’ll:
 - **Align so we will be able to turn 90 degrees exactly on the middle section of the track.**
   
@@ -844,6 +1086,8 @@ After completing three laps, we’ll:
 ---
 
 ## 📽️ Performance Video <a id="performance-video"></a>
+*to be updated...*
+
 🔗 **[Click here to watch the video on YouTube](https://youtu.be/ZELCxp2fEmI?si=_0gKM8rAUfyjFkyQ)**  
 
 ---
