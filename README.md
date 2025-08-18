@@ -752,8 +752,202 @@ static inline float pulseToMM(unsigned long pw_us) {
 
 ### 📷 Camera <a id="camera-coding"></a>
 
-*to be updated...*
+Once the robot can move and steer, it also needs to see and react to the environment. For this, we use an **OpenMV camera module**, connected via **UART protocol**. This allows the camera to handle the heavy work of image processing and only send compact messages (like colors, cubes, or angles) to the **ESP32**.
 
+The camera is wired to the **ESP32** as follows:
+- Camera TX (P4) → ESP32 RX (D0)
+- Camera RX (P5) → ESP32 TX (D1)
+
+Both devices must share the same baud rate **(19200)**. On the **ESP32** side, we use `SoftwareSerial` for communication, while on the camera side, `UART(3, 19200)` is initialized.
+
+Arduino code:
+
+```cpp
+// UART to OpenMV (SoftwareSerial on D0/D1)
+#include <SoftwareSerial.h>
+SoftwareSerial cameraSerial(D0, D1); // RX=D0, TX=D1
+
+String receivedMessage;
+
+void comm_setup() {
+  Serial.begin(9600);
+  cameraSerial.begin(19200);          // must match OpenMV baudrate
+  receivedMessage = "";
+  // (optional) small flush
+  while (cameraSerial.available()) cameraSerial.read();
+}
+
+void loop() {
+  // ... control loop stuff ...
+
+  // Execute pending commands from camera
+  while (cameraSerial.available() > 0) {
+    char c = cameraSerial.read();
+    if (c == '\n') {
+      // Optionally skip commands while parking
+      if (CASE != PARK) {
+        execute_command(receivedMessage); // handle "S<angle>", "BLUE", "ORANGE", "RED", "GREEN", "BLACK", "1", "2"
+      }
+      receivedMessage = "";
+    } else {
+      receivedMessage += c;
+    }
+  }
+}
+```
+
+Camera code:
+
+We use `UART(3, 19200)` on **OpenMV (P4=TX, P5=RX)**. Baud must match the Arduino side.
+
+```python
+from pyb import UART
+uart = UART(3, 19200)
+# 3 → uses P4 (TX) and P5 (RX)
+# 19200 → baud rate, must match Arduino
+```
+
+Arduino listens and executes messages line-by-line (ending with `\n`). Camera only sends.
+
+We configure the camera for `RGB565, QVGA (320×240)`, flipped to match mounting, and fixed exposure/gain/WB for consistent LAB thresholds.
+
+```python
+import sensor, time
+sensor.reset()
+sensor.set_pixformat(sensor.RGB565)
+sensor.set_framesize(sensor.QVGA)     # 320x240
+sensor.set_vflip(True)
+sensor.set_hmirror(True)
+
+sensor.set_auto_gain(False)           # must be off for color tracking
+sensor.set_auto_whitebal(False)       # must be off for color tracking
+sensor.set_auto_exposure(False, exposure_us=10000)  # ~10ms
+sensor.skip_frames(time=2000)
+
+clock = time.clock()
+```
+
+Why fixed exposure? It keeps color thresholds stable across frames and lighting.
+
+Color thresholds **(LAB)** for red/green cubes, blue/orange lines, black walls.
+We also define ROIs to look only where each object should appear (faster + fewer false positives).
+
+```python
+# ---- LAB thresholds ----
+red_threshold    = [(32, 54, 40, 67, 17, 63)]
+green_threshold  = [(36, 69, -56, -21, -19, 32)]
+blue_threshold   = [(9, 76, -45, 27, -57, -8)]
+orange_threshold = [(62, 91, -3, 43, 5, 69)]
+pink_threshold   = [(30, 70, 10, 60, -15, 15)]
+black_threshold  = [(0, 37, -26, 7, -17, 11)]
+
+# ---- Regions of Interest ----
+img_h, img_w = sensor.height(), sensor.width()
+cubes_roi      = (0, int(img_h * 0.4),  img_w,        int(img_h * 0.6))  # bottom area
+lines_roi      = (5, int(img_h * 0.5),  img_w - 10,   int(img_h * 0.4))  # lower band
+wall_roi       = (50, int(img_h * 0.5 - 18), img_w - 100, int(img_h * 0.2 - 10))
+final_wall_roi = (30, 80, img_w - 60, int(img_h - 60))
+```
+
+Minimum areas to reject noise and a simple **PD** setup for cube following.
+
+```python
+min_cube_size       = 300
+min_line_size       = 800
+min_area            = 10
+min_valid_cube_area = 450
+black_wall_min_area = 7000
+final_black_wall_min_area = 9000
+min_black_height    = 39
+
+kp_cube = 0.21
+kd_cube = 2.4
+pid_error = 0.0
+pid_last_error = 0.0
+follow_threshold = 4100
+
+direction = 0  # 0 = unset, 1 = LEFT(blue), 2 = RIGHT(orange)
+
+def get_largest_blob(blobs):
+    return max(blobs, key=lambda b: b.area(), default=None)
+```
+
+Every frame, we:
+- Detect walls (parking / turn signal) → send `"BLACK"`
+- Detect cubes (red/green) → send `S<error>` for follow, or `RED/GREEN` when very close
+- Detect lines (blue/orange) → send `"BLUE"/"ORANGE"` and set direction (1/2)
+- Always send the current direction **("1"/"2")** for sync
+
+```python
+while True:
+    clock.tick()
+    img = sensor.snapshot()
+    target_x = img_w // 2
+
+    # ---- Walls / parking ----
+    black_blobs = img.find_blobs(black_threshold, roi=final_wall_roi,
+                                 pixels_threshold=final_black_wall_min_area,
+                                 area_threshold=final_black_wall_min_area, merge=True)
+    black_blob = get_largest_blob(black_blobs)
+    if black_blob and black_blob.h() >= min_black_height:
+        uart.write("BLACK\n")
+
+    # ---- Cubes (red/green) ----
+    red_blobs   = img.find_blobs(red_threshold,   roi=cubes_roi,
+                                 pixels_threshold=min_cube_size,
+                                 area_threshold=min_cube_size, merge=True)
+    green_blobs = img.find_blobs(green_threshold, roi=cubes_roi,
+                                 pixels_threshold=min_cube_size,
+                                 area_threshold=min_cube_size, merge=True)
+
+    red_cube   = get_largest_blob([b for b in red_blobs   if b.area() >= min_valid_cube_area])
+    green_cube = get_largest_blob([b for b in green_blobs if b.area() >= min_valid_cube_area])
+
+    candidates = []
+    if red_cube:   candidates.append(('RED',   red_cube))
+    if green_cube: candidates.append(('GREEN', green_cube))
+
+    if candidates:
+        color, cube = max(candidates, key=lambda x: x[1].area())
+        # normalized horizontal error in [-1..1]
+        error = (cube.cx() - target_x) / float(target_x)
+        pid_error = kp_cube * error + kd_cube * (error - pid_last_error)
+        pid_last_error = error
+
+        if cube.area() < follow_threshold:
+            uart.write("S{:+.3f}\n".format(error))   # steer hint for FOLLOW_CUBE
+        else:
+            uart.write(color + "\n")                 # close: just report color
+
+    # ---- Lines (blue/orange) ----
+    blue_blobs   = img.find_blobs(blue_threshold,   roi=lines_roi,
+                                  pixels_threshold=min_line_size,
+                                  area_threshold=min_line_size, merge=True)
+    orange_blobs = img.find_blobs(orange_threshold, roi=lines_roi,
+                                  pixels_threshold=min_line_size,
+                                  area_threshold=min_line_size, merge=True)
+
+    blue_line   = get_largest_blob([b for b in blue_blobs])
+    orange_line = get_largest_blob([b for b in orange_blobs])
+
+    chosen = None
+    if blue_line and orange_line:
+        chosen = "BLUE" if blue_line.area() > orange_line.area() else "ORANGE"
+    elif blue_line:
+        chosen = "BLUE"
+    elif orange_line:
+        chosen = "ORANGE"
+
+    if chosen:
+        uart.write(chosen + "\n")
+        if direction == 0:
+            direction = 1 if chosen == "BLUE" else 2
+
+    # ---- Always send current turn direction ----
+    uart.write(str(direction) + "\n")
+```
+
+---
 
 ## 📝 Obstacle Management <a id="obstacle-management"></a>
 
