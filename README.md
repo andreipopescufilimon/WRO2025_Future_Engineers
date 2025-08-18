@@ -29,10 +29,10 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
   - [🧭 IMU Sensor BMI088](#imu-sensor-bmi088)
   - [📷 OpenMV H7 Camera](#openmv-h7-camera)
   - [⚙️ Drive Motor](#drive-motor)
-  - [⚙️ Motor Driver TB6612FNG](#motor-driver)
+  - [⚙️ Motor Driver IFX9201SG](#motor-driver)
   - [🔄 Steering Servo MG90S](#steering-servo)
   - [⚙️ Impeller](#impeller)
-  - [📏 Distance Sensor – JS40F](#distance-sensor-js40f)
+  - [📏 Pololu PWM Distance Sensor](#distance-sensors)
   - [🔌 Voltage Regulator L7805CV](#voltage-regulator)
   - [🛠️ PCB Design](#pcb-design)
   - [⚡ Power Consumption](#power-consumption)
@@ -371,7 +371,7 @@ The **impeller** generates downforce to improve the robot’s grip on the track 
 
 ---
 
-### 📏 Distance Sensor – Pololu PWM Distance Sensor <a id="distance-sensor-js40f"></a>
+### 📏 Distance Sensor – Pololu PWM Distance Sensor <a id="distance-sensors"></a>
 
 The **Pololu Digital Distance Sensor (PW output, 50 cm max)** uses a short-range lidar module and reports distance as the width of a digital pulse (similar to a hobby-servo signal). It’s ideal for reliable, fast obstacle detection and gives you an actual distance reading (3 mm resolution), perfect for lap direction detection at start and for close-range wall sensing.
 
