@@ -161,12 +161,16 @@ The robot's mobility is controlled through **a fully PCB chassis, a servo-based 
 
 ### 🔧 **Drivetrain** <a id="drivetrain"></a>
 
-*To be updated...*
+The drivetrain uses a sealed RC differential at the rear, driven by a **Pololu 30:1 HPCB micro gearmotor** through a **3D printed pinion** → **differential input gear**. The motor is held in a 3D-printed support with the battery mounted above, keeping the center of mass centered and low. Rear outputs rotate in bearings seated inside 4 printed rings that are super-glued to the PCB chassis, minimizing friction and parts count.
+At the front, the wheels are fully 3D-printed and each wheel runs on two bearings (inner + outer) for a rigid, wobble-free hub that steers precisely.
 
-<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/gear-D-axle-technical-drawing.jpg" width="700">
 <img src="https://hpi-racing.ro/34028-thickbox_default/diferential-complet-arrma-mojave-grom-118-30t-08mod-v2.jpg" width="600">
 
-*To be updated...*
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/pinion-differential.jpg" width="700">
+
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/drive-motor-support-with-battery.jpg" width="700">
+
+To maximize grip on the track without adding mass, we use a **downforce impeller (1020 coreless motor)** that pulls air from under the robot, increasing the normal force. The impeller is PWM-controlled via an **RFR3411 MOSFET (low-side switch)**. The drive motor is controlled by an **IFX9201SG driver (PWM + DIR)** with an active brake pulse for precise stopping, while the encoder on the gearmotor provides odometry for short, accurate moves (e.g., avoidance hops, parking nudges).
 
 ### ⚙️ **Motor – 30:1 Micro Metal Pololu Gearmotor HPCB** <a id="motor"></a>
 Following past testing, we selected **a high-power 30:1 Micro Metal Gearmotor (12V)** for the drive system. This motor provides an **optimal balance of speed and torque**, allowing the robot to maintain stability while navigating turns.
@@ -217,9 +221,11 @@ The **steering system** is a critical part of the robot, ensuring precise maneuv
 
 Our **steering arm is directly connected to the servo**, which moves the two front wheels simultaneously. This ensures that the turning response is immediate and proportional to the servo's motion. The **wheels are mounted on special mounts hubs**, allowing for smooth and precise movement without excessive friction. To ensure **structural integrity and long-term reliability**, the steering system is **assembled using 2 M2 screws on which the hubs can turn**. 
 
-<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/right-front-wheel-mount-technical-drawing.jpg" width="700">
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/servo-to-wheel-hub-fixed-bar.jpg" width="700">
 
-<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/steering-connector-bar-technical-drawing.jpg" width="700">
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/steering-servo-to-hub-bar.jpg" width="700">
+
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/technical-draws/steering-left-hub.jpg" width="700">
 
 **⚙️ Design Considerations & Improvements** <br>
 While the parallelogram steering system is effective, some potential enhancements could improve its performance. Additionally, optimizing the **motor mounts** could reduce mechanical play, making the system more precise. In future iterations, we may experiment with **Ackermann geometry** and suspension to better distribute wheel angles during turns, further improving efficiency and reducing tire slippage.
