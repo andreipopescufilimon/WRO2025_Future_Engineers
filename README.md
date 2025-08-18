@@ -287,7 +287,7 @@ The final robot is built on a **custom PCB chassis**, manufactured by **JLCPCB**
 
    * Place the **drive motor** on the **3D-printed support**, fixed with **2 × M3 screws**.
    * Secure the **impeller** with **4 screws** to its mounting position.
-   * Assemble the **Lego 5-gears differential** with the rear wheels.
+   * Assemble the **RC differential** with the rear wheels mounts that directly fit the differential left and right mounting holes.
    * Glue **4 printed rings** on the PCB chassis to house bearings, ensuring **smooth rear wheel rotation**.
 
 5. **Wiring & Final Connections**
