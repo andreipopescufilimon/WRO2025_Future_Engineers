@@ -229,7 +229,7 @@ The **impeller** generates downforce to improve the robot’s grip on the track 
 | **Current Draw (Avg):** ~1A @ 3.7V	 | **Peak Current:** ~2.5A |
 | 🔗 **[Buy Here](https://hyperlinerobotics.com/products/impeller.html)** | **Function:** Drives the downforce impeller |
 
-![Demo GIF](https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/impeller.gif)
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/impeller.gif" width="500">
 
 ---
 
@@ -459,7 +459,7 @@ The **impeller** generates downforce to improve the robot’s grip on the track 
 | **Current Draw (Avg):** ~1A @ 3.7V	 | **Peak Current:** ~2.5A |
 | 🔗 **[Buy Here](https://hyperlinerobotics.com/products/impeller.html)** | **Function:** Drives the downforce impeller |
 
-![Demo GIF](https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/impeller.gif)
+<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/impeller.gif" width="500">
 
 ---
 
