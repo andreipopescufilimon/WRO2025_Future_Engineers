@@ -486,6 +486,20 @@ The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**,
 
 ---
 
+## 💻 Components coding <a id="components-coding"></a>
+
+### ⚡ Drive motor <a id="drive-motor-coding"></a>
+
+### 🌪️ Impeller <a id="impeller-coding"></a>
+
+### 🎮 Servo motor <a id="servo-motor-coding"></a>
+
+### 🧭 IMU <a id="imu-coding"></a>
+
+### 📡 Distance sensors <a id="distance-sensors-coding"></a>
+
+### 📷 Camera <a id="camera-coding"></a>
+
 ## 📝 Obstacle Management <a id="obstacle-management"></a>
 
 ### 🏁 Open Round <a id="open-round"></a>
