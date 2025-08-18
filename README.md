@@ -1,8 +1,5 @@
 # WRO2025 Future Engineers – Nerdvana Taurus Team
 
-
-## **This repository is under going updates for upcoming international competition**
-
 Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO) 2025**, Future Engineers category. 
 
 ---
@@ -1309,6 +1306,7 @@ The robot turns ~75° toward the main track depending on the detected direction.
 ---
 
 ## 📽️ Performance Video <a id="performance-video"></a>
+
 *to be updated...*
 
 🔗 **[Click here to watch the video on YouTube]()**  
