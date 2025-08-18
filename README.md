@@ -1,7 +1,7 @@
 # WRO2025 Future Engineers – Nerdvana Taurus Team
 
 
-## **This repository is under updates for upcoming international competition**
+## **This repository is under going updates for upcoming international competition**
 
 Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO) 2025**, Future Engineers category. 
 
@@ -1276,28 +1276,13 @@ The robot turns ~75° toward the main track depending on the detected direction.
 ### 🅿️ Parking <a id="parking"></a>
 
 *to be updated...*
-After completing three laps, we’ll:
-- **Align so we will be able to turn 90 degrees exactly on the middle section of the track.**
-  
-- **Determine parking-lot side.**  
-   - If the laps were clockwise, the lot sits at the **beginning** of that side.  
-   - If the laps were counterclockwise, the lot sits at the **end** of that side.
-
-- **Drive a fixed distance (in cm) forward.**  
-   - This moves us into the position from where we can perform our two-step parking.
-
-- **Two-moves parking:**
-   - **Move 1:** Turn the steering toward the parking space and reverse into the spot.
-   - **Move 2:** Run a short PD loop using gyro to straighten perfectly within the 33 cm (1.5 x robot lenght, 33cm in our case) gap in our case.
-
-<img src="https://github.com/andreipopescufilimon/WRO2025_Future_Engineers/blob/main/other/parking-maneuever.png" width="500">
 
 ---
 
 ## 📽️ Performance Video <a id="performance-video"></a>
 *to be updated...*
 
-🔗 **[Click here to watch the video on YouTube](https://youtu.be/ZELCxp2fEmI?si=_0gKM8rAUfyjFkyQ)**  
+🔗 **[Click here to watch the video on YouTube]()**  
 
 ---
 
