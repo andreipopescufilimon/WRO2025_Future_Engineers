@@ -760,7 +760,7 @@ The camera is wired to the **ESP32** as follows:
 
 Both devices must share the same baud rate **(19200)**. On the **ESP32** side, we use `SoftwareSerial` for communication, while on the camera side, `UART(3, 19200)` is initialized.
 
-Arduino code:
+**Arduino code:**
 
 ```cpp
 // UART to OpenMV (SoftwareSerial on D0/D1)
@@ -796,7 +796,7 @@ void loop() {
 }
 ```
 
-Camera code:
+**Camera code:**
 
 We use `UART(3, 19200)` on **OpenMV (P4=TX, P5=RX)**. Baud must match the Arduino side.
 
