@@ -1299,7 +1299,8 @@ The robot turns ~75° toward the main track depending on the detected direction.
 
 ## 📽️ Performance Video <a id="performance-video"></a>
 
-🔗 **[Click here to watch the video on YouTube](https://youtu.be/SGFatJyjOqs)**  
+🔗 **[Click here to watch the video on YouTube(without music)](https://youtu.be/p8Ov2znsIGI)** 
+🔗 **[Click here to watch the video on YouTube(with music)](https://youtu.be/SGFatJyjOqs)** 
 
 ---
 
