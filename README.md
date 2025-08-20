@@ -1293,7 +1293,113 @@ The robot turns ~75° toward the main track depending on the detected direction.
 
 ### 🅿️ Parking <a id="parking"></a>
 
-*to be updated...*
+At the end of the run, once the robot has completed **12 turns in RUN\_MODE 1** (final run mode), it transitions into the **parallel parking sequence**. This routine is fully deterministic and relies on both **front and back distance sensors** together with the **gyro angle** to achieve a repeatable and precise result. The sequence consists of four main phases:
+
+**1. Front-Wall Alignment**
+
+The robot first drives forward until it reaches a **target offset from the front wall**, ensuring a consistent starting position for the parking maneuver.
+
+* **Left course:** 470 mm from the front wall
+* **Right course:** 460 mm from the front wall
+
+This distance lock guarantees that the robot always starts the parking procedure at the same longitudinal reference point.
+
+
+**2. Lane Reorientation**
+
+Next, the robot performs a **90° snap turn** into the parking lane:
+
+* **Heading update:** `current_angle_gyro += turn_direction * 90`
+* **Correction:** On left courses, an additional `-3°` trim is applied for drift compensation.
+
+This ensures the chassis is now parallel to the parking lane wall.
+
+
+**3. Lane Squaring & Staging**
+
+The robot then stabilizes its position inside the lane using a two-step process:
+
+* Moves forward **200 mm** while holding the new heading (gyro-straight).
+* Aligns on the **rear wall** by driving backwards until the back sensor reads **300 mm**.
+
+Finally, it advances to a **staging distance** inside the lane, preparing for the parking maneuver:
+
+* **Left course:** 900 mm from the front wall
+* **Right course:** 1590 mm from the front wall
+
+This places the robot in the correct position to start the 3-move parallel park.
+
+
+**4. Three-Maneuver Parallel Parking**
+
+The actual parallel parking is executed as three steering sweeps:
+
+* **Left Course (`turn_direction = -1`)**
+
+  1. **Reverse Arc:** Turn at `-75°` relative to prking spot.
+  2. **Straighten Backwards:** Reduce angle to `-5°`.
+  3. **Forward Tuck:** Correct forward sweep to `+5°`.
+
+* **Right Course (`turn_direction = +1`)**
+
+  1. **Reverse Arc:** Turn at `+75°` relative to parking spot.
+  2. **Straighten Backwards:** Reduce angle to `+5°`.
+  3. **Forward Tuck:** Correct forward sweep to `-2°`.
+
+This sequence positions the robot in the parking zone, parallel to the wall and within the designated area.
+
+
+**5. Final Stop**
+
+Once the three-step maneuver is complete, the robot:
+
+* Centers the steering servo.
+* Cuts motor power (`move(0)`).
+* Enters a **20-second idle state**, ending the run.
+
+Code (for both lap directions):
+
+```cpp
+...
+if (turn_count == 12 && RUN_MODE == 1) {
+  move_straight_on_gyro(robot_speed, 500);
+  if (turn_direction == -1) {
+    move_to_distance(FRONT_DIR, 470.0f, 10.0f, 55, current_angle_gyro);
+    current_angle_gyro += turn_direction * 90;
+    current_angle_gyro -= 3;
+
+    move_until_angle_max(60, current_angle_gyro);
+    move_straight_on_gyro(robot_speed, 200);
+    move_to_distance(BACK_DIR, 300.0f, 10.0f, -55, current_angle_gyro);
+    move_to_distance(FRONT_DIR, 900.0f, 10.0f, 55, current_angle_gyro);
+
+    // sensu de stanga
+    move_until_angle_max(-60, (current_angle_gyro) - 75);
+    move_until_angle_max(-60, (current_angle_gyro) - 5);
+    move_until_angle_max(60, (current_angle_gyro) + 5);
+  } else {
+    move_to_distance(FRONT_DIR, 460.0f, 10.0f, 55, current_angle_gyro);
+    current_angle_gyro += turn_direction * 90;
+
+    move_until_angle_max(60, current_angle_gyro);
+    move_straight_on_gyro(robot_speed, 200);
+    move_to_distance(BACK_DIR, 300.0f, 10.0f, -55, current_angle_gyro);
+    move_to_distance(FRONT_DIR, 1590.0f, 10.0f, 55, current_angle_gyro);
+
+    move_until_angle_max(-63, (current_angle_gyro)+75);
+    move_until_angle_max(-63, (current_angle_gyro)+5);
+    move_until_angle_max(60, (current_angle_gyro)-2);
+  }
+
+  steeringServo.write(STEERING_CENTER);
+  delay(300);
+
+  move(0);
+  delay(20000);
+}
+...
+```
+
 
 ---
 
