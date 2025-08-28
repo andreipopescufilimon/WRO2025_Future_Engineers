@@ -34,7 +34,7 @@ Repository of Nerdvana Taurus Team competing in the **World Robot Olympiad (WRO)
   - [🔄 Steering Servo MG90S](#steering-servo)
   - [⚙️ Impeller](#impeller)
   - [📏 Pololu PWM Distance Sensor](#distance-sensors)
-  - [🔌 Voltage Regulator L7805CV](#voltage-regulator)
+  - [🔌 Voltage Regulator D24V50F5](#voltage-regulator)
   - [🛠️ PCB Design](#pcb-design)
   - [⚡ Power Consumption](#power-consumption)
 - [💻 Components coding](#components-coding)
@@ -474,17 +474,17 @@ The **Pololu Digital Distance Sensor (PW output, 50 cm max)** uses a short-range
 
 ---
 
-### **🔌 L7805CV Voltage Regulator – Power Management** <a id="voltage-regulator"> 
+### **🔌 D24V50F5 Voltage Regulator – Power Management** <a id="voltage-regulator"> 
 
-The **L7805CV** regulates the **11.1V Li-Po battery output** to a **stable 5V**, ensuring **safe power delivery** to the **Arduino, sensors, and camera**. It prevents **overvoltage damage** and includes **thermal & short-circuit protection** for reliability.
+The **D24V50F5** regulates the **11.1V Li-Po battery output** to a **stable 5V**, ensuring **safe power delivery** to the **Arduino, sensors, and camera**. It prevents **overvoltage damage** and includes **thermal & short-circuit protection** for reliability.
 
-| <img src="https://assets.lcsc.com/images/lcsc/900x900/20230102_STMicroelectronics-L7805CV_C111887_front.jpg" width="300">  | **Specifications** |
+| <img src="https://gomagcdn.ro/domains/robofun.ro/files/product/large/pololu-5v-5a-step-down-voltage-regulator-d24v50f5-633511-832-442353.jpg" width="300">  | **Specifications** |
 |------------------------------|------------------------------|
-| **Model:** L7805CV | **Input Voltage:** 7V – 35V |
-| **Output Voltage:** 5V | **Output Current:** 1.5A |
+| **Model:** D24V50F5 | **Input Voltage:** 6V – 38V |
+| **Output Voltage:** 5V | **Output Current:** 5A |
 | **Efficiency:** Linear Regulator | **Dropout Voltage:** ~2V |
-| **Protection:** Short-circuit & thermal shutdown | **Mounting Type:** TO-220 Package |
-| 🔗 **[Buy Here](https://www.lcsc.com/product-detail/C111887.html?s_z=n_L7805C)** | **Function:** Converts battery voltage to 5V |
+| **Protection:** Short-circuit & thermal shutdown | **Mounting Type:** Pins |
+| 🔗 **[Buy Here](https://www.pololu.com/product/2851)** | **Function:** Converts battery voltage to 5V |
 
 ---
 
@@ -1425,11 +1425,11 @@ We have optimized our robot for **performance vs. cost efficiency**. The total c
 | **Gyroscope (BMI088)**         | 1        | **8.50**       | **8.50**    |
 | **Pololu Distance Sensor**     | 4        | **17.95**      | **71.80**   |
 | **LiPo Battery (2S 300mAh)**   | 1        | **5.60**       | **5.60**    |
-| **L7805CV Voltage Regulator**  | 1        | **1.50**       | **1.50**    |
+| **D24V50F5 Voltage Regulator** | 1        | **29.95**      | **29.95**    |
 | **Custom Silicone Wheels**     | 4        | **9.24**       | **36.96**   |
 | **RC Differential**            | 1        | **4.00**       | **19.04**   |
 | **Experimental Parts**         |          | **35.00**      | **35.00**   |
-| **TOTAL COMPONENT COST**       | -        | **-**          | **325.24**  |
+| **TOTAL COMPONENT COST**       | -        | **-**          | **354.39**  |
 
 **Experimental Parts**
 
@@ -1488,7 +1488,7 @@ Below is a list of **external images** used in this repository.
 - **[OpenMV H7 Camera](https://openmv.io/cdn/shop/products/new-cam-v4-angle-hero-web_1000x.jpg?v=1715735352)**
 - **[Pololu 30:1 Gearmotor](https://a.pololu-files.com/picture/0J12418.220.jpg?8f026fe1675b1109ea574290d3d26081)**
 - **[MG90S Steering Servo](https://static.optimusdigital.ro/20565-large_default/mg90s-servomotor.jpg)**
-- **[L7805CV Voltage Regulator](https://assets.lcsc.com/images/lcsc/900x900/20230102_STMicroelectronics-L7805CV_C111887_front.jpg)**
+- **[D24V50F5 Voltage Regulator](https://gomagcdn.ro/domains/robofun.ro/files/product/original/pololu-5v-5a-step-down-voltage-regulator-d24v50f5-633511-832-442353.jpg)**
 - **[2S 300mAh Li-Po Battery](https://img-va.myshopline.com/image/store/2000408386/1640672930478/GNB3002S60AHV-(4)_1800x.jpeg?w=1000&h=1000)**
 - **[IFX9201SG Motor Driver](https://assets.lcsc.com/images/lcsc/900x900/20230316_Infineon-Technologies-IFX9201SG_C112633_front.jpg)**
 - **[Pololu Distance Sensor](https://a.pololu-files.com/picture/0J11135.1200.jpg?1910ced553e34153046a4c95021a93b3)**
