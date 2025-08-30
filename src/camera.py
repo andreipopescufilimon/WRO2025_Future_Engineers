@@ -2,7 +2,7 @@ import sensor, time
 from pyb import UART, LED
 
 # -------- DEBUG FLAG --------
-DEBUG = True
+DEBUG = False
 
 # -------- Camera & Sensor Setup --------
 sensor.reset()
@@ -14,7 +14,7 @@ sensor.set_hmirror(True)
 # Disable auto settings for stable color tracking
 sensor.set_auto_gain(False)
 sensor.set_auto_whitebal(False)
-sensor.set_auto_exposure(False, exposure_us=10000) # 9000 open,  10000 rest
+sensor.set_auto_exposure(False, exposure_us=11000) # 9000 open,  10000 rest
 
 sensor.skip_frames(time=2000)
 
@@ -34,7 +34,7 @@ time.sleep(0.5)
 
 # -------- Color Thresholds (LAB Space) --------
 red_threshold    = [(32, 54, 40, 67, 17, 63)]
-green_threshold  = [(36, 69, -56, -21, -19, 32)]
+green_threshold  = [(36, 71, -64, -16, -12, 46), (28, 47, -38, -17, -7, 19)]
 blue_threshold   = [(9, 76, -45, 27, -57, -8)]
 orange_threshold = [(62, 91, -3, 43, 5, 69)]
 pink_threshold   = [(30, 70, 10, 60, -15, 15)]
@@ -49,7 +49,7 @@ wall_roi  = (50, int(img_h * 0.5 - 18), img_w - 100, int(img_h * 0.2 - 10))
 final_wall_roi  = (30, int(80), img_w - 60, int(img_h - 60))
 
 # -------- Blob Filtering Parameters --------
-min_cube_size       = 300
+min_cube_size       = 500
 min_line_size       = 800
 min_area            = 10
 min_valid_cube_area = 450
@@ -60,11 +60,11 @@ min_black_height    = 39
 min_black_width     = 0
 
 # -------- PD Parameters for Cube Following --------
-kp_cube = 0.21
+kp_cube = 0.3
 kd_cube = 2.4
 pid_error = 0.0
 pid_last_error = 0.0
-follow_threshold = 4100
+follow_threshold = 3900
 
 direction = 0  # turn direction: 0 = not set, 1 = left, 2 = right
 
@@ -180,7 +180,7 @@ while True:
         pid_last_error = error
 
         if area < follow_threshold:
-            uart.write("S{:+.3f}\n".format(error))
+            uart.write("S{:+.3f}\n".format(pid_error))
             if DEBUG:
                 print("{} FOLLOW → err:{:+.3f}, pid:{:+.3f}, area:{}".format(
                       "RED" if color_char=='R' else "GREEN",

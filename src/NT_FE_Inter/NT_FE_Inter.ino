@@ -34,8 +34,9 @@ enum DistanceDir : uint8_t { FRONT_DIR,
 
 
 // ================ Speed Control ================
-int robot_speed = 61;  // 110
-int exit_speed = 62;
+int robot_speed = 56;  // 57 - 59 // 100
+int exit_speed = 56;
+int park_speed = 58;
 int impeller_speed = 0;
 int cube_last = 1;
 
@@ -47,18 +48,18 @@ volatile int32_t encoder_ticks = 0;
 #define PPR 12.0f  // 12 pulses per rev, single-edge
 #define QUAD_EDGES (PPR * 4.0f)
 #define GEAR_RATIO 1.0f
-#define WHEEL_DIAM 28.0f  // mm
-#define MM_PER_TICK 1.8326f
+#define WHEEL_DIAM 29.0f  // mm
+#define MM_PER_TICK 1.18f
 
-// ================ Motors and PID ================
+// ================ Motors and PID ================3
 double current_angle_gyro = 0.0;  // steering asymmetry
-double kp = 0.031;                // 0.044
+double kp = 0.038;                // 0.044
 double ki = 0;
 double kd = 0.061;  // 0.082
 double pid_error = 0, pid_last_error = 0;
 
 // Integration & drift
-double gyro_last_read_time = 0;
+double gyro_last_read_time = 0; 
 double drifts_z = 0;  // drift in °/s
 double gz = 0;        // integrated angle in degrees
 
@@ -74,11 +75,11 @@ double gz = 0;        // integrated angle in degrees
 
 #define STEERING_SERVO D2
 Servo steeringServo;
-#define STEERING_LEFT 140
+#define STEERING_LEFT 135
 #define STEERING_CENTER 85
-#define STEERING_RIGHT 40
+#define STEERING_RIGHT 35
 
-#define CORRECTION_ANGLE 50
+#define CORRECTION_ANGLE 35
 
 #define FOLLOW_CUBE_DEAD_TIME 250
 
@@ -117,7 +118,7 @@ enum RobotState {
 RobotState currentState = PID;
 char cube_avoid_direction = 'R';  // 'R' for red cube avoidance, 'L' for green cube avoidance
 float desiredSteering = 0.0;
-
+ 
 // ================ Debug Mode ================
 bool debug = false;
 bool debuggyro = false;
@@ -126,6 +127,9 @@ bool firstcube = false;
 
 
 void setup() {
+
+  //debug_distance_infinite(LEFT_DIR);
+
   steering_servo_setup();
   motor_driver_setup();
   impeller_setup();
@@ -160,6 +164,8 @@ void setup() {
     flush_messages();
   }
 
+  //move_gyro_until_side_detect_cycle(LEFT_DIR, park_speed, current_angle_gyro);
+
   setImpeller(impeller_speed);
   delay(500);
 
@@ -168,7 +174,7 @@ void setup() {
 
   // Start from parking
   if (RUN_MODE == 1) {
-    if (readDistanceMM(LEFT_DIR, 3) < readDistanceMM(RIGHT_DIR, 3)) {  // exit right/.
+    if (readDistanceMM(LEFT_DIR) > readDistanceMM(RIGHT_DIR)) {  // exit right/.
       move_until_angle_max(exit_speed, 75);
 
       move(65);
@@ -177,7 +183,7 @@ void setup() {
       turn_direction = 1;
       move_until_angle_max(exit_speed, 0);
 
-      move_straight_on_gyro(-robot_speed, 900);
+      move_straight_on_gyro(-robot_speed, 1400);
     } else {  // exit left
       move_until_angle_max(exit_speed, -70);
 
@@ -210,10 +216,6 @@ void loop() {
         move(robot_speed);
       }
       stop_motor();
-      setImpeller(255);
-      delay(1000);
-      setImpeller(0);
-      delay(500);
       if (debug) Serial.println("Maximum turns reached. Stopping...");
       while (true)
         ;
@@ -257,13 +259,13 @@ void loop() {
 
     case AFTER_CUBE:
       {
-        int angle_addition = (cube_last == 1) ? -9 : 0;
+        int angle_addition = (cube_last == 1) ? 0 : 0;
         double err = current_angle_gyro - gz + cube_last * (CORRECTION_ANGLE + angle_addition);
         if (abs(err) < 5) {
           if (-cube_last == turn_direction) {
-            move_cm(5, robot_speed, current_angle_gyro + cube_last * (CORRECTION_ANGLE + angle_addition));
+            move_cm(5, robot_speed, current_angle_gyro + -1 * cube_last * (CORRECTION_ANGLE + angle_addition));
           } else {
-            move_cm(10, robot_speed, current_angle_gyro + cube_last * (CORRECTION_ANGLE + angle_addition));
+            move_cm(5, robot_speed, current_angle_gyro + -1 * cube_last * (CORRECTION_ANGLE + angle_addition));
           }
           currentState = PID;
         } else {
@@ -278,14 +280,7 @@ void loop() {
 
     case PARK:
       {
-        /*double err = current_angle_gyro - gz - turn_direction * 90;
-        pid_error = (err)*kp + (pid_error - pid_last_error) * kd;
-        pid_last_error = pid_error;
-        steer(pid_error);
-        move(60);
-        delay(500);
-        move(0);
-        delay(20000);*/
+        // in functions.ino
         break;
       }
   }

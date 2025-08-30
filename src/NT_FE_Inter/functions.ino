@@ -1,5 +1,5 @@
-#define AVOIDANCE_ANGLE 48  // how far to pivot around the cube
-int delayTurns = 500;
+#define AVOIDANCE_ANGLE 50  // how far to pivot around the cube
+int delayTurns = 2000;
 
 void flush_messages() {
   while (cameraSerial.available() > 0) {
@@ -18,73 +18,61 @@ void flush_messages() {
 // -----------------------------------------------------------
 
 // ======= Pololu PWM Distance Sensor Settings =======
-static const float PW_OFFSET_US   = 1000.0f; // microseconds offset at ~0 mm
-static const float PW_US_PER_MM   = 1.0f;    // microseconds per millimeter
-static const unsigned long PULSE_TIMEOUT_US = 30000UL; // 30 ms timeout
-
-// ======= Map direction to the correct pin =======
-static inline int distanceSensorPin(DistanceDir d) {
-  switch (d) {
-    case FRONT_DIR: return PWM_DIST_FRONT; // A0
-    case LEFT_DIR:  return PWM_DIST_LEFT;  // A3
-    case RIGHT_DIR: return PWM_DIST_RIGHT; // A1
-    case BACK_DIR:  return PWM_DIST_BACK;  // A2
+float readDistanceMM(DistanceDir dir) {
+  int pin;
+  switch (dir) {
+    case FRONT_DIR: pin = PWM_DIST_FRONT; break;  // 300 cm
+    case BACK_DIR: pin = PWM_DIST_BACK; break;    // 130 cm
+    case LEFT_DIR: pin = PWM_DIST_LEFT; break;    // 50 cm
+    case RIGHT_DIR: pin = PWM_DIST_RIGHT; break;  // 50 cm
+    default: return -1;
   }
-  return PWM_DIST_FRONT;
-}
 
-// ======= Read pulse in microseconds =======
-static inline unsigned long readPulseUS(int pin) {
-  pinMode(pin, INPUT);
-  return pulseIn(pin, HIGH, PULSE_TIMEOUT_US);
-}
+  pinMode(pin, INPUT);  // if your sensor is open-drain, use INPUT_PULLUP
 
-// ======= Convert pulse width to millimeters =======
-static inline float pulseToMM(unsigned long pw_us) {
-  if (pw_us == 0) return -1.0f; // timeout
-  float mm = (float(pw_us) - PW_OFFSET_US) / PW_US_PER_MM;
+  // Re-sync so we start at the beginning of the next cycle.
+  pulseInLong(pin, LOW, 100000);                     // wait up to 100 ms for LOW
+  unsigned long t = pulseInLong(pin, HIGH, 100000);  // measure HIGH width
+
+  if (t == 0) return -1;    // timeout = no reading
+  if (t > 1850) return -1;  // Pololu “no detect” window
+
+  float mm;
+  if (dir == FRONT_DIR) mm = (t - 1000) * 4.0f;      // 300 cm
+  else if (dir == BACK_DIR) mm = (t - 1000) * 2.0f;  // 130 cm
+  else mm = (t - 1000) * 0.75f;                      // 50 cm (left/right)
+
   if (mm < 0) mm = 0;
   return mm;
 }
 
-// ======= Read distance in mm with optional averaging =======
-float readDistanceMM(DistanceDir dir, uint8_t samples) {
-  const int pin = distanceSensorPin(dir);
-  float vals[7];
-  samples = constrain(samples, 1, 7);
 
-  uint8_t got = 0;
-  for (uint8_t i = 0; i < samples; i++) {
-    unsigned long pw = readPulseUS(pin);
-    float mm = pulseToMM(pw);
-    if (mm >= 0) vals[got++] = mm;
-    delayMicroseconds(500);
-  }
-  if (got == 0) return -1.0f;
+void debug_distance_infinite(DistanceDir dir) {
+  while (true) {
+    float d_mm = readDistanceMM(dir);
 
-  if (got == 3) {
-    float a = vals[0], b = vals[1], c = vals[2];
-    if ((a <= b && b <= c) || (c <= b && b <= a)) return b;
-    if ((b <= a && a <= c) || (c <= a && a <= b)) return a;
-    return c;
-  } else {
-    float sum = 0, mn = vals[0], mx = vals[0];
-    for (uint8_t i = 0; i < got; i++) {
-      sum += vals[i];
-      if (vals[i] < mn) mn = vals[i];
-      if (vals[i] > mx) mx = vals[i];
+    if (dir == FRONT_DIR) {
+      Serial.print("Front distance: ");
+    } else if (dir == BACK_DIR) {
+      Serial.print("Back distance: ");
+    } else {
+      Serial.print("Other distance: ");
     }
-    if (got >= 5) return (sum - mn - mx) / float(got - 2);
-    return sum / float(got);
+
+    if (d_mm < 0) {
+      Serial.println("No reading");
+    } else {
+      Serial.print(d_mm);
+      Serial.println(" mm");
+    }
   }
 }
-
 
 // -----------------------------------------------------------
 //                Cube Following / Avoidance Functions
 // -----------------------------------------------------------
 void pass_cube(char cube_direction) {
-  double angle_addition = (cube_direction == 'R') ? 0 : 5;
+  double angle_addition = (cube_direction == 'R') ? 5 : 5;
 
   read_gyro_data();
   // translate 'R' → +1, 'L' → -1
@@ -92,7 +80,7 @@ void pass_cube(char cube_direction) {
 
   double start_angle = gz;
   move_until_angle(robot_speed, start_angle - cube_last * (AVOIDANCE_ANGLE + angle_addition));
-  move_cm_gyro(12, robot_speed, start_angle - cube_last * (AVOIDANCE_ANGLE + angle_addition));
+  move_cm_gyro(7, robot_speed, start_angle - cube_last * (AVOIDANCE_ANGLE + angle_addition));
 
   last_cube_time = millis();
   currentState = AFTER_CUBE;
@@ -170,37 +158,61 @@ void execute_command(String cmd) {
 
   //––– 3) BLACK-line detection → 90° turn in PID––––––––––––––
   //if (currentState == FOLLOW_CUBE && (c == 'L' || c == 'O')) current_angle_gyro += turn_direction * 90;
-  if ((c == 'B' || c == 'L' || c == 'O') && turn_direction != 0) { 
+  if ((c == 'L' || c == 'O') && turn_direction != 0) {  // c == 'B' ||
     if (millis() - lastTurnTime > delayTurns) {
       turn_count++;
       if (debug) Serial.println("Received 'BLACK' command. Turning 90°...");
       if (turn_count == 12 && RUN_MODE == 1) {
-        move_straight_on_gyro(robot_speed, 720);
-        //move_straight_on_gyro_till_dist(robot_speed, 26, FRONT_ULTRASONIC_PIN);
-        current_angle_gyro += turn_direction * 90;
+        move_straight_on_gyro(robot_speed, 500);
+        if (turn_direction == -1) {
+          current_angle_gyro -= 5;
+          move_to_distance(FRONT_DIR, 420.0f, 10.0f, 55, current_angle_gyro);
+          current_angle_gyro += turn_direction * 90;
 
-        move_straight_on_gyro(robot_speed, 2150);
-        double err = current_angle_gyro - gz - turn_direction * 150;
-        pid_error = (err)*kp + (pid_error - pid_last_error) * kd;
-        pid_last_error = pid_error;
-        steer(pid_error);
-        
-        move(65);
-        delay(650);
+          move_until_angle_max(park_speed + 5, current_angle_gyro);
+          move_straight_on_gyro(robot_speed, 300);
+          move_to_distance(BACK_DIR, 300.0f, 10.0f, -park_speed, current_angle_gyro);
+          move_straight_on_gyro(robot_speed, 1400);
+          move_gyro_until_side_detect_cycle(RIGHT_DIR, park_speed, current_angle_gyro);
+          move_cm_gyro(13, park_speed, current_angle_gyro);
+
+          // sensu de stanga
+          move_until_angle_max(-park_speed, (current_angle_gyro) - 75);
+          move_until_angle_max(-park_speed, (current_angle_gyro) - 5);
+          move_until_angle_max(park_speed, (current_angle_gyro) + 5);
+        } else {
+          current_angle_gyro += 5;
+          move_to_distance(FRONT_DIR, 420.0f, 10.0f, 55, current_angle_gyro);
+          current_angle_gyro += turn_direction * 90;
+
+          move_until_angle_max(park_speed + 5, current_angle_gyro);
+          move_straight_on_gyro(robot_speed, 300);
+          move_to_distance(BACK_DIR, 300.0f, 10.0f, -park_speed, current_angle_gyro);
+          move_gyro_until_side_detect_cycle(LEFT_DIR, park_speed, current_angle_gyro);
+          move_cm_gyro(9, park_speed, current_angle_gyro);
+
+          move_until_angle_max(-park_speed, (current_angle_gyro) + 75);
+          move_until_angle_max(-park_speed, (current_angle_gyro) + 5);
+          move_until_angle_max(park_speed, (current_angle_gyro) - 5);
+        }
+
+        steeringServo.write(STEERING_CENTER);
+        delay(300);
+
         move(0);
         delay(20000);
       } else {
         if (abs(current_angle_gyro - gz) < 10 && currentState != AFTER_CUBE) {
           if (RUN_MODE == 1)
-            move_cm_gyro(10, robot_speed, current_angle_gyro);  // 15
+            move_cm_gyro(15, robot_speed, current_angle_gyro);  // 15
           else
-            move_straight_on_gyro(robot_speed, 140);
-        } else if (currentState == AFTER_CUBE) {
+            move_straight_on_gyro(robot_speed, 150);
+        } else if (currentState == AFTER_CUBE) {  
           if (-cube_last == turn_direction) {
-            move_until_angle(robot_speed, current_angle_gyro + turn_direction * 30);
+            move_until_angle(robot_speed, current_angle_gyro + turn_direction);  // *30
           } else {
             move_until_angle(robot_speed, current_angle_gyro + turn_direction * 30);
-            move_cm_gyro(5, robot_speed, current_angle_gyro + turn_direction * 30);
+            move_cm_gyro(4, robot_speed, current_angle_gyro + turn_direction * 30);
           }
           currentState = PID;
         }
@@ -211,7 +223,7 @@ void execute_command(String cmd) {
       //move_until_angle_max(robot_speed, current_angle_gyro - 10);
       //move_straight_on_gyro(-robot_speed, 1100);
 
-      delayTurns = 2500;  // 1000 
+      delayTurns = 2000;  // 1000 // 2000
       lastTurnTime = millis();
       lastLineDetectedTime = 0;
     }
