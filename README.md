@@ -5,6 +5,7 @@
 ## WRO Open Championship 2025, Slovenia
 
 At WRO Open 2025 in Slovenia, things started off really well for us. In the Open Round Challenge we managed to get full points in just 24 seconds, the fastest time there. Before that, in practice, the robot was running smoothly through all the tests and random cases we tried. At some point it had some strange speed drops, which we thought were from a bad cable connection. We resoldered everything, and from then on it worked perfectly again. Then came the real chaos. Just five minutes before the first official Obstacle Round, our motor driver chip blew up with a small spark. We tried to swap it out, but there just wasn’t enough time. The result: 0 points. Not exactly how we imagined the round going. That afternoon we stayed and worked on the robot, replacing the broken chip and all the resistors and capacitors around it. The next day, during the two hours of practice, the robot was back on track and almost hit full points again, but with small inconsistencies on the parking alignment. In the official run though, it made a small drift when doing the parking, and touched the parking wall, and because of the rules the whole parking didn’t count—not even partially. That was a bit painful, but in the end we still took 2nd place overall, and on documentation we scored 28 points. So yeah, it was a mix of highs and lows: fastest run of the round, a blown motor driver, afternoon repairs, and a nearly perfect comeback.
+
 ---
 
 
